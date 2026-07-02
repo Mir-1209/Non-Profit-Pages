@@ -5,6 +5,16 @@ import { useAdmin } from '../context/AdminContext';
 import { StoriesCarousel } from '../components/StoriesCarousel';
 import { stories } from '../data/stories';
 
+// ─── Real impact assets ───────────────────────────────────────────────────
+import heroVideo from '@assets/2026-01-12_21.17.53_1783000059336.mp4';
+import imgClassroomWide from '@assets/20250717_111123_1782999964183.jpg';
+import imgInstructor from '@assets/20250717_105006_1782999950691.jpg';
+import imgStudents3 from '@assets/20250717_110926_1782999964182.jpg';
+import imgClassroomBack from '@assets/20250717_110921_1782999950691.jpg';
+import imgSchool1 from '@assets/20251118_091859_1783000021515.jpg';
+import imgKids1 from '@assets/photo_2026-05-14_09.47.09_1782999997790.jpeg';
+import imgGroupSelfie from '@assets/photo_2026-01-12_21.22.30_1783000075275.jpeg';
+
 function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode, className?: string, delay?: number }) {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
@@ -50,116 +60,146 @@ export function Home() {
 
   return (
     <main className="pb-24">
-      {/* ─── HERO ─── */}
-      <section className="relative pt-[100px] pb-[80px]" id="top"
-        style={{ background: 'linear-gradient(160deg, #e8edff 0%, #f5effe 40%, #fff0fb 70%, #ffffff 100%)' }}>
-        <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(90deg,var(--ink) 0px,var(--ink) 1px,transparent 1px,transparent 72px), repeating-linear-gradient(0deg,var(--ink) 0px,var(--ink) 1px,transparent 1px,transparent 72px)' }} />
-        <div className="absolute w-[500px] h-[500px] rounded-full blur-[90px] opacity-50 pointer-events-none bg-[radial-gradient(circle,#c5d2ff,transparent_70%)] top-[-100px] left-[-100px]" />
-        <div className="absolute w-[460px] h-[460px] rounded-full blur-[90px] opacity-50 pointer-events-none bg-[radial-gradient(circle,#f0ccf7,transparent_70%)] top-[-80px] right-[-100px]" />
-        <div className="absolute w-[400px] h-[400px] rounded-full blur-[70px] opacity-35 pointer-events-none bg-[radial-gradient(circle,#c3eeff,transparent_70%)] top-[320px] left-1/2 -translate-x-1/2" />
 
-        <div className="max-w-[1240px] mx-auto px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-[44px] items-center">
-            <div>
+      {/* ─── HERO — Video Background + Glassmorphism ─────────────────── */}
+      <section className="relative min-h-screen flex flex-col justify-end overflow-hidden" id="top">
+        {/* Video background */}
+        <video
+          autoPlay muted loop playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          src={heroVideo}
+        />
+        {/* Layered overlay: left heavy dark, right lighter, top navbar fade */}
+        <div className="absolute inset-0"
+          style={{ background: 'linear-gradient(105deg, rgba(6,6,20,0.88) 0%, rgba(10,8,30,0.72) 45%, rgba(15,10,40,0.38) 100%)' }} />
+        <div className="absolute inset-0"
+          style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, transparent 25%, transparent 60%, rgba(0,0,0,0.65) 100%)' }} />
+        {/* Subtle noise grain */}
+        <div className="absolute inset-0 opacity-[0.025]"
+          style={{ backgroundImage: 'repeating-linear-gradient(0deg,#fff 0px,#fff 1px,transparent 1px,transparent 4px),repeating-linear-gradient(90deg,#fff 0px,#fff 1px,transparent 1px,transparent 4px)' }} />
+
+        {/* Main content */}
+        <div className="relative z-10 max-w-[1240px] mx-auto px-8 pt-[120px] pb-[48px] w-full flex-1 flex flex-col justify-center">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 items-end">
+            <div className="max-w-[660px]">
+              {/* Label pill — glass */}
               <motion.span
                 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 text-[12.5px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-4 py-2 rounded-full mb-6"
+                className="inline-flex items-center gap-2 text-[12.5px] font-[800] tracking-[0.08em] uppercase text-white/90 px-4 py-2 rounded-full mb-7 border border-white/20"
+                style={{ background: 'rgba(255,255,255,0.09)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
               >
                 <span className="w-[7px] h-[7px] rounded-full animate-pulse" style={{ background: 'var(--grad-brand)' }} />
                 Youth-Led · Financial Education
               </motion.span>
+
               <motion.h1
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="font-[800] text-[clamp(46px,6.6vw,96px)] leading-[0.96] tracking-[-0.03em]"
+                initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                className="font-[800] text-[clamp(48px,7.2vw,96px)] leading-[0.94] tracking-[-0.035em] text-white"
               >
-                <span className="block">MONEY, MADE</span>
-                <span className="block bg-[var(--grad-brand)] text-transparent bg-clip-text">RATIONAL.</span>
+                <span className="block">MONEY,</span>
+                <span className="block">MADE</span>
+                <span className="block" style={{ WebkitTextStroke: '2.5px rgba(255,255,255,0.95)', color: 'transparent' }}>RATIONAL.</span>
               </motion.h1>
+
               <motion.p
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                className="mt-[26px] max-w-[520px] text-[17.5px] leading-[1.65] text-[var(--ink-soft)]"
+                className="mt-[28px] max-w-[520px] text-[17.5px] leading-[1.65] text-white/70"
               >
-                A top-tier financial education used to be reserved for the lucky few. <strong>Not anymore.</strong> Global Capital League brings behavioral economics and financial literacy to communities the world forgot.
+                A top-tier financial education used to be reserved for the lucky few.{' '}
+                <strong className="text-white/95 font-[700]">Not anymore.</strong>{' '}
+                GCL brings behavioral economics and financial literacy to communities the world forgot.
               </motion.p>
+
               <motion.div
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                className="flex flex-wrap gap-[14px] mt-[36px]"
+                className="flex flex-wrap gap-[14px] mt-[38px]"
               >
-                <Link href="/courses" className="btn btn-dark btn-lg flex items-center gap-2" data-testid="hero-join">
+                <Link href="/courses"
+                  className="inline-flex items-center gap-2 px-7 py-[14px] rounded-full text-[15px] font-[800] text-[var(--ink)] bg-white hover:bg-white/90 transition-all hover:-translate-y-[2px] shadow-[0_0_30px_rgba(255,255,255,0.25)]"
+                  data-testid="hero-join">
                   Join a Course <span>→</span>
                 </Link>
-                <Link href="/events" className="btn btn-outline btn-lg">See Events</Link>
+                <Link href="/events"
+                  className="inline-flex items-center gap-2 px-7 py-[14px] rounded-full text-[15px] font-[800] text-white border border-white/30 transition-all hover:-translate-y-[2px]"
+                  style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+                  See Events
+                </Link>
               </motion.div>
 
               {/* Trust badges */}
               <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-                className="flex items-center gap-5 mt-8 flex-wrap"
+                className="flex items-center gap-6 mt-9 flex-wrap"
               >
                 {['14+ Countries', '8K+ Youth', '120+ Workshops', '100% Free'].map(badge => (
-                  <div key={badge} className="flex items-center gap-1.5 text-[13px] font-[700] text-[var(--ink-soft)]">
-                    <span className="w-[6px] h-[6px] rounded-full bg-[var(--violet)]" />
+                  <div key={badge} className="flex items-center gap-2 text-[13px] font-[700] text-white/60">
+                    <span className="w-[5px] h-[5px] rounded-full bg-white/40" />
                     {badge}
                   </div>
                 ))}
               </motion.div>
             </div>
 
-            {/* Hero visual */}
+            {/* Floating glass badges — right side, desktop only */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.9 }}
-              className="relative"
+              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6, duration: 0.9 }}
+              className="hidden lg:flex flex-col gap-4 self-center pb-4"
             >
-              {/* Floating badges */}
-              <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -left-8 top-8 bg-white rounded-[14px] border-[2px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] px-4 py-3 flex items-center gap-2">
-                <span className="text-xl">🧠</span>
+              <motion.div animate={{ y: [0, -7, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="flex items-center gap-3 px-5 py-4 rounded-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+                style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                <span className="text-2xl">🧠</span>
                 <div>
-                  <div className="text-[11px] font-[800]">Behavioral Economics</div>
-                  <div className="text-[10px] text-[var(--ink-faint)]">Module unlocked</div>
+                  <div className="text-[12px] font-[800] text-white">Behavioral Economics</div>
+                  <div className="text-[11px] text-white/50 mt-0.5">Module unlocked</div>
                 </div>
               </motion.div>
 
-              <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                className="absolute -right-6 bottom-12 bg-white rounded-[14px] border-[2px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] px-4 py-3">
-                <div className="text-[10px] font-[700] text-[var(--ink-faint)] uppercase mb-0.5">Community</div>
-                <div className="text-[13px] font-[800]">8,000+ members</div>
+              <motion.div animate={{ y: [0, 7, 0] }} transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
+                className="flex flex-col gap-0.5 px-5 py-4 rounded-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+                style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                <div className="text-[11px] font-[700] text-white/50 uppercase tracking-widest">Community</div>
+                <div className="text-[20px] font-[800] text-white leading-none">8,000+</div>
+                <div className="text-[11px] text-white/50">members worldwide</div>
+              </motion.div>
+
+              <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+                className="flex items-center gap-2 px-5 py-3 rounded-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+                style={{ background: 'rgba(40,200,64,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                <span className="w-[8px] h-[8px] rounded-full bg-[#28c840] shadow-[0_0_0_3px_rgba(40,200,64,0.25)] animate-pulse shrink-0" />
+                <div className="text-[12px] font-[700] text-white/90">Live in 14+ countries</div>
               </motion.div>
             </motion.div>
           </div>
+        </div>
 
-          {/* Impact Stats */}
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.7 }}
-            className="mt-[80px] max-w-[980px] mx-auto bg-white rounded-[20px] shadow-[10px_10px_0px_var(--ink)] border-[2.5px] border-[var(--ink)] p-[10px]"
-          >
-            <div className="flex items-center justify-between px-[22px] py-[16px] text-[13px] text-[var(--ink-faint)] font-[600]">
-              <span>Global Impact</span>
-              <span className="inline-flex items-center gap-[7px]">
-                <span className="w-[7px] h-[7px] rounded-full bg-[#28c840] shadow-[0_0_0_3px_rgba(40,200,64,0.18)] animate-pulse" />
-                Updated live
-              </span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-[10px] px-[10px] pb-[10px]">
+        {/* ── Stats bar — frosted glass at hero bottom ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.7 }}
+          className="relative z-10 border-t border-white/10"
+          style={{ background: 'rgba(5,5,18,0.55)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+        >
+          <div className="max-w-[1240px] mx-auto px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-white/10">
               {[
-                { icon: '🌍', end: 14, suffix: '+', label: 'Countries', color: 'from-[var(--blue)] to-[#6a86ff]' },
-                { icon: '📚', end: 120, suffix: '+', label: 'Workshops', color: 'from-[var(--violet)] to-[#b28bfa]' },
-                { icon: '👥', end: 8, suffix: 'K+', label: 'Youth Reached', color: 'from-[var(--magenta)] to-[#f27fdb]' },
-                { icon: '🎓', end: 92, suffix: '%', label: 'Completion Rate', color: 'from-[#28c840] to-[#6ad8f2]' },
-              ].map(s => (
-                <div key={s.label} className="bg-[var(--paper-alt)] rounded-[var(--radius-lg)] p-[26px_24px]">
-                  <div className={`w-[38px] h-[38px] rounded-[12px] mb-[16px] flex items-center justify-center text-[15px] text-white bg-gradient-to-br ${s.color}`}>{s.icon}</div>
-                  <div className="text-[clamp(28px,4vw,38px)] font-[800] tracking-[-0.02em]"><Counter end={s.end} suffix={s.suffix} /></div>
-                  <div className="mt-[6px] text-[13.5px] text-[var(--ink-soft)] font-[500]">{s.label}</div>
+                { icon: '🌍', end: 14, suffix: '+', label: 'Countries' },
+                { icon: '📚', end: 120, suffix: '+', label: 'Workshops' },
+                { icon: '👥', end: 8, suffix: 'K+', label: 'Youth Reached' },
+                { icon: '🎓', end: 92, suffix: '%', label: 'Completion Rate' },
+              ].map((s, i) => (
+                <div key={s.label} className="flex items-center gap-3 py-5 px-6 first:pl-0">
+                  <span className="text-xl shrink-0">{s.icon}</span>
+                  <div>
+                    <div className="text-[22px] font-[800] text-white leading-none">
+                      <Counter end={s.end} suffix={s.suffix} />
+                    </div>
+                    <div className="text-[11.5px] text-white/45 font-[600] mt-0.5">{s.label}</div>
+                  </div>
                 </div>
               ))}
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </section>
 
       {/* ─── MARQUEE ─── */}
@@ -178,7 +218,7 @@ export function Home() {
         </div>
       </div>
 
-      {/* ─── MISSION ─── */}
+      {/* ─── MISSION — with real classroom photo ──────────────────────── */}
       <section className="py-[110px]">
         <div className="max-w-[1240px] mx-auto px-8 grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-[64px] items-center">
           <Reveal>
@@ -199,16 +239,28 @@ export function Home() {
               <Link href="/events" className="btn btn-outline">Upcoming Events</Link>
             </div>
           </Reveal>
-          <div className="relative h-[420px] flex items-center justify-center">
-            <div className="w-[260px] h-[260px] rounded-full shadow-[0_30px_70px_-14px_rgba(139,92,246,0.45)] relative animate-[float_7s_ease-in-out_infinite]"
-              style={{ background: 'conic-gradient(from 140deg,var(--blue),var(--violet),var(--magenta),#6ad8f2,var(--blue))' }}>
-              <div className="absolute inset-[16px] rounded-full bg-[radial-gradient(circle_at_32%_26%,rgba(255,255,255,0.5),transparent_55%)]" />
-              <div className="absolute px-4 py-2 rounded-full text-[13px] font-[700] bg-white shadow-[var(--shadow-md)] border border-[var(--line)] top-[6%] left-[-6%]">Behavioral Insights</div>
-              <div className="absolute px-4 py-2 rounded-full text-[13px] font-[700] bg-white shadow-[var(--shadow-md)] border border-[var(--line)] bottom-[8%] right-[-6%]">Youth Agency</div>
-              <div className="absolute px-4 py-2 rounded-full text-[13px] font-[700] bg-white shadow-[var(--shadow-md)] border border-[var(--line)] top-[50%] left-[-12%]">Systems Thinking</div>
-              <div className="absolute w-[110px] h-[110px] bottom-[-4%] right-[4%] rounded-[16px] border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] bg-[var(--paper-alt)] flex items-center justify-center text-3xl">🧠</div>
+
+          {/* Real photo — classroom in action */}
+          <Reveal delay={0.15} className="relative">
+            <div className="relative rounded-[20px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[10px_10px_0px_var(--ink)]" style={{ height: 420 }}>
+              <img
+                src={imgClassroomBack}
+                alt="GCL workshop session in progress"
+                className="w-full h-full object-cover"
+              />
+              {/* Caption overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-5"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }}>
+                <div className="text-[10px] font-[800] uppercase tracking-[0.12em] text-white/50 mb-0.5">Live Session</div>
+                <div className="text-[14px] font-[700] text-white">Financial literacy in action — Tashkent</div>
+              </div>
             </div>
-          </div>
+            {/* Floating stat badge */}
+            <div className="absolute -right-5 -top-5 bg-white rounded-[14px] border-[2px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] px-4 py-3">
+              <div className="text-[10px] font-[700] text-[var(--ink-faint)] uppercase mb-0.5">Sessions held</div>
+              <div className="text-[22px] font-[800] text-[var(--ink)] leading-none">120+</div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -369,6 +421,140 @@ export function Home() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ─── FROM THE FIELD — Intentional photo gallery ───────────────── */}
+      <section className="py-[110px]">
+        <div className="max-w-[1240px] mx-auto px-8">
+          {/* Header */}
+          <Reveal className="mb-[52px]">
+            <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-5">
+              From the Field
+            </span>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-5">
+              <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] max-w-[540px]">
+                Impact.<br />In person.
+              </h2>
+              <p className="text-[16px] text-[var(--ink-soft)] leading-[1.7] max-w-[380px] mb-1">
+                Real classrooms. Real students. Every session is a community that didn't exist before.
+              </p>
+            </div>
+          </Reveal>
+
+          {/* Row 1 — editorial: big left + stacked right */}
+          <Reveal className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-4 mb-4">
+            {/* Main large image */}
+            <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[8px_8px_0px_var(--ink)]" style={{ height: 460 }}>
+              <img
+                src={imgClassroomWide}
+                alt="GCL workshop — full room in session"
+                className="w-full h-full object-cover object-center"
+              />
+              {/* Location tag */}
+              <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-[800] uppercase tracking-wide text-white border border-white/25"
+                style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+                <span className="w-[6px] h-[6px] rounded-full bg-[#28c840] animate-pulse" />
+                Youth Workshop · Tashkent
+              </div>
+              {/* Caption */}
+              <div className="absolute bottom-0 left-0 right-0 p-6"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)' }}>
+                <div className="text-[11px] font-[700] uppercase tracking-wider text-white/50 mb-1">Financial Literacy Program</div>
+                <div className="text-[17px] font-[800] text-white leading-[1.25]">20+ students, one room,<br />zero gatekeeping.</div>
+              </div>
+            </div>
+
+            {/* Right column — stacked 2 */}
+            <div className="flex flex-col gap-4">
+              {/* Instructor */}
+              <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] flex-1">
+                <img
+                  src={imgInstructor}
+                  alt="GCL instructor presenting income types"
+                  className="w-full h-full object-cover object-top"
+                  style={{ minHeight: 215 }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 p-4"
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }}>
+                  <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">Educator</div>
+                  <div className="text-[13px] font-[800] text-white">Live session — 5 types of income</div>
+                </div>
+              </div>
+
+              {/* Students */}
+              <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] flex-1">
+                <img
+                  src={imgStudents3}
+                  alt="GCL students after a session"
+                  className="w-full h-full object-cover object-top"
+                  style={{ minHeight: 215 }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 p-4"
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }}>
+                  <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">Our Community</div>
+                  <div className="text-[13px] font-[800] text-white">Students after the session</div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Row 2 — three equal: different geographies */}
+          <Reveal delay={0.1} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Traditional school — Tajikistan */}
+            <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)]" style={{ height: 300 }}>
+              <img
+                src={imgSchool1}
+                alt="GCL workshop in traditional school"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-[800] uppercase tracking-wide text-white border border-white/25"
+                style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+                School Partnership
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-5"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 100%)' }}>
+                <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">Tajikistan · Nov 2025</div>
+                <div className="text-[13px] font-[800] text-white">Taking GCL into classrooms</div>
+              </div>
+            </div>
+
+            {/* School kids in uniforms */}
+            <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)]" style={{ height: 300 }}>
+              <img
+                src={imgKids1}
+                alt="School students engaged in GCL program"
+                className="w-full h-full object-cover object-top"
+              />
+              <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-[800] uppercase tracking-wide text-white border border-white/25"
+                style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+                K-12 Reach
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-5"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 100%)' }}>
+                <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">Tajikistan · May 2026</div>
+                <div className="text-[13px] font-[800] text-white">Financial literacy starts young</div>
+              </div>
+            </div>
+
+            {/* Group energy — selfie at Freedom Bank */}
+            <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)]" style={{ height: 300 }}>
+              <img
+                src={imgGroupSelfie}
+                alt="GCL participants group shot"
+                className="w-full h-full object-cover object-top"
+              />
+              <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-[800] uppercase tracking-wide text-white border border-white/25"
+                style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+                Community
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-5"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 100%)' }}>
+                <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">After the Session · Jan 2026</div>
+                <div className="text-[13px] font-[800] text-white">This is what change looks like</div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
