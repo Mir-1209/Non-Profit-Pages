@@ -2,20 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
+import { useAdmin } from '../context/AdminContext';
 
 const navLinks = [
-  { href: '/programs', label: 'Programs' },
+  { href: '/', label: 'Home' },
   { href: '/courses', label: 'Courses' },
   { href: '/events', label: 'Events' },
-  { href: '/about', label: 'About' },
-  { href: '/stories', label: 'Stories' },
-  { href: '/blog', label: 'Blog' },
+  { href: '/news', label: 'News' },
 ];
 
 export function Nav() {
   const [location] = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { isAdmin } = useAdmin();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -27,13 +27,18 @@ export function Nav() {
     setMobileOpen(false);
   }, [location]);
 
+  const isActive = (href: string) => href === '/' ? location === '/' : location.startsWith(href);
+
   return (
     <>
-      <div className="sticky top-0 z-50 flex justify-center px-6 pt-[18px] pb-0 pointer-events-none">
+      <div
+        className="sticky top-0 z-50 flex justify-center px-6 pt-[18px] pb-0 pointer-events-none"
+        style={{ background: 'linear-gradient(180deg, rgba(221,228,255,0.65) 0%, transparent 100%)' }}
+      >
         <nav
           className="pointer-events-auto w-full max-w-[1180px] flex items-center justify-between px-5 py-3 rounded-[100px] transition-all duration-300"
           style={{
-            background: scrolled ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.82)',
+            background: scrolled ? 'rgba(255,255,255,0.94)' : 'rgba(255,255,255,0.84)',
             backdropFilter: 'blur(18px)',
             WebkitBackdropFilter: 'blur(18px)',
             border: '1px solid rgba(21,19,44,0.06)',
@@ -67,10 +72,10 @@ export function Nav() {
                 <Link
                   href={link.href}
                   className="relative px-[14px] py-[9px] text-[14.5px] font-[500] rounded-full transition-colors duration-200 block"
-                  style={{ color: location === link.href ? 'var(--ink)' : 'var(--ink-soft)' }}
+                  style={{ color: isActive(link.href) ? 'var(--ink)' : 'var(--ink-soft)' }}
                   data-testid={`nav-${link.label.toLowerCase()}`}
                 >
-                  {location === link.href && (
+                  {isActive(link.href) && (
                     <motion.span
                       layoutId="nav-active"
                       className="absolute inset-0 rounded-full bg-[var(--paper-alt)]"
@@ -85,9 +90,15 @@ export function Nav() {
 
           {/* CTA */}
           <div className="hidden md:flex items-center gap-2">
-            <Link href="/about" className="text-[14px] font-[600] px-4 py-2 rounded-full text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors" data-testid="nav-signin">
-              Sign In
-            </Link>
+            {isAdmin ? (
+              <Link href="/admin" className="text-[14px] font-[700] px-4 py-2 rounded-full text-[var(--violet)] hover:bg-[var(--pill-bg)] transition-colors" data-testid="nav-admin">
+                ⚙ Admin
+              </Link>
+            ) : (
+              <Link href="/signin" className="text-[14px] font-[600] px-4 py-2 rounded-full text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors" data-testid="nav-signin">
+                Sign In
+              </Link>
+            )}
             <Link
               href="/courses"
               className="text-[14px] font-[600] px-5 py-[10px] rounded-full text-white transition-all hover:-translate-y-[1px]"
@@ -131,10 +142,13 @@ export function Nav() {
                 </Link>
               </motion.div>
             ))}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.38 }}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.28 }}>
+              <Link href="/signin" className="text-[18px] font-[600] text-[var(--ink-soft)]">Sign In</Link>
+            </motion.div>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.34 }}>
               <Link
                 href="/courses"
-                className="mt-4 text-[16px] font-[700] px-8 py-4 rounded-full text-white"
+                className="mt-2 text-[16px] font-[700] px-8 py-4 rounded-full text-white"
                 style={{ background: 'var(--grad-brand)' }}
               >
                 Get Started →
