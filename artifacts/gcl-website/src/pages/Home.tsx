@@ -17,66 +17,59 @@ import imgGroupSelfie from '@assets/photo_2026-01-12_21.22.30_1783000075275.jpeg
 import imgStudents4 from '@assets/20250717_110927_1782999964182.jpg';
 import imgAudience from '@assets/20251118_091918_1783000021516.jpg';
 
-// ─── Laurel SVG for award badges ──────────────────────────────────────────
-function GoldLaurel({ flip = false }: { flip?: boolean }) {
-  return (
-    <svg
-      width="56" height="22" viewBox="0 0 56 22" fill="none"
-      style={{ transform: flip ? 'scaleX(-1)' : undefined }}
-    >
-      <ellipse cx="8"  cy="14" rx="7" ry="3.5" transform="rotate(-30  8 14)" fill="#c9a227" opacity="0.85"/>
-      <ellipse cx="18" cy="10" rx="7" ry="3.2" transform="rotate(-45 18 10)" fill="#d4af37" opacity="0.9"/>
-      <ellipse cx="28" cy="7"  rx="6" ry="2.8" transform="rotate(-55 28  7)" fill="#e8c547" opacity="0.95"/>
-      <ellipse cx="37" cy="5"  rx="5" ry="2.5" transform="rotate(-65 37  5)" fill="#f0d060" opacity="0.9"/>
-      <ellipse cx="45" cy="4"  rx="4" ry="2.2" transform="rotate(-72 45  4)" fill="#f5da72" opacity="0.8"/>
-    </svg>
-  );
-}
-
-// ─── Award Badge component (laurel-wreath style) ──────────────────────────
-function AwardBadge({ title, sub, delay = 0, floatDir = 1 }: {
-  title: string; sub: string; delay?: number; floatDir?: number;
+// ─── Award credential badge — gradient-border medallion ───────────────────
+function AwardBadge({ icon, title, sub, delay = 0, floatDir = 1 }: {
+  icon: string; title: string; sub: string; delay?: number; floatDir?: number;
 }) {
   return (
     <motion.div
-      animate={{ y: [0, floatDir * 6, 0] }}
-      transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay }}
-      className="relative rounded-2xl overflow-hidden"
+      animate={{ y: [0, floatDir * 7, 0] }}
+      transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay }}
+      // gradient-border wrapper
       style={{
-        background: 'linear-gradient(145deg, rgba(14,10,3,0.92) 0%, rgba(26,18,4,0.94) 100%)',
-        border: '1px solid rgba(212,175,55,0.4)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        boxShadow: '0 6px 28px rgba(0,0,0,0.5), inset 0 1px 0 rgba(212,175,55,0.18)',
+        padding: '1.5px',
+        borderRadius: 20,
+        background: 'linear-gradient(145deg, #f5da72 0%, #c9a227 35%, #6b4e00 60%, #d4af37 100%)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.55), 0 0 0 0.5px rgba(212,175,55,0.2)',
       }}
     >
-      {/* Gold shimmer line at top */}
-      <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent)' }} />
-
-      <div className="px-5 py-3.5">
-        {/* Laurel row */}
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <GoldLaurel />
-          <span className="text-[10px] font-[800] tracking-[0.18em] uppercase" style={{ color: '#d4af37' }}>★</span>
-          <GoldLaurel flip />
+      {/* Inner card */}
+      <div
+        className="flex items-center gap-3.5 px-4 py-3.5"
+        style={{
+          borderRadius: 18,
+          background: 'linear-gradient(145deg, rgba(10,7,1,0.97) 0%, rgba(20,14,3,0.97) 100%)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
+      >
+        {/* Icon medallion */}
+        <div
+          className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-[18px]"
+          style={{
+            background: 'linear-gradient(135deg, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0.06) 100%)',
+            border: '1px solid rgba(212,175,55,0.35)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
+          }}
+        >
+          {icon}
         </div>
 
-        {/* Title */}
-        <div className="text-center">
-          <div className="text-[9px] font-[800] tracking-[0.18em] uppercase mb-1" style={{ color: '#d4af37' }}>{title}</div>
-          <div className="text-[11.5px] font-[600] leading-[1.4] text-white/80 text-center">{sub}</div>
-        </div>
-
-        {/* Bottom divider */}
-        <div className="flex items-center gap-1.5 mt-2.5">
-          <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.45))' }} />
-          <span className="text-[8px]" style={{ color: '#d4af37' }}>◆</span>
-          <div className="flex-1 h-px" style={{ background: 'linear-gradient(to left, transparent, rgba(212,175,55,0.45))' }} />
+        {/* Text */}
+        <div className="min-w-0">
+          <div
+            className="text-[9.5px] font-[800] tracking-[0.14em] uppercase mb-[3px]"
+            style={{
+              background: 'linear-gradient(to right, #f5da72, #d4af37)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            {title}
+          </div>
+          <div className="text-[12px] font-[500] text-white/80 leading-[1.35]">{sub}</div>
         </div>
       </div>
-
-      {/* Gold shimmer line at bottom */}
-      <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent)' }} />
     </motion.div>
   );
 }
@@ -239,23 +232,26 @@ export function Home() {
 
             {/* ── Right: golden award badges ── */}
             <motion.div
-              initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.65, duration: 0.9 }}
-              className="hidden lg:flex flex-col gap-3 self-center pb-4 w-[255px]"
+              initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15, duration: 0.7 }}
+              className="hidden lg:flex flex-col gap-3 self-center pb-4 w-[270px]"
             >
               <AwardBadge
+                icon="🏆"
                 title="Central Asia's Largest"
                 sub="Youth-led financial literacy initiative"
                 delay={0}
                 floatDir={-1}
               />
               <AwardBadge
+                icon="🌍"
                 title="World's First"
                 sub="Behavioral financial literacy non-profit"
                 delay={0.9}
                 floatDir={1}
               />
               <AwardBadge
-                title="Formerly"
+                icon="⚡"
+                title="Formerly Known As"
                 sub="Vanguard Capital League — now GCL"
                 delay={1.8}
                 floatDir={-1}
