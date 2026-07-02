@@ -112,48 +112,6 @@ export function Home() {
               transition={{ duration: 0.9 }}
               className="relative"
             >
-              {/* Main card */}
-              <div className="rounded-[24px] border-[2.5px] border-[var(--ink)] shadow-[12px_12px_0px_var(--ink)] bg-white p-6 relative z-10">
-                <div className="flex items-center justify-between mb-5">
-                  <span className="text-[12px] font-[800] uppercase tracking-wider text-[var(--ink-faint)]">Your Progress</span>
-                  <span className="text-[11px] font-[700] text-green-600 bg-green-50 px-2.5 py-1 rounded-full flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />Live
-                  </span>
-                </div>
-
-                <div className="space-y-4">
-                  {[
-                    { label: 'Psychology of Spending', progress: 75, color: 'var(--blue)' },
-                    { label: 'Decisions Under Scarcity', progress: 42, color: 'var(--violet)' },
-                    { label: 'Building Systems', progress: 20, color: 'var(--magenta)' },
-                  ].map(item => (
-                    <div key={item.label}>
-                      <div className="flex justify-between text-[12.5px] font-[600] mb-1.5">
-                        <span className="text-[var(--ink)]">{item.label}</span>
-                        <span style={{ color: item.color }}>{item.progress}%</span>
-                      </div>
-                      <div className="h-[7px] rounded-full bg-[var(--paper-alt)]">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${item.progress}%` }}
-                          transition={{ delay: 0.8, duration: 1, ease: 'easeOut' }}
-                          className="h-full rounded-full"
-                          style={{ background: item.color }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-5 pt-5 border-t border-[var(--line)] flex items-center justify-between">
-                  <div>
-                    <div className="text-[22px] font-[800] text-[var(--ink)]">Level 2</div>
-                    <div className="text-[12px] text-[var(--ink-soft)]">Financial Thinker</div>
-                  </div>
-                  <div className="text-4xl">🏆</div>
-                </div>
-              </div>
-
               {/* Floating badges */}
               <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
                 className="absolute -left-8 top-8 bg-white rounded-[14px] border-[2px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] px-4 py-3 flex items-center gap-2">
