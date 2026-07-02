@@ -37,7 +37,7 @@ export function Nav() {
     <>
       <div className="sticky top-0 z-50 flex justify-center px-5 pt-4 pb-0 pointer-events-none">
         <nav
-          className="pointer-events-auto w-full max-w-[1180px] flex items-center justify-between px-5 py-3 rounded-[16px] transition-all duration-500"
+          className="pointer-events-auto w-full max-w-[1180px] flex items-center justify-between px-5 py-3 rounded-[16px] transition-all duration-500 border-t-[2px] border-r-[2px] border-b-[2px] border-l-[2px] rounded-tl-[30px] rounded-tr-[30px] rounded-br-[30px] rounded-bl-[30px] border-t-[#ffffff00] border-r-[#ffffff00] border-b-[#ffffff00] border-l-[#ffffff00]"
           style={{
             background: heroMode
               ? 'rgba(6,4,18,0.18)'
@@ -138,7 +138,6 @@ export function Nav() {
           </button>
         </nav>
       </div>
-
       {/* Mobile Panel */}
       <AnimatePresence>
         {mobileOpen && (
