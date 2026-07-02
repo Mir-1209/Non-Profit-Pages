@@ -217,9 +217,6 @@ export function Home() {
                 <Link href={`/courses/${course.slug}`} className="block rounded-[16px] overflow-hidden bg-white border-[2.5px] border-[var(--ink)] shadow-[7px_7px_0px_var(--ink)] transition-all hover:shadow-[10px_10px_0px_var(--ink)] hover:-translate-y-1 hover:-translate-x-1">
                   <div className={`h-[160px] relative flex items-end p-4 border-b-[2.5px] border-[var(--ink)] ${course.color === 't1' ? 'bg-gradient-to-br from-[#dbe4ff] to-[#c9b8ff]' : course.color === 't2' ? 'bg-gradient-to-br from-[#f1c9f7] to-[#ffd3ea]' : 'bg-gradient-to-br from-[#c7f0ff] to-[#c3e3ff]'}`}>
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] text-4xl opacity-40">🎬</div>
-                    <span className="relative z-10 text-[12px] font-[800] uppercase px-3 py-1.5 rounded-full bg-white/85 text-[var(--ink)] backdrop-blur-md">
-                      {course.tag}
-                    </span>
                   </div>
                   <div className="p-[20px_22px_24px]">
                     <h4 className="font-[800] text-[17px] mb-2 tracking-[-0.01em]">{course.title}</h4>

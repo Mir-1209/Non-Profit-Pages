@@ -71,11 +71,6 @@ export function Blog() {
               {/* Visual panel */}
               <div className="h-[280px] lg:h-auto relative flex items-end p-8" style={{ background: 'linear-gradient(135deg, var(--blue), var(--violet), var(--magenta))' }}>
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 1px, transparent 1px, transparent 20px)' }} />
-                <div className="relative">
-                  <span className="text-[11px] font-[800] uppercase px-3 py-1.5 rounded-full text-white" style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(6px)' }}>
-                    {featured.category}
-                  </span>
-                </div>
               </div>
               {/* Content panel */}
               <div className="p-10 bg-white flex flex-col justify-between">
@@ -130,7 +125,7 @@ export function Blog() {
                     <div className="h-2 rounded-t-[13px]" style={{ background: `linear-gradient(90deg,${cc.text},var(--violet))` }} />
                     <div className="p-7 flex flex-col flex-1">
                       <div className="flex justify-between items-center mb-4">
-                        <span className="text-[11px] font-[800] uppercase tracking-wider px-3 py-1.5 rounded-full" style={{ background: cc.bg, color: cc.text }}>{post.category}</span>
+                        <span className="text-[12px] font-[700]" style={{ color: cc.text }}>{post.category}</span>
                         <span className="text-[12px] text-[var(--ink-faint)] font-[600]">{post.readTime} read</span>
                       </div>
                       <h3 className="font-[800] text-[19px] leading-[1.28] mb-3 tracking-[-0.01em]">{post.title}</h3>

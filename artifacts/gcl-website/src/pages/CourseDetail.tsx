@@ -40,9 +40,6 @@ export function CourseDetail() {
     <main className="pb-24 pt-[100px]">
       {/* Hero */}
       <div className="max-w-[1000px] mx-auto px-8 mb-16 text-center">
-        <span className="inline-block text-[12px] font-[800] uppercase px-4 py-2 rounded-full bg-[var(--pill-bg)] text-[var(--pill-ink)] mb-6 tracking-wider">
-          {course.tag} • {course.level}
-        </span>
         <h1 className="font-[800] text-[clamp(36px,5vw,64px)] leading-[1.05] tracking-[-0.02em] mb-6">
           {course.title}
         </h1>

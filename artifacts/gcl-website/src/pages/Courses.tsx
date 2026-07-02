@@ -30,9 +30,6 @@ export function Courses() {
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] text-5xl opacity-40">
                     {course.tag === 'Mindset' ? '🧠' : course.tag === 'Investments' ? '📈' : '🎬'}
                   </div>
-                  <span className="relative z-10 text-[12px] font-[800] uppercase px-3 py-1.5 rounded-full bg-white/85 text-[var(--ink)] backdrop-blur-md">
-                    {course.tag}
-                  </span>
                 </div>
                 <div className="p-6 flex flex-col flex-1">
                   <h4 className="font-[800] text-[20px] mb-3 tracking-[-0.01em]">{course.title}</h4>
