@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'wouter';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useAdmin } from '../context/AdminContext';
@@ -69,6 +69,15 @@ export function Home() {
     return () => clearInterval(t);
   }, []);
 
+  // React doesn't reliably set the `muted` attribute on <video> — force it via DOM ref
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.volume = 0;
+    }
+  }, []);
+
   const catColor: Record<string, string> = { Research: '#3358ff', Update: '#8b5cf6', Story: '#e93fc7', Announcement: '#28c840' };
   const catBg: Record<string, string> = { Research: 'rgba(51,88,255,0.1)', Update: 'rgba(139,92,246,0.1)', Story: 'rgba(233,63,199,0.1)', Announcement: 'rgba(40,200,64,0.1)' };
 
@@ -81,7 +90,9 @@ export function Home() {
       <section className="relative min-h-screen flex flex-col justify-end overflow-hidden" id="top">
         {/* Video background */}
         <video
-          autoPlay muted loop playsInline
+          ref={videoRef}
+          autoPlay loop playsInline
+          muted
           className="absolute inset-0 w-full h-full object-cover"
           src={heroVideo}
         />
