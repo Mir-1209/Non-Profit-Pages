@@ -3,6 +3,7 @@ import { Link, useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { useAdmin } from '../context/AdminContext';
+import logoImg from '@assets/Untitled_design-9_1783003171841.png';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -55,25 +56,12 @@ export function Nav() {
           data-testid="nav"
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-[10px] font-[800] text-[18px] shrink-0" data-testid="nav-logo">
-            <div
-              className="w-[26px] h-[26px] rounded-full shrink-0 relative"
-              style={{
-                background: 'conic-gradient(from 200deg, #3358ff, #8b5cf6, #e93fc7, #33c7e8, #3358ff)',
-                boxShadow: '0 3px 10px rgba(21,19,44,0.25)',
-              }}
-            >
-              <div className="absolute inset-0 rounded-full" style={{
-                background: 'linear-gradient(transparent 45%, rgba(255,255,255,0.55) 46%, rgba(255,255,255,0.55) 54%, transparent 55%), linear-gradient(90deg, transparent 45%, rgba(255,255,255,0.55) 46%, rgba(255,255,255,0.55) 54%, transparent 55%)',
-              }} />
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="font-[800]" style={{ color: heroMode ? '#fff' : 'var(--ink)' }}>GCL</span>
-              <span className="text-[8.5px] font-[600] tracking-[0.13em] uppercase"
-                style={{ color: heroMode ? 'rgba(255,255,255,0.5)' : 'var(--ink-faint)' }}>
-                Global Capital League
-              </span>
-            </div>
+          <Link href="/" className="shrink-0" data-testid="nav-logo">
+            <img
+              src={logoImg}
+              alt="Global Capital League"
+              className="h-[52px] w-auto object-contain"
+            />
           </Link>
 
           {/* Desktop Links */}
