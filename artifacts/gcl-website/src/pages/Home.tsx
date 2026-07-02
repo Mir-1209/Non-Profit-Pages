@@ -17,62 +17,6 @@ import imgGroupSelfie from '@assets/photo_2026-01-12_21.22.30_1783000075275.jpeg
 import imgStudents4 from '@assets/20250717_110927_1782999964182.jpg';
 import imgAudience from '@assets/20251118_091918_1783000021516.jpg';
 
-// ─── Award credential badge — gradient-border medallion ───────────────────
-function AwardBadge({ icon, title, sub, delay = 0, floatDir = 1 }: {
-  icon: string; title: string; sub: string; delay?: number; floatDir?: number;
-}) {
-  return (
-    <motion.div
-      animate={{ y: [0, floatDir * 7, 0] }}
-      transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay }}
-      // gradient-border wrapper
-      style={{
-        padding: '1.5px',
-        borderRadius: 20,
-        background: 'linear-gradient(145deg, #f5da72 0%, #c9a227 35%, #6b4e00 60%, #d4af37 100%)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.55), 0 0 0 0.5px rgba(212,175,55,0.2)',
-      }}
-    >
-      {/* Inner card */}
-      <div
-        className="flex items-center gap-3.5 px-4 py-3.5"
-        style={{
-          borderRadius: 18,
-          background: 'linear-gradient(145deg, rgba(10,7,1,0.97) 0%, rgba(20,14,3,0.97) 100%)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-        }}
-      >
-        {/* Icon medallion */}
-        <div
-          className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-[18px]"
-          style={{
-            background: 'linear-gradient(135deg, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0.06) 100%)',
-            border: '1px solid rgba(212,175,55,0.35)',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
-          }}
-        >
-          {icon}
-        </div>
-
-        {/* Text */}
-        <div className="min-w-0">
-          <div
-            className="text-[9.5px] font-[800] tracking-[0.14em] uppercase mb-[3px]"
-            style={{
-              background: 'linear-gradient(to right, #f5da72, #d4af37)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            {title}
-          </div>
-          <div className="text-[12px] font-[500] text-white/80 leading-[1.35]">{sub}</div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
 
 // ─── Reveal on scroll ─────────────────────────────────────────────────────
 function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode, className?: string, delay?: number }) {
@@ -231,31 +175,26 @@ export function Home() {
             </div>
 
             {/* ── Right: golden award badges ── */}
+            {/* Credentials — right side, desktop only */}
             <motion.div
-              initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15, duration: 0.7 }}
-              className="hidden lg:flex flex-col gap-3 self-center pb-4 w-[270px]"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 1 }}
+              className="hidden lg:flex flex-col gap-7 self-center pb-4 max-w-[280px]"
             >
-              <AwardBadge
-                icon="🏆"
-                title="Central Asia's Largest"
-                sub="Youth-led financial literacy initiative"
-                delay={0}
-                floatDir={-1}
-              />
-              <AwardBadge
-                icon="🌍"
-                title="World's First"
-                sub="Behavioral financial literacy non-profit"
-                delay={0.9}
-                floatDir={1}
-              />
-              <AwardBadge
-                icon="⚡"
-                title="Formerly Known As"
-                sub="Vanguard Capital League — now GCL"
-                delay={1.8}
-                floatDir={-1}
-              />
+              {[
+                { label: "Central Asia's largest", detail: "youth-led financial literacy initiative" },
+                { label: "World's first", detail: "behavioral financial literacy non-profit" },
+                { label: "Formerly", detail: "Vanguard Capital League" },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 + i * 0.12, duration: 0.7 }}
+                >
+                  <div className="text-[18px] font-[700] text-white leading-snug">{item.label}</div>
+                  <div className="text-[14px] font-[400] text-white/50 mt-0.5 leading-snug">{item.detail}</div>
+                </motion.div>
+              ))}
             </motion.div>
           </div>
         </div>
