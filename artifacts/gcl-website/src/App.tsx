@@ -9,6 +9,7 @@ import { Footer } from './components/Footer';
 import { Home } from './pages/Home';
 import { Courses } from './pages/Courses';
 import { CourseDetail } from './pages/CourseDetail';
+import { CourseLearn } from './pages/CourseLearn';
 import { Events } from './pages/Events';
 import { News } from './pages/News';
 import { SignIn } from './pages/SignIn';
@@ -50,6 +51,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/admin" component={AdminLayout} />
+      <Route path="/courses/:slug/learn" component={CourseLearn} />
       <Route component={SiteLayout} />
     </Switch>
   );
