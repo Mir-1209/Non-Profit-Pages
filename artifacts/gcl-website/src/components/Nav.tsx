@@ -18,41 +18,42 @@ export function Nav() {
   const { isAdmin } = useAdmin();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
+    const handleScroll = () => setScrolled(window.scrollY > 18);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [location]);
+  useEffect(() => { setMobileOpen(false); }, [location]);
 
   const isActive = (href: string) => href === '/' ? location === '/' : location.startsWith(href);
 
   return (
     <>
-      <div
-        className="sticky top-0 z-50 flex justify-center px-6 pt-[18px] pb-0 pointer-events-none"
-        style={{ background: 'linear-gradient(180deg, rgba(221,228,255,0.65) 0%, transparent 100%)' }}
-      >
+      <div className="sticky top-0 z-50 flex justify-center px-5 pt-4 pb-0 pointer-events-none">
         <nav
-          className="pointer-events-auto w-full max-w-[1180px] flex items-center justify-between px-5 py-3 rounded-[100px] transition-all duration-300"
+          className="pointer-events-auto w-full max-w-[1180px] flex items-center justify-between px-5 py-3 rounded-[16px] transition-all duration-300"
           style={{
-            background: scrolled ? 'rgba(255,255,255,0.94)' : 'rgba(255,255,255,0.84)',
-            backdropFilter: 'blur(18px)',
-            WebkitBackdropFilter: 'blur(18px)',
-            border: '1px solid rgba(21,19,44,0.06)',
-            boxShadow: scrolled ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+            background: scrolled
+              ? 'rgba(255,255,255,0.82)'
+              : 'rgba(255,255,255,0.62)',
+            backdropFilter: 'blur(28px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+            border: scrolled
+              ? '1.5px solid rgba(21,19,44,0.12)'
+              : '1.5px solid rgba(255,255,255,0.5)',
+            boxShadow: scrolled
+              ? '0 8px 32px rgba(21,19,44,0.10), inset 0 1px 0 rgba(255,255,255,0.8)'
+              : '0 2px 16px rgba(21,19,44,0.06), inset 0 1px 0 rgba(255,255,255,0.6)',
           }}
           data-testid="nav"
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-[10px] font-[800] text-[18px] shrink-0 group" data-testid="nav-logo">
+          <Link href="/" className="flex items-center gap-[10px] font-[800] text-[18px] shrink-0" data-testid="nav-logo">
             <div
               className="w-[26px] h-[26px] rounded-full shrink-0 relative"
               style={{
-                background: 'conic-gradient(from 200deg, var(--blue), var(--violet), var(--magenta), #33c7e8, var(--blue))',
-                boxShadow: '0 3px 10px rgba(139,92,246,0.35)',
+                background: 'conic-gradient(from 200deg, #3358ff, #8b5cf6, #e93fc7, #33c7e8, #3358ff)',
+                boxShadow: '0 3px 10px rgba(21,19,44,0.25)',
               }}
             >
               <div className="absolute inset-0 rounded-full" style={{
@@ -60,26 +61,27 @@ export function Nav() {
               }} />
             </div>
             <div className="flex flex-col leading-tight">
-              <span style={{ background: 'var(--grad-brand)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>GCL</span>
+              <span className="text-[var(--ink)] font-[800]">GCL</span>
               <span className="text-[8.5px] font-[600] tracking-[0.13em] text-[var(--ink-faint)] uppercase">Global Capital League</span>
             </div>
           </Link>
 
           {/* Desktop Links */}
-          <ul className="hidden md:flex items-center gap-1" role="navigation">
+          <ul className="hidden md:flex items-center gap-0.5">
             {navLinks.map(link => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="relative px-[14px] py-[9px] text-[14.5px] font-[500] rounded-full transition-colors duration-200 block"
+                  className="relative px-[14px] py-[9px] text-[14px] font-[600] rounded-[10px] transition-colors duration-200 block"
                   style={{ color: isActive(link.href) ? 'var(--ink)' : 'var(--ink-soft)' }}
                   data-testid={`nav-${link.label.toLowerCase()}`}
                 >
                   {isActive(link.href) && (
                     <motion.span
                       layoutId="nav-active"
-                      className="absolute inset-0 rounded-full bg-[var(--paper-alt)]"
-                      transition={{ type: 'spring', bounce: 0.25, duration: 0.4 }}
+                      className="absolute inset-0 rounded-[10px]"
+                      style={{ background: 'rgba(21,19,44,0.06)' }}
+                      transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                     />
                   )}
                   <span className="relative">{link.label}</span>
@@ -91,18 +93,22 @@ export function Nav() {
           {/* CTA */}
           <div className="hidden md:flex items-center gap-2">
             {isAdmin ? (
-              <Link href="/admin" className="text-[14px] font-[700] px-4 py-2 rounded-full text-[var(--violet)] hover:bg-[var(--pill-bg)] transition-colors" data-testid="nav-admin">
+              <Link href="/admin"
+                className="text-[13px] font-[700] px-4 py-2 rounded-[10px] text-[var(--ink)] hover:bg-black/5 transition-colors"
+                data-testid="nav-admin">
                 ⚙ Admin
               </Link>
             ) : (
-              <Link href="/signin" className="text-[14px] font-[600] px-4 py-2 rounded-full text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors" data-testid="nav-signin">
+              <Link href="/signin"
+                className="text-[13.5px] font-[600] px-4 py-2 rounded-[10px] text-[var(--ink-soft)] hover:text-[var(--ink)] hover:bg-black/5 transition-colors"
+                data-testid="nav-signin">
                 Sign In
               </Link>
             )}
             <Link
               href="/courses"
-              className="text-[14px] font-[600] px-5 py-[10px] rounded-full text-white transition-all hover:-translate-y-[1px]"
-              style={{ background: 'var(--grad-brand)', boxShadow: '0 4px 14px rgba(139,92,246,0.28)' }}
+              className="text-[13.5px] font-[700] px-5 py-2.5 rounded-[10px] text-white transition-all hover:-translate-y-[1px] hover:shadow-[0_4px_14px_rgba(21,19,44,0.3)]"
+              style={{ background: 'var(--ink)', boxShadow: '3px 3px 0px rgba(21,19,44,0.25)' }}
               data-testid="nav-cta"
             >
               Get Started
@@ -111,7 +117,7 @@ export function Nav() {
 
           {/* Mobile burger */}
           <button
-            className="md:hidden p-2 rounded-full text-[var(--ink)]"
+            className="md:hidden p-2 rounded-[10px] text-[var(--ink)] hover:bg-black/5 transition-colors"
             onClick={() => setMobileOpen(v => !v)}
             aria-label="Menu"
             data-testid="nav-burger"
@@ -125,19 +131,15 @@ export function Nav() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            className="fixed inset-0 z-40 bg-white flex flex-col items-center justify-center gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-5"
+            style={{ background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(20px)' }}
           >
             {navLinks.map((link, i) => (
-              <motion.div
-                key={link.href}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.055 }}
-              >
-                <Link href={link.href} className="text-[32px] font-[800] tracking-tight text-[var(--ink)]">
+              <motion.div key={link.href} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.055 }}>
+                <Link href={link.href} className="text-[34px] font-[800] tracking-tight text-[var(--ink)] uppercase">
                   {link.label}
                 </Link>
               </motion.div>
@@ -146,11 +148,9 @@ export function Nav() {
               <Link href="/signin" className="text-[18px] font-[600] text-[var(--ink-soft)]">Sign In</Link>
             </motion.div>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.34 }}>
-              <Link
-                href="/courses"
-                className="mt-2 text-[16px] font-[700] px-8 py-4 rounded-full text-white"
-                style={{ background: 'var(--grad-brand)' }}
-              >
+              <Link href="/courses"
+                className="mt-2 text-[15px] font-[800] px-8 py-4 rounded-[12px] text-white uppercase tracking-wide"
+                style={{ background: 'var(--ink)', boxShadow: '4px 4px 0px rgba(21,19,44,0.25)' }}>
                 Get Started →
               </Link>
             </motion.div>

@@ -1,75 +1,252 @@
+export interface EventAgendaItem {
+  time: string;
+  title: string;
+  description?: string;
+}
+
 export interface Event {
   id: string;
-  date: { day: string; month: string };
+  date: { day: string; month: string; year: string; full: string };
+  time: string;
+  timezone: string;
   title: string;
+  subtitle: string;
+  description: string;
+  longDescription: string;
   speaker: string;
-  format: 'Online' | 'In-Person';
+  speakerTitle: string;
+  speakerBio: string;
+  format: 'Online' | 'In-Person' | 'Hybrid';
   type: 'Free' | 'Invite-Only' | 'Ticketed';
+  location: string;
+  locationDetail?: string;
+  capacity: number;
+  registered: number;
+  tags: string[];
+  agenda: EventAgendaItem[];
+  featured?: boolean;
 }
 
 export const events: Event[] = [
   {
     id: "e1",
-    date: { day: "12", month: "AUG" },
+    date: { day: "12", month: "AUG", year: "2026", full: "August 12, 2026" },
+    time: "3:00 PM",
+    timezone: "UTC",
     title: "Behavioral Traps in Investing",
+    subtitle: "A Live Workshop on Cognitive Biases That Destroy Portfolios",
+    description: "Learn the 8 most common cognitive biases that cause investors to lose money — and how to systematically protect yourself from each.",
+    longDescription: "This 90-minute live workshop dives into the documented psychological patterns that cause even experienced investors to make predictably bad decisions. From anchoring to disposition effect to herd behavior, we break down the mechanisms and give you frameworks to override them. This is not financial advice — it is behavioral science applied to your own decision process.",
     speaker: "Dr. Elena Rostova",
+    speakerTitle: "Behavioral Economist, Oxford University",
+    speakerBio: "Dr. Rostova is a behavioral economist whose research on cognitive bias in financial decision-making has been published in Nature Human Behaviour and the Journal of Economic Psychology. She has consulted for central banks in 6 countries.",
     format: "Online",
-    type: "Free"
+    type: "Free",
+    location: "Zoom (link sent on registration)",
+    capacity: 500,
+    registered: 347,
+    tags: ["Investing", "Cognitive Bias", "Behavioral Economics"],
+    featured: true,
+    agenda: [
+      { time: "3:00 PM", title: "Introduction", description: "Why even experts fall for behavioral traps" },
+      { time: "3:15 PM", title: "The Big 8 Biases", description: "Anchoring, loss aversion, confirmation bias, herd behavior, overconfidence, disposition effect, recency bias, FOMO" },
+      { time: "4:00 PM", title: "Practical Frameworks", description: "Decision checklists, pre-mortem analysis, and structured rules to override each bias" },
+      { time: "4:20 PM", title: "Live Q&A", description: "Open questions with Dr. Rostova" },
+      { time: "4:30 PM", title: "Close" },
+    ],
   },
   {
     id: "e2",
-    date: { day: "24", month: "AUG" },
+    date: { day: "24", month: "AUG", year: "2026", full: "August 24, 2026" },
+    time: "10:00 AM",
+    timezone: "WAT (West Africa Time)",
     title: "Community Wealth Building",
+    subtitle: "Half-Day In-Person Summit — Lagos, Nigeria",
+    description: "A practical, hands-on summit on building collective financial systems in community settings — tontines, cooperatives, and informal savings structures.",
+    longDescription: "Africa's most innovative financial tools were invented by communities — susu, chama, tontine — long before formal banking arrived. This summit brings together community organizers, behavioral economists, and youth leaders to explore how these ancient systems can be formalized, scaled, and protected in the modern economic environment. Includes a 45-minute peer workshop session.",
     speaker: "David Osei",
+    speakerTitle: "Community Finance Architect, GCL West Africa",
+    speakerBio: "David Osei has spent 11 years building community financial structures across Ghana and Nigeria. He has helped over 200 informal savings groups formalize their operations and increase collective assets by an average of 340%.",
     format: "In-Person",
-    type: "Ticketed"
+    type: "Free",
+    location: "Lagos Business School",
+    locationDetail: "Km 22, Lekki-Epe Expressway, Ajah, Lagos",
+    capacity: 120,
+    registered: 89,
+    tags: ["Community Finance", "Africa", "Savings Systems"],
+    agenda: [
+      { time: "10:00 AM", title: "Registration & Welcome Coffee" },
+      { time: "10:30 AM", title: "Keynote: The Economics of Community Trust", description: "David Osei on how informal savings systems outperform banks for many communities" },
+      { time: "11:15 AM", title: "Panel: Scaling Informal Systems", description: "3 practitioners on what breaks when you grow" },
+      { time: "12:00 PM", title: "Peer Workshop", description: "Small group sessions: design a savings structure for your community" },
+      { time: "12:45 PM", title: "Lunch & Networking" },
+    ],
   },
   {
     id: "e3",
-    date: { day: "05", month: "SEP" },
+    date: { day: "05", month: "SEP", year: "2026", full: "September 5, 2026" },
+    time: "1:00 PM",
+    timezone: "UTC",
     title: "Global Systems Summit",
+    subtitle: "Annual Online Summit — 8 Speakers, 3 Panels, 1,000+ Attendees",
+    description: "GCL's flagship annual event. Eight speakers across three panels on the global systems that drive financial inequality — and how behavioral economics can help dismantle them.",
+    longDescription: "The Global Systems Summit is GCL's largest annual event. This year's theme is 'Designing for Dignity' — how financial systems can be rebuilt from the ground up to serve communities rather than extract from them. Panels cover fintech exploitation, the psychology of poverty traps, and case studies of systems-level change from Brazil, Kenya, and Pakistan.",
     speaker: "Prof. Maria Santos & Guests",
+    speakerTitle: "Moderated by Prof. Maria Santos, UNAM",
+    speakerBio: "Prof. Santos chairs the Department of Behavioral Economics at UNAM Mexico and serves on the advisory board of the World Bank's behavioral economics unit. She has published 4 books on systems-level economic behavior.",
     format: "Online",
-    type: "Free"
+    type: "Free",
+    location: "GCL Live Platform + YouTube Live",
+    capacity: 2000,
+    registered: 1284,
+    tags: ["Summit", "Systems", "Policy", "Global"],
+    featured: true,
+    agenda: [
+      { time: "1:00 PM", title: "Opening Keynote: Systems Thinking in Finance", description: "Prof. Maria Santos" },
+      { time: "1:45 PM", title: "Panel 1: Fintech — Tool or Trap?", description: "How mobile finance can liberate or exploit, with case studies from Kenya and Indonesia" },
+      { time: "2:45 PM", title: "Panel 2: The Psychology of Poverty Traps", description: "Behavioral research on why people stay in debt cycles even when exits exist" },
+      { time: "3:45 PM", title: "Break" },
+      { time: "4:00 PM", title: "Panel 3: Designing for Dignity", description: "Systems-level interventions that have measurably worked" },
+      { time: "5:00 PM", title: "Youth Voices: Next Generation Solutions" },
+      { time: "5:30 PM", title: "Open Q&A" },
+      { time: "6:00 PM", title: "Close" },
+    ],
   },
   {
     id: "e4",
-    date: { day: "18", month: "SEP" },
+    date: { day: "18", month: "SEP", year: "2026", full: "September 18, 2026" },
+    time: "9:00 AM",
+    timezone: "EAT (East Africa Time)",
     title: "Youth Leadership Retreat",
+    subtitle: "3-Day Immersive Retreat — Nairobi, Kenya",
+    description: "A 3-day invite-only retreat for GCL's top 40 youth graduates. Build leadership skills, deepen behavioral economics knowledge, and leave with a community project proposal.",
+    longDescription: "This retreat is reserved for youth who have completed at least 2 GCL courses and demonstrated community impact. Over 3 days, participants work in teams, receive coaching from senior GCL educators, and develop actionable community finance projects they will implement over the following 6 months. All accommodation and meals are covered by GCL.",
     speaker: "GCL Executive Team",
+    speakerTitle: "Led by GCL Co-Founders and Senior Faculty",
+    speakerBio: "The GCL executive team brings together educators, behavioral economists, and youth advocates with combined experience across 30+ countries. This retreat is designed and led by practitioners who have personally delivered programs in every region GCL operates.",
     format: "In-Person",
-    type: "Invite-Only"
+    type: "Invite-Only",
+    location: "Nairobi, Kenya",
+    locationDetail: "Location shared with confirmed attendees",
+    capacity: 40,
+    registered: 40,
+    tags: ["Leadership", "Youth", "Retreat", "Community"],
+    agenda: [
+      { time: "Day 1 AM", title: "Arrival & Orientation", description: "Welcome, introductions, and retreat framework" },
+      { time: "Day 1 PM", title: "Behavioral Economics Deep Dive", description: "Advanced workshop: systems, structures, and community intervention design" },
+      { time: "Day 2 AM", title: "Team Project Work", description: "Teams develop community finance project proposals with coaching support" },
+      { time: "Day 2 PM", title: "Leadership Workshop", description: "Communication, facilitation skills, and managing resistance to change" },
+      { time: "Day 3 AM", title: "Project Presentations", description: "Each team presents to a panel; feedback and refinement" },
+      { time: "Day 3 PM", title: "Commitment Ceremony & Close", description: "Participants publicly commit to their 6-month project goals" },
+    ],
   },
   {
     id: "e5",
-    date: { day: "02", month: "OCT" },
+    date: { day: "02", month: "OCT", year: "2026", full: "October 2, 2026" },
+    time: "6:00 PM",
+    timezone: "UTC",
     title: "The Psychology of Scarcity",
+    subtitle: "Evening Webinar — The Science of Decisions Made Under Pressure",
+    description: "How does scarcity — of money, time, or attention — change how the brain thinks? This webinar explores Mullainathan & Shafir's landmark research and its financial implications.",
+    longDescription: "Sendhil Mullainathan and Eldar Shafir's research on scarcity showed that lacking something important — money, time, social connection — captures mental bandwidth and impairs cognitive function in ways that cause people to make predictably worse decisions. This webinar unpacks that research and connects it directly to the financial decisions faced by youth in low-income communities.",
     speaker: "Sarah Jenkins",
+    speakerTitle: "Research Director, GCL",
+    speakerBio: "Sarah Jenkins leads GCL's research function, translating academic behavioral economics into practical educational programs. She holds degrees in psychology and development economics and spent 6 years at the World Bank before joining GCL.",
     format: "Online",
-    type: "Free"
+    type: "Free",
+    location: "Zoom + GCL Live",
+    capacity: 800,
+    registered: 412,
+    tags: ["Scarcity", "Psychology", "Research", "Webinar"],
+    agenda: [
+      { time: "6:00 PM", title: "Welcome & Context Setting" },
+      { time: "6:10 PM", title: "Scarcity Research Overview", description: "Mullainathan & Shafir's key findings and methodology" },
+      { time: "6:35 PM", title: "Financial Scarcity in Practice", description: "How bandwidth tax shows up in real financial decisions" },
+      { time: "7:00 PM", title: "Practical Interventions", description: "Designing systems that reduce bandwidth demands on people in scarcity" },
+      { time: "7:20 PM", title: "Q&A" },
+    ],
   },
   {
     id: "e6",
-    date: { day: "15", month: "OCT" },
+    date: { day: "15", month: "OCT", year: "2026", full: "October 15, 2026" },
+    time: "4:00 PM",
+    timezone: "UTC",
     title: "Impact Investing 101",
+    subtitle: "Beginner's Guide to Investing for Good",
+    description: "What is impact investing? How do you evaluate social returns alongside financial ones? This session cuts through the jargon for first-time investors.",
+    longDescription: "Impact investing has grown from a niche practice to a $1 trillion asset class — but for most young people, it remains inaccessible and confusing. This session demystifies impact investing: what it is, what it isn't, how to evaluate ESG claims critically, and how to start with the capital you actually have (even if it's very little).",
     speaker: "Chloe Bennett",
+    speakerTitle: "Impact Finance Advisor & GCL Faculty",
+    speakerBio: "Chloe Bennett has structured impact investments totaling over $200M across Southeast Asia and Sub-Saharan Africa. She is a CFA charterholder and a GCL course contributor on investment psychology.",
     format: "Online",
-    type: "Free"
+    type: "Free",
+    location: "GCL Live Platform",
+    capacity: 600,
+    registered: 289,
+    tags: ["Investing", "ESG", "Beginners", "Impact"],
+    agenda: [
+      { time: "4:00 PM", title: "What Is Impact Investing? Cutting Through the Hype" },
+      { time: "4:20 PM", title: "How to Evaluate Social Returns", description: "SROI, IRIS metrics, and what actually matters" },
+      { time: "4:45 PM", title: "ESG: Useful Tool or Marketing Label?", description: "How to read ESG ratings critically" },
+      { time: "5:05 PM", title: "Getting Started with Small Capital", description: "Practical paths for first-time investors" },
+      { time: "5:25 PM", title: "Q&A" },
+    ],
   },
   {
     id: "e7",
-    date: { day: "08", month: "NOV" },
+    date: { day: "08", month: "NOV", year: "2026", full: "November 8, 2026" },
+    time: "9:30 AM",
+    timezone: "GMT",
     title: "Financial Dignity Workshop",
+    subtitle: "Full-Day In-Person Workshop — London, UK",
+    description: "A full-day hands-on workshop on financial wellbeing as a human right — practical tools for financial resilience without shame or judgment.",
+    longDescription: "Traditional financial education treats money problems as personal failures. This workshop takes a fundamentally different approach: financial wellbeing is a structural challenge requiring structural tools. We work through practical resilience frameworks, shame-free budgeting methods, and community-based support systems. Participants leave with a personalized financial resilience plan.",
     speaker: "Jamal Thompson",
+    speakerTitle: "Financial Wellbeing Coach & GCL UK Director",
+    speakerBio: "Jamal Thompson has worked with over 3,000 individuals on financial wellbeing across London, Birmingham, and Manchester. He is the author of 'Money Without Shame' and GCL's UK country director.",
     format: "In-Person",
-    type: "Ticketed"
+    type: "Free",
+    location: "Barbican Centre, London",
+    locationDetail: "Silk Street, London EC2Y 8DS",
+    capacity: 80,
+    registered: 67,
+    tags: ["Wellbeing", "Workshop", "In-Person", "UK"],
+    agenda: [
+      { time: "9:30 AM", title: "Welcome & Ground Rules", description: "Creating a shame-free space for honest financial conversation" },
+      { time: "10:00 AM", title: "Financial Wellbeing as a Right", description: "Reframing the conversation" },
+      { time: "10:45 AM", title: "Break" },
+      { time: "11:00 AM", title: "Practical Resilience Tools", description: "Shame-free budgeting, emergency buffers, and debt navigation" },
+      { time: "12:30 PM", title: "Lunch" },
+      { time: "1:30 PM", title: "Your Resilience Plan", description: "Guided individual session: build your personalized plan" },
+      { time: "2:30 PM", title: "Community Support Systems", description: "Group discussion: accountability, peer support structures" },
+      { time: "3:30 PM", title: "Close & Next Steps" },
+    ],
   },
   {
     id: "e8",
-    date: { day: "22", month: "NOV" },
+    date: { day: "22", month: "NOV", year: "2026", full: "November 22, 2026" },
+    time: "5:00 PM",
+    timezone: "UTC",
     title: "End of Year Review: Systems Check",
+    subtitle: "Annual Reflection & Community Celebration",
+    description: "A community gathering to reflect on 2026, celebrate what worked, and set the tone for GCL's 2027 direction.",
+    longDescription: "This is our annual community gathering — part review, part celebration, part planning session. We look honestly at what worked in 2026, what didn't, and what the GCL community wants to build together in 2027. All GCL graduates, partners, and community members are welcome. Expect candid conversation, recognition of community champions, and a preview of what's coming next.",
     speaker: "Marcus Chen",
+    speakerTitle: "GCL Co-Founder & Executive Director",
+    speakerBio: "Marcus Chen co-founded GCL in 2019 after 8 years as a development economist at the UN. He leads GCL's strategic direction and has spoken at Davos, TEDx, and the UN General Assembly on youth financial education.",
     format: "Online",
-    type: "Free"
-  }
+    type: "Free",
+    location: "GCL Live Platform + YouTube Live",
+    capacity: 3000,
+    registered: 756,
+    tags: ["Community", "Annual Review", "Celebration"],
+    agenda: [
+      { time: "5:00 PM", title: "2026 Year in Numbers", description: "Impact stats, milestones, and community highlights" },
+      { time: "5:20 PM", title: "Youth Champion Awards", description: "Recognizing outstanding community members" },
+      { time: "5:45 PM", title: "Honest Review: What We Got Wrong", description: "Transparent look at what didn't work and what we learned" },
+      { time: "6:05 PM", title: "2027 Preview: What's Coming", description: "New programs, partnerships, and geographic expansions" },
+      { time: "6:30 PM", title: "Open Community Discussion", description: "Your ideas for 2027" },
+      { time: "7:00 PM", title: "Close" },
+    ],
+  },
 ];

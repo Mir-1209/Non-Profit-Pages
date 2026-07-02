@@ -11,7 +11,9 @@ import { Courses } from './pages/Courses';
 import { CourseDetail } from './pages/CourseDetail';
 import { CourseLearn } from './pages/CourseLearn';
 import { Events } from './pages/Events';
+import { EventDetail } from './pages/EventDetail';
 import { News } from './pages/News';
+import { NewsDetail } from './pages/NewsDetail';
 import { SignIn } from './pages/SignIn';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { Privacy, Terms } from './pages/Legal';
@@ -34,7 +36,9 @@ function SiteLayout() {
             <Route path="/courses" component={Courses} />
             <Route path="/courses/:slug" component={CourseDetail} />
             <Route path="/events" component={Events} />
+            <Route path="/events/:id" component={EventDetail} />
             <Route path="/news" component={News} />
+            <Route path="/news/:id" component={NewsDetail} />
             <Route path="/signin" component={SignIn} />
             <Route path="/privacy" component={Privacy} />
             <Route path="/terms" component={Terms} />
