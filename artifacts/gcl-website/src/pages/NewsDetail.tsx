@@ -10,9 +10,9 @@ const catLabel: Record<string, string> = {
   Announcement: 'ANNOUNCEMENT',
 };
 
-function PhotoPlaceholder({ bg, label, className = '', aspectLabel = '' }: { bg: string; label: string; className?: string; aspectLabel?: string }) {
+function PhotoPlaceholder({ bg, label, className = '', aspectLabel = '', style }: { bg: string; label: string; className?: string; aspectLabel?: string; style?: React.CSSProperties }) {
   return (
-    <div className={`relative overflow-hidden flex items-end ${className}`} style={{ background: bg }}>
+    <div className={`relative overflow-hidden flex items-end ${className}`} style={{ background: bg, ...style }}>
       <div className="absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0px,rgba(255,255,255,0.035) 1px,transparent 1px,transparent 22px)' }} />
       {aspectLabel && (
         <div className="absolute top-4 right-4 text-[10px] font-[700] uppercase tracking-wider text-white/30">{aspectLabel}</div>

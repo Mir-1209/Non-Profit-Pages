@@ -120,7 +120,7 @@ function EventsSection() {
   const [modal, setModal] = useState<null | 'add' | Event>(null);
   const [form, setForm] = useState<Partial<Event>>({});
 
-  const openAdd = () => { setForm({ id: `e${Date.now()}`, date: { day: '', month: '' }, title: '', speaker: '', format: 'Online', type: 'Free' }); setModal('add'); };
+  const openAdd = () => { setForm({ id: `e${Date.now()}`, date: { day: '', month: '', year: '', full: '' }, title: '', speaker: '', format: 'Online', type: 'Free' }); setModal('add'); };
   const openEdit = (e: Event) => { setForm({ ...e }); setModal(e); };
   const close = () => setModal(null);
 
