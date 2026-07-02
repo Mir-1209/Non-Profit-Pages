@@ -60,7 +60,7 @@ export function Nav() {
             <img
               src={logoImg}
               alt="Global Capital League"
-              className="h-[52px] w-auto object-contain"
+              className="h-[44px] w-auto object-contain"
             />
           </Link>
 
