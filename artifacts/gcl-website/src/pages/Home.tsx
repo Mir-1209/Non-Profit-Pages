@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'wouter';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useAdmin } from '../context/AdminContext';
 import { StoriesCarousel } from '../components/StoriesCarousel';
 import { stories } from '../data/stories';
@@ -14,7 +14,74 @@ import imgClassroomBack from '@assets/20250717_110921_1782999950691.jpg';
 import imgSchool1 from '@assets/20251118_091859_1783000021515.jpg';
 import imgKids1 from '@assets/photo_2026-05-14_09.47.09_1782999997790.jpeg';
 import imgGroupSelfie from '@assets/photo_2026-01-12_21.22.30_1783000075275.jpeg';
+import imgStudents4 from '@assets/20250717_110927_1782999964182.jpg';
+import imgAudience from '@assets/20251118_091918_1783000021516.jpg';
 
+// ─── Laurel SVG for award badges ──────────────────────────────────────────
+function GoldLaurel({ flip = false }: { flip?: boolean }) {
+  return (
+    <svg
+      width="56" height="22" viewBox="0 0 56 22" fill="none"
+      style={{ transform: flip ? 'scaleX(-1)' : undefined }}
+    >
+      <ellipse cx="8"  cy="14" rx="7" ry="3.5" transform="rotate(-30  8 14)" fill="#c9a227" opacity="0.85"/>
+      <ellipse cx="18" cy="10" rx="7" ry="3.2" transform="rotate(-45 18 10)" fill="#d4af37" opacity="0.9"/>
+      <ellipse cx="28" cy="7"  rx="6" ry="2.8" transform="rotate(-55 28  7)" fill="#e8c547" opacity="0.95"/>
+      <ellipse cx="37" cy="5"  rx="5" ry="2.5" transform="rotate(-65 37  5)" fill="#f0d060" opacity="0.9"/>
+      <ellipse cx="45" cy="4"  rx="4" ry="2.2" transform="rotate(-72 45  4)" fill="#f5da72" opacity="0.8"/>
+    </svg>
+  );
+}
+
+// ─── Award Badge component (laurel-wreath style) ──────────────────────────
+function AwardBadge({ title, sub, delay = 0, floatDir = 1 }: {
+  title: string; sub: string; delay?: number; floatDir?: number;
+}) {
+  return (
+    <motion.div
+      animate={{ y: [0, floatDir * 6, 0] }}
+      transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay }}
+      className="relative rounded-2xl overflow-hidden"
+      style={{
+        background: 'linear-gradient(145deg, rgba(14,10,3,0.92) 0%, rgba(26,18,4,0.94) 100%)',
+        border: '1px solid rgba(212,175,55,0.4)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        boxShadow: '0 6px 28px rgba(0,0,0,0.5), inset 0 1px 0 rgba(212,175,55,0.18)',
+      }}
+    >
+      {/* Gold shimmer line at top */}
+      <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent)' }} />
+
+      <div className="px-5 py-3.5">
+        {/* Laurel row */}
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <GoldLaurel />
+          <span className="text-[10px] font-[800] tracking-[0.18em] uppercase" style={{ color: '#d4af37' }}>★</span>
+          <GoldLaurel flip />
+        </div>
+
+        {/* Title */}
+        <div className="text-center">
+          <div className="text-[9px] font-[800] tracking-[0.18em] uppercase mb-1" style={{ color: '#d4af37' }}>{title}</div>
+          <div className="text-[11.5px] font-[600] leading-[1.4] text-white/80 text-center">{sub}</div>
+        </div>
+
+        {/* Bottom divider */}
+        <div className="flex items-center gap-1.5 mt-2.5">
+          <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.45))' }} />
+          <span className="text-[8px]" style={{ color: '#d4af37' }}>◆</span>
+          <div className="flex-1 h-px" style={{ background: 'linear-gradient(to left, transparent, rgba(212,175,55,0.45))' }} />
+        </div>
+      </div>
+
+      {/* Gold shimmer line at bottom */}
+      <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent)' }} />
+    </motion.div>
+  );
+}
+
+// ─── Reveal on scroll ─────────────────────────────────────────────────────
 function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode, className?: string, delay?: number }) {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
@@ -31,6 +98,7 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
   );
 }
 
+// ─── Counting number ──────────────────────────────────────────────────────
 function Counter({ end, suffix = "" }: { end: number, suffix?: string }) {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true });
@@ -46,8 +114,11 @@ function Counter({ end, suffix = "" }: { end: number, suffix?: string }) {
     }, stepTime);
     return () => clearInterval(timer);
   }, [isInView, end]);
-  return <span ref={ref} className={value === end ? 'counter landed' : 'counter'}>{value}{suffix}</span>;
+  return <span ref={ref}>{value}{suffix}</span>;
 }
+
+// ─── Cycling word in hero headline ────────────────────────────────────────
+const CYCLE_WORDS = ['RATIONAL.', 'SIMPLE.', 'ACCESSIBLE.'];
 
 export function Home() {
   const { events, courses, news } = useAdmin();
@@ -55,8 +126,16 @@ export function Home() {
   const upcomingEvents = events.slice(0, 3);
   const featuredCourses = courses.slice(0, 3);
 
+  const [wordIdx, setWordIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setWordIdx(i => (i + 1) % CYCLE_WORDS.length), 2800);
+    return () => clearInterval(t);
+  }, []);
+
   const catColor: Record<string, string> = { Research: '#3358ff', Update: '#8b5cf6', Story: '#e93fc7', Announcement: '#28c840' };
   const catBg: Record<string, string> = { Research: 'rgba(51,88,255,0.1)', Update: 'rgba(139,92,246,0.1)', Story: 'rgba(233,63,199,0.1)', Announcement: 'rgba(40,200,64,0.1)' };
+
+  const progPhotos = [imgClassroomWide, imgInstructor, imgSchool1, imgStudents3];
 
   return (
     <main className="pb-24">
@@ -69,20 +148,22 @@ export function Home() {
           className="absolute inset-0 w-full h-full object-cover"
           src={heroVideo}
         />
-        {/* Layered overlay: left heavy dark, right lighter, top navbar fade */}
+        {/* Layered overlay */}
         <div className="absolute inset-0"
-          style={{ background: 'linear-gradient(105deg, rgba(6,6,20,0.88) 0%, rgba(10,8,30,0.72) 45%, rgba(15,10,40,0.38) 100%)' }} />
+          style={{ background: 'linear-gradient(105deg, rgba(6,6,20,0.90) 0%, rgba(10,8,30,0.74) 45%, rgba(15,10,40,0.35) 100%)' }} />
         <div className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, transparent 25%, transparent 60%, rgba(0,0,0,0.65) 100%)' }} />
-        {/* Subtle noise grain */}
+          style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, transparent 22%, transparent 60%, rgba(0,0,0,0.65) 100%)' }} />
+        {/* Subtle grain */}
         <div className="absolute inset-0 opacity-[0.025]"
           style={{ backgroundImage: 'repeating-linear-gradient(0deg,#fff 0px,#fff 1px,transparent 1px,transparent 4px),repeating-linear-gradient(90deg,#fff 0px,#fff 1px,transparent 1px,transparent 4px)' }} />
 
         {/* Main content */}
         <div className="relative z-10 max-w-[1240px] mx-auto px-8 pt-[120px] pb-[48px] w-full flex-1 flex flex-col justify-center">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 items-end">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 items-end">
+
+            {/* ── Left: headline + copy ── */}
             <div className="max-w-[660px]">
-              {/* Label pill — glass */}
+              {/* Label pill */}
               <motion.span
                 initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
                 className="inline-flex items-center gap-2 text-[12.5px] font-[800] tracking-[0.08em] uppercase text-white/90 px-4 py-2 rounded-full mb-7 border border-white/20"
@@ -92,32 +173,48 @@ export function Home() {
                 Youth-Led · Financial Education
               </motion.span>
 
+              {/* Headline with cycling last word */}
               <motion.h1
                 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
                 className="font-[800] text-[clamp(48px,7.2vw,96px)] leading-[0.94] tracking-[-0.035em] text-white"
               >
                 <span className="block">MONEY,</span>
                 <span className="block">MADE</span>
-                <span className="block" style={{ WebkitTextStroke: '2.5px rgba(255,255,255,0.95)', color: 'transparent' }}>RATIONAL.</span>
+                {/* Fixed height container for cycling word — span keeps valid h1 phrasing content */}
+                <span style={{ display: 'block', minHeight: 'calc(clamp(48px,7.2vw,96px) * 1.05)', position: 'relative', overflow: 'hidden' }}>
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={CYCLE_WORDS[wordIdx]}
+                      initial={{ opacity: 0, y: 32, filter: 'blur(6px)' }}
+                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, y: -28, filter: 'blur(6px)' }}
+                      transition={{ duration: 0.55, ease: [0.21, 0.47, 0.32, 0.98] }}
+                      style={{ display: 'block', position: 'absolute', top: 0, left: 0, WebkitTextStroke: '2.5px rgba(255,255,255,0.95)', color: 'transparent' }}
+                    >
+                      {CYCLE_WORDS[wordIdx]}
+                    </motion.span>
+                  </AnimatePresence>
+                </span>
               </motion.h1>
 
               <motion.p
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                className="mt-[28px] max-w-[520px] text-[17.5px] leading-[1.65] text-white/70"
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
+                className="mt-[32px] max-w-[520px] text-[17px] leading-[1.65] text-white/70"
               >
-                A top-tier financial education used to be reserved for the lucky few.{' '}
+                Top-tier financial education used to be reserved for the lucky few.{' '}
                 <strong className="text-white/95 font-[700]">Not anymore.</strong>{' '}
-                GCL brings behavioral economics and financial literacy to communities the world forgot.
+                GCL brings behavioral economics and money psychology to communities the world forgot.{' '}
+                <span className="text-white/50 text-[14px]">No cap.</span>
               </motion.p>
 
               <motion.div
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                className="flex flex-wrap gap-[14px] mt-[38px]"
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}
+                className="flex flex-wrap gap-[14px] mt-[36px]"
               >
                 <Link href="/courses"
                   className="inline-flex items-center gap-2 px-7 py-[14px] rounded-full text-[15px] font-[800] text-[var(--ink)] bg-white hover:bg-white/90 transition-all hover:-translate-y-[2px] shadow-[0_0_30px_rgba(255,255,255,0.25)]"
                   data-testid="hero-join">
-                  Join a Course <span>→</span>
+                  Start Moneymaxxing →
                 </Link>
                 <Link href="/events"
                   className="inline-flex items-center gap-2 px-7 py-[14px] rounded-full text-[15px] font-[800] text-white border border-white/30 transition-all hover:-translate-y-[2px]"
@@ -128,11 +225,11 @@ export function Home() {
 
               {/* Trust badges */}
               <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.52 }}
                 className="flex items-center gap-6 mt-9 flex-wrap"
               >
                 {['14+ Countries', '8K+ Youth', '120+ Workshops', '100% Free'].map(badge => (
-                  <div key={badge} className="flex items-center gap-2 text-[13px] font-[700] text-white/60">
+                  <div key={badge} className="flex items-center gap-2 text-[13px] font-[700] text-white/55">
                     <span className="w-[5px] h-[5px] rounded-full bg-white/40" />
                     {badge}
                   </div>
@@ -140,35 +237,29 @@ export function Home() {
               </motion.div>
             </div>
 
-            {/* Floating glass badges — right side, desktop only */}
+            {/* ── Right: golden award badges ── */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6, duration: 0.9 }}
-              className="hidden lg:flex flex-col gap-4 self-center pb-4"
+              initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.65, duration: 0.9 }}
+              className="hidden lg:flex flex-col gap-3 self-center pb-4 w-[255px]"
             >
-              <motion.div animate={{ y: [0, -7, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-                className="flex items-center gap-3 px-5 py-4 rounded-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
-                style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-                <span className="text-2xl">🧠</span>
-                <div>
-                  <div className="text-[12px] font-[800] text-white">Behavioral Economics</div>
-                  <div className="text-[11px] text-white/50 mt-0.5">Module unlocked</div>
-                </div>
-              </motion.div>
-
-              <motion.div animate={{ y: [0, 7, 0] }} transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
-                className="flex flex-col gap-0.5 px-5 py-4 rounded-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
-                style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-                <div className="text-[11px] font-[700] text-white/50 uppercase tracking-widest">Community</div>
-                <div className="text-[20px] font-[800] text-white leading-none">8,000+</div>
-                <div className="text-[11px] text-white/50">members worldwide</div>
-              </motion.div>
-
-              <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
-                className="flex items-center gap-2 px-5 py-3 rounded-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
-                style={{ background: 'rgba(40,200,64,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-                <span className="w-[8px] h-[8px] rounded-full bg-[#28c840] shadow-[0_0_0_3px_rgba(40,200,64,0.25)] animate-pulse shrink-0" />
-                <div className="text-[12px] font-[700] text-white/90">Live in 14+ countries</div>
-              </motion.div>
+              <AwardBadge
+                title="Central Asia's Largest"
+                sub="Youth-led financial literacy initiative"
+                delay={0}
+                floatDir={-1}
+              />
+              <AwardBadge
+                title="World's First"
+                sub="Behavioral financial literacy non-profit"
+                delay={0.9}
+                floatDir={1}
+              />
+              <AwardBadge
+                title="Formerly"
+                sub="Vanguard Capital League — now GCL"
+                delay={1.8}
+                floatDir={-1}
+              />
             </motion.div>
           </div>
         </div>
@@ -186,7 +277,7 @@ export function Home() {
                 { icon: '📚', end: 120, suffix: '+', label: 'Workshops' },
                 { icon: '👥', end: 8, suffix: 'K+', label: 'Youth Reached' },
                 { icon: '🎓', end: 92, suffix: '%', label: 'Completion Rate' },
-              ].map((s, i) => (
+              ].map((s) => (
                 <div key={s.label} className="flex items-center gap-3 py-5 px-6 first:pl-0">
                   <span className="text-xl shrink-0">{s.icon}</span>
                   <div>
@@ -204,10 +295,23 @@ export function Home() {
 
       {/* ─── MARQUEE ─── */}
       <div className="py-[20px] overflow-hidden bg-[var(--brutal-bg)] border-y-[2.5px] border-[var(--ink)]">
-        <div className="flex w-max animate-[marquee_26s_linear_infinite]">
+        <div className="flex w-max animate-[marquee_28s_linear_infinite]">
           {[1, 2].map((i) => (
             <span key={i} className="flex items-center gap-[26px] px-[14px] whitespace-nowrap">
-              {['Behavioral Economics', 'Financial Dignity', 'Youth-Led', 'Global Reach', 'Rational Decisions', 'Free Education', 'Systems Thinking'].map(w => (
+              {[
+                'Behavioral Economics',
+                'Moneymaxxing',
+                'Financial Dignity',
+                'Youth-Led',
+                'No Cap 💸',
+                'Global Reach',
+                'Slay Your Finances',
+                'Rational Decisions',
+                'Financial Glow-Up',
+                'Free Education',
+                'Main Character Energy',
+                'Systems Thinking',
+              ].map(w => (
                 <React.Fragment key={w}>
                   <span className="text-[22px] font-[800] text-[var(--neon-cyan)]">★</span>
                   <span className="text-[22px] font-[800] uppercase tracking-[-0.01em] text-[var(--brutal-text)]">{w}</span>
@@ -218,7 +322,7 @@ export function Home() {
         </div>
       </div>
 
-      {/* ─── MISSION — with real classroom photo ──────────────────────── */}
+      {/* ─── MISSION ──────────────────────────────────────────────────── */}
       <section className="py-[110px]">
         <div className="max-w-[1240px] mx-auto px-8 grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-[64px] items-center">
           <Reveal>
@@ -231,8 +335,11 @@ export function Home() {
             <p className="text-[16px] leading-[1.75] text-[var(--ink-soft)] mb-4">
               Financial literacy programs usually fail because they teach math, not behavior. We focus on <strong>decisions under scarcity</strong>, emotional spending, and the psychological traps that keep communities in debt.
             </p>
-            <p className="text-[16px] leading-[1.75] text-[var(--ink-soft)] mb-8">
+            <p className="text-[16px] leading-[1.75] text-[var(--ink-soft)] mb-2">
               By empowering youth to understand the cognitive side of money, we build systemic resilience that traditional budgeting advice can't provide.
+            </p>
+            <p className="text-[14px] text-[var(--ink-faint)] mb-8 italic">
+              Formerly Vanguard Capital League — rebranded as Global Capital League to match our reach. ✦
             </p>
             <div className="flex gap-3 flex-wrap">
               <Link href="/courses" className="btn btn-dark">Explore Our Courses</Link>
@@ -248,7 +355,6 @@ export function Home() {
                 alt="GCL workshop session in progress"
                 className="w-full h-full object-cover"
               />
-              {/* Caption overlay */}
               <div className="absolute bottom-0 left-0 right-0 p-5"
                 style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }}>
                 <div className="text-[10px] font-[800] uppercase tracking-[0.12em] text-white/50 mb-0.5">Live Session</div>
@@ -264,32 +370,43 @@ export function Home() {
         </div>
       </section>
 
-      {/* ─── PROGRAMS (dark) ─── */}
+      {/* ─── PROGRAMS (dark) with real photos ───────────────────────── */}
       <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="max-w-[640px] mb-[60px]">
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--neon-cyan)] mb-4 flex">What We Do</span>
             <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4">Our Core Programs</h2>
             <p className="text-[16px] text-[var(--brutal-text-dim)] leading-[1.7] max-w-[520px]">
-              We deliver impact through multiple channels, ensuring our behavioral frameworks reach those who need them most.
+              Slaying financial ignorance through multiple channels. We bring behavioral frameworks to those who need them most. No gatekeepers, no fees, no excuses.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[22px]">
             {[
-              { title: "Live Workshops", icon: "🎓", num: "01", desc: "Intensive live sessions on the psychology of spending and financial behavior.", color: "var(--neon-cyan)" },
-              { title: "Digital Courses", icon: "💻", num: "02", desc: "Self-paced modules built on modern learning science and real case studies.", color: "var(--magenta)" },
-              { title: "Partnerships", icon: "🤝", num: "03", desc: "Collaborations with local schools, NGOs, and community organizations.", color: "var(--blue)" },
-              { title: "Train the Trainer", icon: "🚀", num: "04", desc: "Empowering youth to teach financial literacy in their own communities.", color: "var(--violet)" },
+              { title: "Live Workshops", num: "01", desc: "Intensive live sessions on the psychology of spending and financial behavior. Pure main character energy.", color: "var(--neon-cyan)", label: "Youth Workshop · Tashkent" },
+              { title: "Digital Courses", num: "02", desc: "Self-paced modules built on modern learning science and real case studies. Learn from anywhere, slay everywhere.", color: "var(--magenta)", label: "Digital Reach · Global" },
+              { title: "Partnerships", num: "03", desc: "Collaborations with local schools, NGOs, and community organizations. Real collab energy.", color: "var(--blue)", label: "School Partnership · Tajikistan" },
+              { title: "Train the Trainer", num: "04", desc: "Empowering youth to teach financial literacy in their own communities. Pass the bag of knowledge.", color: "var(--violet)", label: "Community · After Session" },
             ].map((prog, i) => (
               <Reveal key={i} delay={i * 0.1}>
-                <div className="bg-[var(--brutal-bg-2)] pb-[26px] min-h-[300px] flex flex-col justify-between overflow-hidden brutal-card on-dark rounded-[14px]">
-                  <div className="h-[100px] border-b-[2.5px] border-[rgba(246,244,255,0.7)] flex items-center justify-center text-3xl" style={{ background: `linear-gradient(135deg, ${prog.color}22, transparent)` }}>
-                    {prog.icon}
+                <div className="bg-[var(--brutal-bg-2)] min-h-[340px] flex flex-col justify-between overflow-hidden brutal-card on-dark rounded-[14px]">
+                  {/* Photo header */}
+                  <div className="h-[130px] relative overflow-hidden border-b-[2.5px] border-[rgba(246,244,255,0.7)]">
+                    <img
+                      src={progPhotos[i]}
+                      alt={prog.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%)' }} />
+                    {/* Location tag */}
+                    <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-full text-[9px] font-[800] uppercase tracking-wide text-white border border-white/20"
+                      style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)' }}>
+                      {prog.label}
+                    </div>
                   </div>
-                  <div className="p-[22px_22px_0]">
-                    <div className="w-[44px] h-[44px] rounded-[12px] flex items-center justify-center font-[800] text-[12.5px] bg-[var(--neon-cyan)] text-[var(--brutal-bg)]">{prog.num}</div>
-                    <h4 className="font-[800] text-[18px] mt-[18px] mb-[8px] tracking-[-0.01em] uppercase text-[var(--brutal-text)]">{prog.title}</h4>
-                    <p className="text-[13.5px] text-[var(--brutal-text-dim)] leading-[1.6]">{prog.desc}</p>
+                  <div className="p-[22px] flex-1 flex flex-col">
+                    <div className="w-[44px] h-[44px] rounded-[12px] flex items-center justify-center font-[800] text-[12.5px] bg-[var(--neon-cyan)] text-[var(--brutal-bg)] mb-[14px]">{prog.num}</div>
+                    <h4 className="font-[800] text-[18px] mb-[8px] tracking-[-0.01em] uppercase text-[var(--brutal-text)]">{prog.title}</h4>
+                    <p className="text-[13px] text-[var(--brutal-text-dim)] leading-[1.6] flex-1">{prog.desc}</p>
                   </div>
                 </div>
               </Reveal>
@@ -306,7 +423,7 @@ export function Home() {
               <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-4">Curriculum</span>
               <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4">Featured Courses</h2>
               <p className="text-[16px] text-[var(--ink-soft)] leading-[1.7]">
-                Open-access modules built on behavioral economics. Culturally adapted. Relentlessly practical.
+                Open-access modules built on behavioral economics. Culturally adapted. Relentlessly practical. Your financial glow-up starts here.
               </p>
             </div>
             <Link href="/courses" className="btn btn-outline shrink-0">View All Courses →</Link>
@@ -345,11 +462,23 @@ export function Home() {
               <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-4">Events</span>
               <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4">Upcoming Events</h2>
               <p className="text-[16px] text-[var(--ink-soft)] leading-[1.7]">
-                Join a session in your city — or online. All events are free and open to everyone.
+                Join a session in your city — or online. All events are free and open to everyone. Slay in person or from your couch.
               </p>
             </div>
             <Link href="/events" className="btn btn-outline shrink-0">All Events →</Link>
           </div>
+
+          {/* Photo strip at top of events */}
+          <Reveal className="mb-8">
+            <div className="grid grid-cols-3 gap-3 rounded-[20px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[8px_8px_0px_var(--ink)]" style={{ height: 200 }}>
+              {[imgAudience, imgKids1, imgGroupSelfie].map((img, i) => (
+                <div key={i} className="relative overflow-hidden" style={{ borderRight: i < 2 ? '2px solid var(--ink)' : undefined }}>
+                  <img src={img} alt="" className="w-full h-full object-cover object-center" />
+                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.45) 100%)' }} />
+                </div>
+              ))}
+            </div>
+          </Reveal>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {upcomingEvents.map((ev, i) => (
@@ -381,7 +510,7 @@ export function Home() {
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="max-w-[640px] mx-auto text-center mb-[52px]">
             <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4">The Proof</h2>
-            <p className="text-[16px] text-[var(--brutal-text-dim)] max-w-[400px] mx-auto">Numbers that show what behavioral finance education can really do.</p>
+            <p className="text-[16px] text-[var(--brutal-text-dim)] max-w-[400px] mx-auto">Numbers that show what behavioral finance education can really do. These numbers? They're giving.</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-[2.5px] bg-[var(--brutal-line)] border-[2.5px] border-[var(--brutal-line)] rounded-[16px] overflow-hidden">
             {[
@@ -402,8 +531,8 @@ export function Home() {
           {/* Testimonial strip */}
           <div className="mt-[60px] grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
-              { quote: "GCL changed how I see every financial decision I make. This isn't budgeting — it's a mindset shift.", name: "Amara D.", loc: "Ghana" },
-              { quote: "I grew up thinking rich people were just luckier. GCL showed me the systems they use — and how to build them.", name: "Luca R.", loc: "Italy" },
+              { quote: "GCL changed how I see every financial decision I make. This isn't budgeting — it's a mindset shift. Total glow-up.", name: "Amara D.", loc: "Ghana" },
+              { quote: "I grew up thinking rich people were just luckier. GCL showed me the systems they use — and how to build them. Slayed.", name: "Luca R.", loc: "Italy" },
               { quote: "After the scarcity module, I finally understood why I kept making 'bad' financial decisions. It wasn't weakness.", name: "Priya N.", loc: "India" },
             ].map((t, i) => (
               <Reveal key={i} delay={i * 0.1}>
@@ -424,10 +553,9 @@ export function Home() {
         </div>
       </section>
 
-      {/* ─── FROM THE FIELD — Intentional photo gallery ───────────────── */}
+      {/* ─── FROM THE FIELD — photo gallery ──────────────────────────── */}
       <section className="py-[110px]">
         <div className="max-w-[1240px] mx-auto px-8">
-          {/* Header */}
           <Reveal className="mb-[52px]">
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-5">
               From the Field
@@ -437,27 +565,20 @@ export function Home() {
                 Impact.<br />In person.
               </h2>
               <p className="text-[16px] text-[var(--ink-soft)] leading-[1.7] max-w-[380px] mb-1">
-                Real classrooms. Real students. Every session is a community that didn't exist before.
+                Real classrooms. Real students. Every session is a community that didn't exist before. Very much slay behavior.
               </p>
             </div>
           </Reveal>
 
-          {/* Row 1 — editorial: big left + stacked right */}
+          {/* Row 1 — big left + stacked right */}
           <Reveal className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-4 mb-4">
-            {/* Main large image */}
             <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[8px_8px_0px_var(--ink)]" style={{ height: 460 }}>
-              <img
-                src={imgClassroomWide}
-                alt="GCL workshop — full room in session"
-                className="w-full h-full object-cover object-center"
-              />
-              {/* Location tag */}
+              <img src={imgClassroomWide} alt="GCL workshop — full room in session" className="w-full h-full object-cover object-center" />
               <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-[800] uppercase tracking-wide text-white border border-white/25"
                 style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
                 <span className="w-[6px] h-[6px] rounded-full bg-[#28c840] animate-pulse" />
                 Youth Workshop · Tashkent
               </div>
-              {/* Caption */}
               <div className="absolute bottom-0 left-0 right-0 p-6"
                 style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)' }}>
                 <div className="text-[11px] font-[700] uppercase tracking-wider text-white/50 mb-1">Financial Literacy Program</div>
@@ -465,33 +586,17 @@ export function Home() {
               </div>
             </div>
 
-            {/* Right column — stacked 2 */}
             <div className="flex flex-col gap-4">
-              {/* Instructor */}
               <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] flex-1">
-                <img
-                  src={imgInstructor}
-                  alt="GCL instructor presenting income types"
-                  className="w-full h-full object-cover object-top"
-                  style={{ minHeight: 215 }}
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-4"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }}>
+                <img src={imgInstructor} alt="GCL instructor presenting income types" className="w-full h-full object-cover object-top" style={{ minHeight: 215 }} />
+                <div className="absolute bottom-0 left-0 right-0 p-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }}>
                   <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">Educator</div>
                   <div className="text-[13px] font-[800] text-white">Live session — 5 types of income</div>
                 </div>
               </div>
-
-              {/* Students */}
               <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] flex-1">
-                <img
-                  src={imgStudents3}
-                  alt="GCL students after a session"
-                  className="w-full h-full object-cover object-top"
-                  style={{ minHeight: 215 }}
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-4"
-                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }}>
+                <img src={imgStudents3} alt="GCL students after a session" className="w-full h-full object-cover object-top" style={{ minHeight: 215 }} />
+                <div className="absolute bottom-0 left-0 right-0 p-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }}>
                   <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">Our Community</div>
                   <div className="text-[13px] font-[800] text-white">Students after the session</div>
                 </div>
@@ -499,59 +604,44 @@ export function Home() {
             </div>
           </Reveal>
 
-          {/* Row 2 — three equal: different geographies */}
+          {/* Row 2 — three geographies */}
           <Reveal delay={0.1} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Traditional school — Tajikistan */}
-            <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)]" style={{ height: 300 }}>
-              <img
-                src={imgSchool1}
-                alt="GCL workshop in traditional school"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-[800] uppercase tracking-wide text-white border border-white/25"
-                style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
-                School Partnership
+            {[
+              { src: imgSchool1, tag: 'School Partnership', loc: 'Tajikistan · Nov 2025', cap: 'Taking GCL into classrooms' },
+              { src: imgKids1, tag: 'K-12 Reach', loc: 'Tajikistan · May 2026', cap: 'Financial literacy starts young' },
+              { src: imgGroupSelfie, tag: 'Community', loc: 'After the Session · Jan 2026', cap: 'This is what change looks like' },
+            ].map((item, i) => (
+              <div key={i} className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)]" style={{ height: 300 }}>
+                <img src={item.src} alt={item.cap} className="w-full h-full object-cover object-top" />
+                <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-[800] uppercase tracking-wide text-white border border-white/25"
+                  style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+                  {item.tag}
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-5"
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 100%)' }}>
+                  <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">{item.loc}</div>
+                  <div className="text-[13px] font-[800] text-white">{item.cap}</div>
+                </div>
               </div>
+            ))}
+          </Reveal>
+
+          {/* Extra row — more photos */}
+          <Reveal delay={0.15} className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)]" style={{ height: 260 }}>
+              <img src={imgStudents4} alt="GCL students energized" className="w-full h-full object-cover object-center" />
               <div className="absolute bottom-0 left-0 right-0 p-5"
-                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 100%)' }}>
-                <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">Tajikistan · Nov 2025</div>
-                <div className="text-[13px] font-[800] text-white">Taking GCL into classrooms</div>
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)' }}>
+                <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">Youth · Tashkent</div>
+                <div className="text-[13px] font-[800] text-white">The next generation is already slaying 💸</div>
               </div>
             </div>
-
-            {/* School kids in uniforms */}
-            <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)]" style={{ height: 300 }}>
-              <img
-                src={imgKids1}
-                alt="School students engaged in GCL program"
-                className="w-full h-full object-cover object-top"
-              />
-              <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-[800] uppercase tracking-wide text-white border border-white/25"
-                style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
-                K-12 Reach
-              </div>
+            <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)]" style={{ height: 260 }}>
+              <img src={imgAudience} alt="GCL large audience session" className="w-full h-full object-cover object-center" />
               <div className="absolute bottom-0 left-0 right-0 p-5"
-                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 100%)' }}>
-                <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">Tajikistan · May 2026</div>
-                <div className="text-[13px] font-[800] text-white">Financial literacy starts young</div>
-              </div>
-            </div>
-
-            {/* Group energy — selfie at Freedom Bank */}
-            <div className="relative rounded-[18px] overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)]" style={{ height: 300 }}>
-              <img
-                src={imgGroupSelfie}
-                alt="GCL participants group shot"
-                className="w-full h-full object-cover object-top"
-              />
-              <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full text-[10px] font-[800] uppercase tracking-wide text-white border border-white/25"
-                style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
-                Community
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-5"
-                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 100%)' }}>
-                <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">After the Session · Jan 2026</div>
-                <div className="text-[13px] font-[800] text-white">This is what change looks like</div>
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)' }}>
+                <div className="text-[10px] font-[700] uppercase tracking-wider text-white/50 mb-0.5">Nov 2025 · Tajikistan</div>
+                <div className="text-[13px] font-[800] text-white">Packed house. Zero fees. All facts.</div>
               </div>
             </div>
           </Reveal>
@@ -565,7 +655,7 @@ export function Home() {
             <div className="max-w-[560px]">
               <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-4">Latest News</span>
               <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4">Updates from GCL</h2>
-              <p className="text-[16px] text-[var(--ink-soft)] leading-[1.7]">Research, stories, and impact updates from around the global network.</p>
+              <p className="text-[16px] text-[var(--ink-soft)] leading-[1.7]">Research, stories, and impact updates from around the global network. Stay in your bag, stay informed.</p>
             </div>
             <Link href="/news" className="btn btn-outline shrink-0">All News →</Link>
           </div>
@@ -574,10 +664,20 @@ export function Home() {
             {publishedNews.map((post, i) => (
               <Reveal key={post.id} delay={i * 0.08}>
                 <Link href="/news" className="block bg-white rounded-[20px] border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] overflow-hidden hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[10px_10px_0px_var(--ink)] transition-all">
-                  <div className="h-[6px]" style={{ background: catColor[post.category] ?? '#888' }} />
+                  {/* Photo thumbnail */}
+                  <div className="h-[140px] relative overflow-hidden border-b-[2.5px] border-[var(--ink)]">
+                    <img
+                      src={[imgClassroomBack, imgStudents3, imgSchool1][i % 3]}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.4) 100%)' }} />
+                    <div className="absolute bottom-2 left-3">
+                      <span className="text-[10px] font-[800] uppercase tracking-wider px-2.5 py-1 rounded-md" style={{ background: catBg[post.category] ?? 'rgba(0,0,0,0.5)', color: catColor[post.category] ?? '#fff', backdropFilter: 'blur(8px)' }}>{post.category}</span>
+                    </div>
+                  </div>
                   <div className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-[11px] font-[800] uppercase tracking-wider px-2.5 py-1 rounded-md" style={{ background: catBg[post.category] ?? 'var(--paper-alt)', color: catColor[post.category] ?? 'var(--ink-soft)' }}>{post.category}</span>
+                    <div className="flex items-center justify-between mb-3">
                       <span className="text-[12px] text-[var(--ink-faint)]">{post.date}</span>
                     </div>
                     <h3 className="font-[800] text-[16px] leading-[1.3] mb-3">{post.title}</h3>
@@ -596,7 +696,7 @@ export function Home() {
         <div className="max-w-[1240px] mx-auto px-8 mb-10">
           <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-4">Community</span>
           <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4">Voices of GCL</h2>
-          <p className="text-[16px] text-[var(--ink-soft)] max-w-[520px]">Real impact across the globe from our community of learners.</p>
+          <p className="text-[16px] text-[var(--ink-soft)] max-w-[520px]">Real impact across the globe. These people ate and left no crumbs. 🏆</p>
         </div>
         <StoriesCarousel stories={stories} />
       </section>
@@ -611,9 +711,9 @@ export function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             <div className="hidden md:block absolute top-[52px] left-[calc(33%+20px)] right-[calc(33%+20px)] h-[2px] border-t-[2.5px] border-dashed border-[var(--line)]" />
             {[
-              { step: '01', icon: '🔍', title: 'Pick a Course', desc: 'Browse our open-access curriculum. No prerequisites, no fees, no gatekeepers.' },
-              { step: '02', icon: '🧠', title: 'Learn the System', desc: 'Work through behavioral economics modules at your own pace, anywhere in the world.' },
-              { step: '03', icon: '🚀', title: 'Join the League', desc: 'Attend events, connect with peers globally, and even teach in your own community.' },
+              { step: '01', icon: '🔍', title: 'Pick a Course', desc: 'Browse our open-access curriculum. No prerequisites, no fees, no gatekeepers. Just vibes and knowledge.' },
+              { step: '02', icon: '🧠', title: 'Learn the System', desc: 'Work through behavioral economics modules at your own pace, anywhere in the world. Moneymaxxing mode: on.' },
+              { step: '03', icon: '🚀', title: 'Join the League', desc: 'Attend events, connect with peers globally, and even teach in your own community. Full slay arc.' },
             ].map((s, i) => (
               <Reveal key={s.step} delay={i * 0.12}>
                 <div className="text-center relative">
@@ -637,14 +737,15 @@ export function Home() {
             style={{ background: 'linear-gradient(135deg, #e9edff 0%, #f7e6fb 50%, #fce4f2 100%)' }}>
             <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'repeating-linear-gradient(45deg,var(--ink) 0px,var(--ink) 1px,transparent 1px,transparent 28px)' }} />
             <div className="relative">
+              <p className="text-[12px] font-[800] tracking-[0.14em] uppercase text-[var(--ink-faint)] mb-3">Your financial glow-up starts here 💸</p>
               <h2 className="font-[800] text-[clamp(30px,5.2vw,56px)] leading-[1.05] tracking-[-0.03em] max-w-[720px] mx-auto mb-[18px] uppercase">
                 Ready to change the narrative?
               </h2>
               <p className="text-[var(--ink-soft)] text-[16px] max-w-[500px] mx-auto mb-[32px]">
-                Join the league. Take a course, attend an event, or partner with us to bring GCL to your community.
+                Join the league. Take a course, attend an event, or partner with us to bring GCL to your community. No cap — it's free.
               </p>
               <div className="flex justify-center gap-[14px] flex-wrap">
-                <Link href="/courses" className="btn btn-dark btn-lg">Start Learning Free</Link>
+                <Link href="/courses" className="btn btn-dark btn-lg">Start Moneymaxxing Free</Link>
                 <Link href="/events" className="btn btn-outline btn-lg">Find an Event</Link>
               </div>
             </div>
