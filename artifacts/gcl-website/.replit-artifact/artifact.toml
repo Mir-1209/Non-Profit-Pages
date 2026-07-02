@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "GCL — Global Capital League"
+version = "1.0.0"
+id = "artifacts/gcl-website"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19079
+
+[services.development]
+run = "pnpm --filter @workspace/gcl-website run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/gcl-website", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/gcl-website/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19079"
+BASE_PATH = "/"

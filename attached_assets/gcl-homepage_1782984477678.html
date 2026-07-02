@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Capital League — Financial Literacy Without Borders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ffffff;
+    --paper-alt:#f7f6fd;
+    --ink:#15132c;
+    --ink-soft:#5c5876;
+    --ink-faint:#928da8;
+    --blue:#3358ff;
+    --violet:#8b5cf6;
+    --magenta:#e93fc7;
+    --line:#ecebf7;
+    --pill-bg:#e8edff;
+    --pill-ink:#26206b;
+    --grad-brand:linear-gradient(100deg, var(--blue) 0%, var(--violet) 60%, var(--magenta) 100%);
+    --shadow-sm:0 2px 10px rgba(31,26,74,0.06);
+    --shadow-md:0 14px 34px -10px rgba(31,26,74,0.14);
+    --shadow-lg:0 28px 60px -18px rgba(31,26,74,0.20);
+    --footer-bg:linear-gradient(170deg,#1c1640 0%, #2c1a5e 55%, #3a2077 100%);
+    --radius-xl:32px;
+    --radius-lg:24px;
+    --radius-md:16px;
+    --radius-sm:100px;
+
+    /* brutalist / dark counterweight */
+    --brutal-bg:#0b0817;
+    --brutal-bg-2:#141026;
+    --brutal-line:#2c2450;
+    --brutal-text:#f6f4ff;
+    --brutal-text-dim:#9994b8;
+    --neon-cyan:#5eeaff;
+    --hard-shadow:8px 8px 0px var(--ink);
+    --hard-shadow-neon:8px 8px 0px var(--magenta);
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--magenta); color:#fff; }
+  a{ color:inherit; text-decoration:none; }
+  ul{ list-style:none; }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+  img,svg{ display:block; max-width:100%; }
+
+  .wrap{ max-width:1240px; margin:0 auto; padding:0 32px; }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--pill-ink);
+    background:var(--pill-bg);
+    padding:8px 16px 8px 12px;
+    border-radius:100px;
+  }
+  .eyebrow.on-dark{ background:rgba(94,234,255,0.12); color:var(--neon-cyan); }
+  .eyebrow.on-dark::before{ background:var(--neon-cyan); box-shadow:0 0 10px var(--neon-cyan); }
+  .eyebrow::before{
+    content:""; width:7px; height:7px; border-radius:50%;
+    background:var(--grad-brand);
+  }
+
+  /* =========================================================
+     PHOTO PLACEHOLDERS
+  ========================================================= */
+  .photo-ph{
+    position:relative; overflow:hidden;
+    background:
+      repeating-linear-gradient(135deg, rgba(21,19,44,0.05) 0px, rgba(21,19,44,0.05) 2px, transparent 2px, transparent 14px),
+      #eeecfb;
+    border:2px dashed rgba(21,19,44,0.22);
+    display:flex; align-items:center; justify-content:center; flex-direction:column; gap:6px;
+    color:var(--ink-faint); text-align:center;
+  }
+  .photo-ph .ph-icon{ font-size:28px; opacity:0.55; }
+  .photo-ph .ph-label{ font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; opacity:0.6; padding:0 14px; }
+  .photo-ph.dark{
+    background:
+      repeating-linear-gradient(135deg, rgba(246,244,255,0.05) 0px, rgba(246,244,255,0.05) 2px, transparent 2px, transparent 14px),
+      var(--brutal-bg-2);
+    border-color:rgba(246,244,255,0.2); color:var(--brutal-text-dim);
+  }
+
+  /* =========================================================
+     BRUTALIST UTILITIES
+  ========================================================= */
+  .brutal-card{
+    border:2.5px solid var(--ink);
+    border-radius:14px;
+    box-shadow:var(--hard-shadow);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .brutal-card:hover{ transform:translate(-3px,-3px); box-shadow:11px 11px 0px var(--ink); }
+  .brutal-card.on-dark{ border-color:rgba(246,244,255,0.7); box-shadow:8px 8px 0px rgba(94,234,255,0.4); }
+  .brutal-card.on-dark:hover{ box-shadow:11px 11px 0px rgba(94,234,255,0.55); }
+
+  .shout{
+    text-transform:uppercase;
+    font-weight:800;
+    letter-spacing:-0.01em;
+  }
+
+  .counter{ display:inline-block; font-variant-numeric:tabular-nums; }
+  .counter.landed{ animation:count-land .5s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes count-land{
+    0%{ transform:scale(1); }
+    45%{ transform:scale(1.16); }
+    100%{ transform:scale(1); }
+  }
+
+  /* =========================================================
+     NAV
+  ========================================================= */
+  .nav-wrap{
+    position:sticky; top:0; z-index:100;
+    display:flex; justify-content:center;
+    padding:22px 24px 0;
+  }
+  .nav{
+    width:min(1180px, 100%);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 12px 12px 22px;
+    border-radius:100px;
+    background:rgba(255,255,255,0.85);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(21,19,44,0.06);
+    box-shadow:var(--shadow-md);
+    transition:box-shadow .3s ease;
+  }
+
+  .logo{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; white-space:nowrap; }
+  .logo .globe{
+    width:26px; height:26px; border-radius:50%; flex-shrink:0;
+    background:conic-gradient(from 200deg, var(--blue), var(--violet), var(--magenta), var(--cyan,#33c7e8), var(--blue));
+    position:relative; box-shadow:0 3px 10px rgba(139,92,246,0.35);
+  }
+  .logo .globe::after{
+    content:""; position:absolute; inset:0; border-radius:50%;
+    background:
+      linear-gradient(transparent 45%, rgba(255,255,255,0.55) 46%, rgba(255,255,255,0.55) 54%, transparent 55%),
+      linear-gradient(90deg, transparent 45%, rgba(255,255,255,0.55) 46%, rgba(255,255,255,0.55) 54%, transparent 55%);
+  }
+  .logo .grad{ background:var(--grad-brand); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .logo small{ display:block; font-size:9px; font-weight:600; letter-spacing:0.14em; color:var(--ink-faint); margin-top:1px; }
+
+  .nav-links{ display:flex; gap:30px; }
+  .nav-links a{ font-size:15px; font-weight:500; color:var(--ink-soft); transition:color .2s ease; }
+  .nav-links a:hover{ color:var(--ink); }
+
+  .nav-actions{ display:flex; align-items:center; gap:8px; }
+  .btn{ font-size:14.5px; font-weight:600; padding:11px 20px; border-radius:100px; transition:all .2s ease; white-space:nowrap; }
+  .btn-ghost{ color:var(--ink-soft); }
+  .btn-ghost:hover{ color:var(--ink); }
+  .btn-pill{ background:var(--pill-bg); color:var(--pill-ink); }
+  .btn-pill:hover{ background:#dbe2ff; transform:translateY(-1px); }
+  .btn-dark{ background:var(--ink); color:#fff; }
+  .btn-dark:hover{ background:#2a2650; transform:translateY(-1px); box-shadow:var(--shadow-md); }
+  .btn-outline{ border:1.5px solid var(--line); color:var(--ink); }
+  .btn-outline:hover{ border-color:var(--violet); }
+  .btn-arrow{ display:inline-flex; align-items:center; gap:8px; }
+  .btn-lg{ padding:15px 26px; font-size:15.5px; }
+
+  .nav-burger{ display:none; width:22px; height:16px; position:relative; }
+  .nav-burger span{ position:absolute; left:0; right:0; height:2px; background:var(--ink); border-radius:2px; transition:.25s; }
+  .nav-burger span:nth-child(1){ top:0; } .nav-burger span:nth-child(2){ top:7px; } .nav-burger span:nth-child(3){ top:14px; }
+
+  .mobile-panel{
+    position:fixed; inset:0; z-index:99; background:#fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px;
+    opacity:0; pointer-events:none; transition:opacity .3s ease;
+  }
+  .mobile-panel.open{ opacity:1; pointer-events:auto; }
+  .mobile-panel a{ font-size:28px; font-weight:800; }
+
+  /* =========================================================
+     HERO
+  ========================================================= */
+  .hero{ position:relative; padding:100px 0 60px; overflow:hidden; }
+  .blob{ position:absolute; border-radius:50%; filter:blur(60px); opacity:0.55; pointer-events:none; }
+  .blob-1{ width:520px; height:520px; background:radial-gradient(circle, #cdd8ff, transparent 70%); top:-180px; left:-160px; }
+  .blob-2{ width:480px; height:480px; background:radial-gradient(circle, #f3cdf7, transparent 70%); top:-120px; right:-160px; }
+  .blob-3{ width:420px; height:420px; background:radial-gradient(circle, #cdeffb, transparent 70%); top:280px; left:50%; transform:translateX(-50%); opacity:0.4; }
+
+  .hero-inner{ position:relative; z-index:2; }
+
+  .hero-flex{ display:grid; grid-template-columns:1.15fr 0.85fr; gap:44px; align-items:center; text-align:left; }
+  .hero-head .eyebrow{ margin-bottom:24px; }
+
+  .hero h1{
+    font-weight:800; font-size:clamp(46px, 6.6vw, 96px);
+    line-height:0.98; letter-spacing:-0.03em;
+  }
+  .hero h1 .grad{ background:var(--grad-brand); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero h1 .shout-line{ display:block; }
+
+  .hero-sub{ margin:26px 0 0; max-width:520px; font-size:17.5px; line-height:1.65; color:var(--ink-soft); }
+
+  .hero-ctas{ display:flex; justify-content:flex-start; gap:14px; margin-top:36px; flex-wrap:wrap; }
+
+  .hero-photo{
+    aspect-ratio:4/5; border-radius:var(--radius-xl);
+    box-shadow:var(--hard-shadow);
+    border:2.5px solid var(--ink);
+  }
+  .hero-photo .ph-icon{ font-size:36px; }
+
+  /* ---- signature impact card ---- */
+  .impact-card{
+    margin:80px auto 0; max-width:980px;
+    background:#fff; border-radius:20px;
+    box-shadow:10px 10px 0px var(--ink);
+    border:2.5px solid var(--ink);
+    padding:10px;
+    position:relative; z-index:2;
+  }
+  .impact-top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 22px 12px; font-size:13px; color:var(--ink-faint); font-weight:600;
+  }
+  .impact-live{ display:inline-flex; align-items:center; gap:7px; }
+  .impact-live::before{ content:""; width:7px; height:7px; border-radius:50%; background:#28c840; box-shadow:0 0 0 3px rgba(40,200,64,0.18); }
+  .impact-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 10px 10px; }
+  .impact-cell{
+    background:var(--paper-alt); border-radius:var(--radius-lg);
+    padding:26px 24px; text-align:left;
+  }
+  .impact-icon{ width:38px; height:38px; border-radius:12px; margin-bottom:16px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; color:#fff; }
+  .impact-icon.i1{ background:linear-gradient(135deg,var(--blue),#6a86ff); }
+  .impact-icon.i2{ background:linear-gradient(135deg,var(--violet),#b28bfa); }
+  .impact-icon.i3{ background:linear-gradient(135deg,var(--magenta),#f27fdb); }
+  .impact-num{ font-size:clamp(28px,4vw,38px); font-weight:800; letter-spacing:-0.02em; }
+  .impact-label{ margin-top:6px; font-size:13.5px; color:var(--ink-soft); font-weight:500; }
+
+  /* =========================================================
+     MARQUEE
+  ========================================================= */
+  .marquee-strip{
+    margin-top:50px; padding:20px 0; overflow:hidden;
+    background:var(--brutal-bg);
+    border-top:2.5px solid var(--ink); border-bottom:2.5px solid var(--ink);
+  }
+  .marquee-track{ display:flex; width:max-content; animation:marquee 26s linear infinite; }
+  .marquee-track span{ display:flex; align-items:center; gap:26px; padding:0 14px; white-space:nowrap; }
+  .marquee-chip{
+    font-size:22px; font-weight:800; text-transform:uppercase; letter-spacing:-0.01em;
+    color:var(--brutal-text);
+  }
+  .marquee-chip.pop{ color:var(--neon-cyan); }
+  @keyframes marquee{ to{ transform:translateX(-50%); } }
+
+  /* =========================================================
+     SECTION shared
+  ========================================================= */
+  section{ position:relative; padding:110px 0; }
+  .section-head{ max-width:640px; margin-bottom:60px; }
+  .section-head .eyebrow{ margin-bottom:20px; }
+  .section-head h2{ font-weight:800; font-size:clamp(30px,4.8vw,54px); line-height:1.04; letter-spacing:-0.03em; }
+  .section-head p{ margin-top:16px; font-size:16px; color:var(--ink-soft); line-height:1.7; max-width:520px; }
+
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in-view{ opacity:1; transform:translateY(0); }
+
+  .alt-bg{ background:var(--paper-alt); }
+
+  /* =========================================================
+     MISSION
+  ========================================================= */
+  .mission-grid{ display:grid; grid-template-columns:1.05fr 0.95fr; gap:64px; align-items:center; }
+  .mission-copy h3{ font-weight:800; font-size:clamp(24px,3.2vw,34px); line-height:1.22; letter-spacing:-0.015em; margin-bottom:22px; }
+  .mission-copy p{ font-size:16px; line-height:1.75; color:var(--ink-soft); margin-bottom:16px; }
+  .mission-copy p strong{ color:var(--ink); font-weight:700; }
+
+  .orb-stage{ position:relative; height:400px; display:flex; align-items:center; justify-content:center; }
+  .orb{
+    width:250px; height:250px; border-radius:50%;
+    background:conic-gradient(from 140deg, var(--blue), var(--violet), var(--magenta), #6ad8f2, var(--blue));
+    box-shadow:0 30px 70px -14px rgba(139,92,246,0.45);
+    animation:float 7s ease-in-out infinite;
+    position:relative;
+  }
+  .orb::after{ content:""; position:absolute; inset:16px; border-radius:50%; background:radial-gradient(circle at 32% 26%, rgba(255,255,255,0.5), transparent 55%); }
+  @keyframes float{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-16px);} }
+  .orb-chip{
+    position:absolute; padding:9px 16px; border-radius:100px; font-size:13px; font-weight:600;
+    background:#fff; box-shadow:var(--shadow-md); border:1px solid var(--line);
+  }
+  .orb-chip.c1{ top:8%; left:0%; }
+  .orb-chip.c2{ bottom:10%; right:-2%; }
+  .orb-chip.c3{ top:52%; left:-8%; }
+  .orb-photo{
+    position:absolute; width:120px; height:120px; bottom:0%; right:6%;
+    border-radius:16px; border:2.5px solid var(--ink); box-shadow:6px 6px 0px var(--ink);
+  }
+  .orb-photo .ph-icon{ font-size:18px; } .orb-photo .ph-label{ font-size:9px; }
+
+  /* =========================================================
+     PROGRAMS
+  ========================================================= */
+  .programs.brutal-section{ background:var(--brutal-bg); color:var(--brutal-text); }
+  .programs.brutal-section .section-head p{ color:var(--brutal-text-dim); }
+
+  .program-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:22px; }
+  .program-card{
+    background:var(--brutal-bg-2);
+    padding:0 0 26px; min-height:320px; display:flex; flex-direction:column; justify-content:space-between;
+    overflow:hidden;
+  }
+  .program-photo{ height:110px; border-radius:0; border:none; border-bottom:2.5px solid rgba(246,244,255,0.7); }
+  .program-photo .ph-icon{ font-size:22px; } .program-photo .ph-label{ font-size:10px; }
+  .program-card-body{ padding:22px 22px 0; }
+  .program-icon{
+    width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:12.5px; color:var(--brutal-bg); background:var(--neon-cyan);
+  }
+  .program-card h4{ font-weight:800; font-size:18px; margin-top:18px; margin-bottom:8px; letter-spacing:-0.01em; text-transform:uppercase; color:var(--brutal-text); }
+  .program-card p{ font-size:13.5px; color:var(--brutal-text-dim); line-height:1.6; padding:0 22px; }
+
+  /* =========================================================
+     COURSES
+  ========================================================= */
+  .course-scroller{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .course-card{
+    border-radius:16px; overflow:hidden; background:#fff; border:2.5px solid var(--ink);
+    box-shadow:7px 7px 0px var(--ink); transition:box-shadow .25s ease, transform .25s ease;
+  }
+  .course-card:hover{ box-shadow:10px 10px 0px var(--ink); transform:translate(-3px,-3px); }
+  .course-thumb{ height:160px; position:relative; display:flex; align-items:flex-end; padding:16px; border-bottom:2.5px solid var(--ink); }
+  .course-thumb.t1{ background:linear-gradient(140deg,#dbe4ff,#c9b8ff); }
+  .course-thumb.t2{ background:linear-gradient(140deg,#f1c9f7,#ffd3ea); }
+  .course-thumb.t3{ background:linear-gradient(140deg,#c7f0ff,#c3e3ff); }
+  .course-thumb::before{
+    content:"🎬"; position:absolute; top:50%; left:50%; transform:translate(-50%,-60%);
+    font-size:26px; opacity:0.45;
+  }
+  .course-tag{ position:relative; z-index:1; font-size:12px; font-weight:800; text-transform:uppercase; padding:6px 12px; border-radius:100px; background:rgba(255,255,255,0.85); color:var(--ink); backdrop-filter:blur(6px); }
+  .course-body{ padding:20px 22px 24px; }
+  .course-body h4{ font-weight:800; font-size:17px; margin-bottom:8px; letter-spacing:-0.01em; }
+  .course-body p{ font-size:13.5px; color:var(--ink-soft); line-height:1.6; margin-bottom:16px; }
+  .course-meta{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-faint); font-weight:600; }
+  .course-meta .lvl{ color:var(--violet); }
+  .courses-cta{ margin-top:46px; display:flex; justify-content:center; }
+
+  /* =========================================================
+     EVENTS
+  ========================================================= */
+  .events-layout{
+    display:grid; grid-template-columns:0.8fr 1.2fr; gap:0;
+    background:#fff; border:1px solid var(--line); border-radius:var(--radius-xl);
+    box-shadow:var(--shadow-md); overflow:hidden;
+  }
+  .events-side{ padding:44px 36px; display:flex; flex-direction:column; justify-content:space-between; background:var(--paper-alt); }
+  .events-side h3{ font-weight:800; font-size:27px; line-height:1.15; margin-bottom:14px; letter-spacing:-0.015em; }
+  .events-side p{ color:var(--ink-soft); font-size:14.5px; line-height:1.7; margin-bottom:26px; }
+  .events-list{ display:flex; flex-direction:column; }
+  .event-row{ display:grid; grid-template-columns:64px 1fr auto; gap:18px; align-items:center; padding:22px 32px; border-bottom:1px solid var(--line); }
+  .event-row:last-child{ border-bottom:none; }
+  .event-date{ text-align:center; background:var(--pill-bg); border-radius:14px; padding:10px 4px; }
+  .event-date .d{ font-size:19px; font-weight:800; color:var(--pill-ink); line-height:1; }
+  .event-date .m{ font-size:10px; font-weight:700; letter-spacing:0.08em; color:var(--pill-ink); text-transform:uppercase; margin-top:2px; opacity:0.7; }
+  .event-info h5{ font-weight:700; font-size:15px; margin-bottom:4px; }
+  .event-info span{ font-size:12.5px; color:var(--ink-faint); font-weight:500; }
+  .event-fmt{ font-size:12px; font-weight:700; padding:7px 14px; border-radius:100px; background:var(--paper-alt); color:var(--ink-soft); white-space:nowrap; }
+
+  /* =========================================================
+     STATS
+  ========================================================= */
+  .stats.brutal-section{ background:var(--brutal-bg); color:var(--brutal-text); }
+  .stats.brutal-section .section-head p{ color:var(--brutal-text-dim); }
+  .stats-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:2.5px;
+    margin-top:52px; background:var(--brutal-line);
+    border:2.5px solid var(--brutal-line); border-radius:16px; overflow:hidden;
+  }
+  .stat-cell{ text-align:left; padding:34px 26px; background:var(--brutal-bg-2); }
+  .stat-num{
+    font-weight:800; font-size:clamp(38px,5vw,58px); letter-spacing:-0.03em;
+    background:linear-gradient(100deg, var(--neon-cyan), var(--violet) 60%, var(--magenta));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 30px rgba(94,234,255,0.15);
+    display:inline-block;
+  }
+  .stat-label{ margin-top:10px; font-size:13px; color:var(--brutal-text-dim); font-weight:600; line-height:1.5; text-transform:uppercase; letter-spacing:0.02em; }
+  .footnote{ margin-top:26px; font-size:12px; color:var(--brutal-text-dim); }
+
+  /* =========================================================
+     GLOBAL REACH
+  ========================================================= */
+  .globe-layout{ display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; }
+  .globe-stage{ position:relative; height:400px; display:flex; align-items:center; justify-content:center; }
+  .wire-globe{ width:320px; height:320px; }
+  .pulse-pt{ position:absolute; width:11px; height:11px; border-radius:50%; background:var(--violet); box-shadow:0 0 0 0 rgba(139,92,246,0.5); animation:pulse 2.4s ease-out infinite; }
+  @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(139,92,246,0.45);} 70%{ box-shadow:0 0 0 16px rgba(139,92,246,0);} 100%{ box-shadow:0 0 0 0 rgba(139,92,246,0);} }
+  .region-list{ display:flex; flex-direction:column; gap:10px; }
+  .region-row{ display:flex; justify-content:space-between; align-items:center; padding:16px 22px; background:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:700; font-size:14px; box-shadow:5px 5px 0px rgba(21,19,44,0.08); }
+  .region-row .status{ display:flex; align-items:center; gap:8px; color:var(--ink-faint); font-size:12px; font-weight:600; }
+  .region-row .status::before{ content:""; width:7px; height:7px; border-radius:50%; background:#28c840; }
+
+  /* =========================================================
+     STORIES
+  ========================================================= */
+  .story-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .story-card{ padding:30px 26px; border-radius:16px; background:#fff; border:2px solid var(--ink); box-shadow:6px 6px 0px rgba(21,19,44,0.08); }
+  .story-quote{ font-size:15.5px; line-height:1.7; color:var(--ink); margin-bottom:24px; }
+  .story-person{ display:flex; align-items:center; gap:12px; }
+  .story-avatar{ width:42px; height:42px; border-radius:50%; flex-shrink:0; font-size:15px; }
+  .story-name{ font-weight:700; font-size:14px; }
+  .story-role{ font-size:12px; color:var(--ink-faint); font-weight:500; }
+
+  /* =========================================================
+     CTA
+  ========================================================= */
+  .cta-panel{
+    border-radius:28px; padding:80px 40px; text-align:center; position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#e9edff, #f7e6fb);
+    border:2.5px solid var(--ink); box-shadow:10px 10px 0px var(--ink);
+  }
+  .cta-panel h2{ position:relative; font-weight:800; font-size:clamp(30px,5.2vw,56px); line-height:1.05; letter-spacing:-0.03em; max-width:720px; margin:0 auto 18px; text-transform:uppercase; }
+  .cta-panel p{ position:relative; color:var(--ink-soft); font-size:16px; max-width:500px; margin:0 auto 32px; }
+  .cta-actions{ position:relative; display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+
+  /* =========================================================
+     FOOTER
+  ========================================================= */
+  footer{ background:var(--footer-bg); padding-top:80px; overflow:hidden; color:#fff; margin-top:40px; border-radius:48px 48px 0 0; }
+  .footer-cols{ display:grid; grid-template-columns:1.4fr repeat(4,1fr); gap:40px; padding-bottom:56px; border-bottom:1px solid rgba(255,255,255,0.12); }
+  .footer-brand .logo{ margin-bottom:16px; }
+  .footer-brand .logo small{ color:rgba(255,255,255,0.55); }
+  .footer-brand p{ color:rgba(255,255,255,0.65); font-size:14px; line-height:1.7; max-width:280px; }
+  .footer-col h6{ font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.45); margin-bottom:16px; font-weight:700; }
+  .footer-col a{ display:block; font-size:14px; color:rgba(255,255,255,0.75); margin-bottom:12px; transition:color .2s ease; }
+  .footer-col a:hover{ color:#fff; }
+  .footer-bottom{ display:flex; justify-content:space-between; align-items:center; padding:26px 0; font-size:12.5px; color:rgba(255,255,255,0.5); flex-wrap:wrap; gap:10px; }
+  .ghost-word{
+    font-weight:800; text-transform:uppercase; font-size:min(18vw,210px); line-height:0.8;
+    letter-spacing:-0.02em; text-align:center; color:transparent;
+    -webkit-text-stroke:1px rgba(255,255,255,0.14); padding:10px 0 0; user-select:none;
+  }
+
+  /* =========================================================
+     RESPONSIVE
+  ========================================================= */
+  @media (max-width:980px){
+    .nav-links{ display:none; }
+    .nav-actions .btn-ghost{ display:none; }
+    .nav-burger{ display:block; }
+    .mission-grid, .globe-layout{ grid-template-columns:1fr; }
+    .program-grid{ grid-template-columns:repeat(2,1fr); }
+    .course-scroller{ grid-template-columns:1fr; }
+    .events-layout{ grid-template-columns:1fr; }
+    .stats-grid{ grid-template-columns:repeat(2,1fr); }
+    .story-grid{ grid-template-columns:1fr; }
+    .footer-cols{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:620px){
+    .wrap{ padding:0 20px; }
+    .impact-grid{ grid-template-columns:1fr; }
+    .footer-cols{ grid-template-columns:1fr; }
+    footer{ border-radius:28px 28px 0 0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+  }
+  :focus-visible{ outline:2px solid var(--violet); outline-offset:3px; }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<div class="nav-wrap">
+  <nav class="nav">
+    <a href="#top" class="logo">
+      <span class="globe"></span>
+      <span><span class="grad">GCL</span><small>GLOBAL CAPITAL LEAGUE</small></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#programs">Programs</a></li>
+      <li><a href="#courses">Courses</a></li>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#global">Global Reach</a></li>
+      <li><a href="#stories">Stories</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="btn btn-ghost">Sign In</button>
+      <button class="btn btn-pill">Get Started</button>
+    </div>
+    <button class="nav-burger" id="burger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </nav>
+</div>
+
+<div class="mobile-panel" id="mobilePanel">
+  <a href="#programs">Programs</a>
+  <a href="#courses">Courses</a>
+  <a href="#events">Events</a>
+  <a href="#global">Global Reach</a>
+  <a href="#stories">Stories</a>
+  <button class="btn btn-dark btn-lg" style="margin-top:16px;">Get Started</button>
+</div>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="wrap hero-inner">
+    <div class="hero-flex">
+      <div class="hero-head">
+        <span class="eyebrow">Youth-Led · Financial Education</span>
+        <h1><span class="shout-line">MONEY, MADE</span><span class="shout-line grad">RATIONAL.</span></h1>
+        <p class="hero-sub">A top-tier financial education used to be reserved for the lucky few with access to it. <strong>Not anymore.</strong> Global Capital League brings behavioral economics and financial literacy to communities the world forgot.</p>
+        <div class="hero-ctas">
+          <button class="btn btn-dark btn-lg btn-arrow">Join a Program <span>→</span></button>
+          <button class="btn btn-outline btn-lg">Explore Courses</button>
+        </div>
+      </div>
+      <div class="hero-photo photo-ph">
+        <span class="ph-icon">🖼️</span>
+        <span class="ph-label">Photo — students in a live GCL workshop</span>
+      </div>
+    </div>
+
+    <!-- signature impact card -->
+    <div class="impact-card">
+      <div class="impact-top">
+        <span>Our Impact</span>
+        <span class="impact-live">Updated live</span>
+      </div>
+      <div class="impact-grid">
+        <div class="impact-cell">
+          <div class="impact-icon i1">🌍</div>
+          <div class="impact-num counter" data-count="14" data-suffix="+">0+</div>
+          <div class="impact-label">Countries in our network</div>
+        </div>
+        <div class="impact-cell">
+          <div class="impact-icon i2">📚</div>
+          <div class="impact-num counter" data-count="120" data-suffix="+">0+</div>
+          <div class="impact-label">Workshops delivered</div>
+        </div>
+        <div class="impact-cell">
+          <div class="impact-icon i3">👥</div>
+          <div class="impact-num counter" data-count="8" data-suffix="K+">0</div>
+          <div class="impact-label">Youth reached so far</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MARQUEE ============ -->
+<div class="marquee-strip">
+  <div class="marquee-track">
+    <span>
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Behavioral Economics</span>
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Financial Dignity</span>
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Youth-Led</span>
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Global Reach</span>
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Rational Decisions</span>
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Community First</span>
+    </span>
+    <span aria-hidden="true">
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Behavioral Economics</span>
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Financial Dignity</span>
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Youth-Led</span>
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Global Reach</span>
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Rational Decisions</span>
+      <span class="marquee-chip pop">★</span><span class="marquee-chip">Community First</span>
+    </span>
+  </div>
+</div>
+
+<!-- ============ MISSION ============ -->
+<section class="mission">
+  <div class="wrap mission-grid">
+    <div class="mission-copy reveal">
+      <span class="eyebrow">Our Thesis</span>
+      <h3 style="margin-top:18px;">Financial literacy isn't knowledge. It's behavior under pressure.</h3>
+      <p>Most financial education teaches definitions — interest rates, budgets, spreadsheets. We start somewhere else: <strong>the moment someone actually has to decide.</strong> That's where poverty gets reinforced, or broken.</p>
+      <p>GCL designs programs around behavioral economics — the science of how people actually choose, not how textbooks say they should. We equip people not just to survive, but to <strong>thrive.</strong></p>
+      <p>Built and run by young people, for the communities most locked out of financial access.</p>
+    </div>
+    <div class="orb-stage reveal">
+      <div class="orb"></div>
+      <div class="orb-chip c1">Decision 🎯</div>
+      <div class="orb-chip c2">Behavior 🧠</div>
+      <div class="orb-chip c3">Dignity ✨</div>
+      <div class="orb-photo photo-ph"><span class="ph-icon">🖼️</span><span class="ph-label">Photo</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROGRAMS ============ -->
+<section class="programs brutal-section" id="programs">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow on-dark">What We Do</span>
+      <h2 class="shout">Four ways we move the needle</h2>
+      <p>From live workshops to global partnerships — every program meets people exactly where their financial decisions happen.</p>
+    </div>
+    <div class="program-grid reveal">
+      <div class="program-card brutal-card on-dark">
+        <div class="program-photo photo-ph dark"><span class="ph-icon">🖼️</span><span class="ph-label">Photo</span></div>
+        <div class="program-card-body"><div class="program-icon">WS</div><h4>Workshops &amp; Courses</h4></div>
+        <p>Live and on-demand sessions on financial education, delivered online and offline to youth, families, and professionals.</p>
+      </div>
+      <div class="program-card brutal-card on-dark">
+        <div class="program-photo photo-ph dark"><span class="ph-icon">🖼️</span><span class="ph-label">Photo</span></div>
+        <div class="program-card-body"><div class="program-icon">PT</div><h4>Partnerships</h4></div>
+        <p>We work with schools, nonprofits, and organizations to bring financial education directly into underserved communities.</p>
+      </div>
+      <div class="program-card brutal-card on-dark">
+        <div class="program-photo photo-ph dark"><span class="ph-icon">🖼️</span><span class="ph-label">Photo</span></div>
+        <div class="program-card-body"><div class="program-icon">TL</div><h4>Tailored Content</h4></div>
+        <p>Curriculum shaped for the audience in front of us — not a one-size-fits-all deck recycled across every region.</p>
+      </div>
+      <div class="program-card brutal-card on-dark">
+        <div class="program-photo photo-ph dark"><span class="ph-icon">🖼️</span><span class="ph-label">Photo</span></div>
+        <div class="program-card-body"><div class="program-icon">GN</div><h4>Global Network</h4></div>
+        <p>Local and international partners help us expand reach and build programs that hold up outside the classroom.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COURSES ============ -->
+<section class="courses" id="courses">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Learn at Your Pace</span>
+      <h2>Courses built for real decisions</h2>
+      <p>Pre-recorded, self-paced courses taught by our team and partner economists — free for every student who joins GCL.</p>
+    </div>
+    <div class="course-scroller reveal">
+      <div class="course-card">
+        <div class="course-thumb t1"><span class="course-tag">Foundations</span></div>
+        <div class="course-body"><h4>The Psychology of Spending</h4><p>Why smart people make irrational money choices — and how to catch it happening in real time.</p><div class="course-meta"><span>6 Modules</span><span class="lvl">Beginner</span></div></div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb t2"><span class="course-tag">Behavioral Econ</span></div>
+        <div class="course-body"><h4>Decisions Under Scarcity</h4><p>How limited resources reshape judgment — and the frameworks that help you decide better anyway.</p><div class="course-meta"><span>8 Modules</span><span class="lvl">Intermediate</span></div></div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb t3"><span class="course-tag">Applied Finance</span></div>
+        <div class="course-body"><h4>Building Systems, Not Budgets</h4><p>Turn financial goals into systems that survive bad weeks, not just good intentions.</p><div class="course-meta"><span>5 Modules</span><span class="lvl">All Levels</span></div></div>
+      </div>
+    </div>
+    <div class="courses-cta reveal"><button class="btn btn-outline btn-lg">View All Courses →</button></div>
+  </div>
+</section>
+
+<!-- ============ EVENTS ============ -->
+<section class="events alt-bg" id="events">
+  <div class="wrap">
+    <div class="events-layout reveal">
+      <div class="events-side">
+        <div>
+          <span class="eyebrow">Live &amp; In-Person</span>
+          <h3 style="margin-top:18px;">Events, workshops &amp; summits</h3>
+          <p>Join a session near you — or online, wherever "near you" doesn't exist yet.</p>
+        </div>
+        <button class="btn btn-dark" style="width:fit-content;">See Full Calendar →</button>
+      </div>
+      <div class="events-list">
+        <div class="event-row"><div class="event-date"><div class="d">14</div><div class="m">Aug</div></div><div class="event-info"><h5>Youth Money Summit — Nairobi</h5><span>In-person · Community Hall</span></div><div class="event-fmt">Free</div></div>
+        <div class="event-row"><div class="event-date"><div class="d">22</div><div class="m">Aug</div></div><div class="event-info"><h5>Behavioral Economics 101</h5><span>Online · Live Workshop</span></div><div class="event-fmt">Free</div></div>
+        <div class="event-row"><div class="event-date"><div class="d">03</div><div class="m">Sep</div></div><div class="event-info"><h5>Financial Dignity Roundtable</h5><span>Hybrid · Partner Campus</span></div><div class="event-fmt">Invite</div></div>
+        <div class="event-row"><div class="event-date"><div class="d">17</div><div class="m">Sep</div></div><div class="event-info"><h5>Educator Training Day</h5><span>Online · Certification Track</span></div><div class="event-fmt">Free</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="stats brutal-section">
+  <div class="wrap">
+    <div class="section-head reveal" style="margin-bottom:0;">
+      <span class="eyebrow on-dark">Why It Matters</span>
+      <h2 class="shout">Poverty is often a decision problem, not a resource problem</h2>
+    </div>
+    <div class="stats-grid reveal">
+      <div class="stat-cell"><div class="stat-num counter" data-count="73" data-suffix="%">0%</div><div class="stat-label">Adults report low financial confidence*</div></div>
+      <div class="stat-cell"><div class="stat-num counter" data-count="2" data-suffix="×">0×</div><div class="stat-label">More savings behavior after literacy training*</div></div>
+      <div class="stat-cell"><div class="stat-num counter" data-count="40" data-suffix="%">0%</div><div class="stat-label">Youth with zero formal money education*</div></div>
+      <div class="stat-cell"><div class="stat-num counter" data-count="1" data-suffix="">0</div><div class="stat-label">Decision is often all it takes to change a trajectory</div></div>
+    </div>
+    <p class="footnote">*Illustrative figures — replace with your sourced research and citations.</p>
+  </div>
+</section>
+
+<!-- ============ GLOBAL REACH ============ -->
+<section class="global alt-bg" id="global">
+  <div class="wrap globe-layout">
+    <div class="globe-stage reveal">
+      <svg class="wire-globe" viewBox="0 0 200 200" fill="none">
+        <circle cx="100" cy="100" r="90" stroke="rgba(21,19,44,0.14)"/>
+        <ellipse cx="100" cy="100" rx="90" ry="34" stroke="rgba(21,19,44,0.12)"/>
+        <ellipse cx="100" cy="100" rx="90" ry="62" stroke="rgba(21,19,44,0.09)"/>
+        <ellipse cx="100" cy="100" rx="34" ry="90" stroke="rgba(21,19,44,0.12)"/>
+        <ellipse cx="100" cy="100" rx="62" ry="90" stroke="rgba(21,19,44,0.09)"/>
+        <line x1="10" y1="100" x2="190" y2="100" stroke="rgba(21,19,44,0.12)"/>
+      </svg>
+      <div class="pulse-pt" style="top:32%; left:38%;"></div>
+      <div class="pulse-pt" style="top:48%; left:64%; animation-delay:.6s;"></div>
+      <div class="pulse-pt" style="top:64%; left:44%; animation-delay:1.1s;"></div>
+      <div class="pulse-pt" style="top:40%; left:56%; animation-delay:1.6s;"></div>
+    </div>
+    <div class="reveal">
+      <span class="eyebrow">Global Reach</span>
+      <h2 style="margin-top:18px; font-weight:800; font-size:clamp(26px,3.4vw,40px); line-height:1.15; letter-spacing:-0.02em;">Built to work anywhere access is missing</h2>
+      <p style="margin-top:18px; color:var(--ink-soft); font-size:15.5px; line-height:1.75; max-width:460px;">We partner locally and scale internationally — so a workshop in one city can become a curriculum used continents away.</p>
+      <div class="region-list" style="margin-top:28px;">
+        <div class="region-row"><span>East Africa</span><span class="status">Active Partners</span></div>
+        <div class="region-row"><span>South Asia</span><span class="status">Active Partners</span></div>
+        <div class="region-row"><span>Latin America</span><span class="status">Piloting</span></div>
+        <div class="region-row"><span>Southeast Europe</span><span class="status">Piloting</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STORIES ============ -->
+<section class="stories" id="stories">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Stories</span>
+      <h2>Decisions people made differently</h2>
+      <p>Real accounts from students and partners in the GCL network.</p>
+    </div>
+    <div class="story-grid reveal">
+      <div class="story-card"><p class="story-quote">I used to think budgeting meant restriction. GCL showed me it's a decision system — that changed how I run my whole household.</p><div class="story-person"><div class="story-avatar photo-ph">🙂</div><div><div class="story-name">Amina K.</div><div class="story-role">Program Graduate, Nairobi</div></div></div></div>
+      <div class="story-card"><p class="story-quote">We brought GCL's curriculum into our school and saw students talking about money with real confidence within a term.</p><div class="story-person"><div class="story-avatar photo-ph">🙂</div><div><div class="story-name">Rafael M.</div><div class="story-role">Partner Educator</div></div></div></div>
+      <div class="story-card"><p class="story-quote">It's the first financial program that treated our community like it had potential, not just problems.</p><div class="story-person"><div class="story-avatar photo-ph">🙂</div><div><div class="story-name">Priya S.</div><div class="story-role">Community Organizer</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="cta">
+  <div class="wrap">
+    <div class="cta-panel reveal">
+      <h2>Your first rational decision starts here</h2>
+      <p>Join the waitlist to get early access to courses, events, and the GCL learning dashboard.</p>
+      <div class="cta-actions">
+        <button class="btn btn-dark btn-lg">Create Free Account</button>
+        <button class="btn btn-outline btn-lg" style="background:#fff;">Talk to Our Team</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap footer-cols">
+    <div class="footer-brand">
+      <a href="#top" class="logo"><span class="globe"></span><span><span class="grad">GCL</span><small>GLOBAL CAPITAL LEAGUE</small></span></a>
+      <p>A youth-led organization dedicated to reducing poverty through financial education and behavioral economics.</p>
+    </div>
+    <div class="footer-col"><h6>Product</h6><a href="#courses">Courses</a><a href="#events">Events</a><a href="#programs">Programs</a></div>
+    <div class="footer-col"><h6>Company</h6><a href="#">About Us</a><a href="#stories">Stories</a><a href="#">Blog</a><a href="#">hello@globalcapitalleague.org</a></div>
+    <div class="footer-col"><h6>Social</h6><a href="#">Instagram</a><a href="#">LinkedIn</a><a href="#">TikTok</a><a href="#">YouTube</a></div>
+    <div class="footer-col"><h6>Legal</h6><a href="#">Privacy Policy</a><a href="#">Terms of Use</a></div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© 2026 Global Capital League. All rights reserved.</span>
+    <span>Made by youth, for the world.</span>
+  </div>
+  <div class="ghost-word">Capital</div>
+</footer>
+
+<script>
+  const burger = document.getElementById('burger');
+  const mobilePanel = document.getElementById('mobilePanel');
+  burger.addEventListener('click', () => mobilePanel.classList.toggle('open'));
+  mobilePanel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobilePanel.classList.remove('open')));
+
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add('in-view'); io.unobserve(entry.target); }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // Slot-machine style counters: flicker through random digits, then settle with a bounce.
+  function animateCounter(el){
+    const target = parseInt(el.dataset.count, 10);
+    const suffix = el.dataset.suffix !== undefined ? el.dataset.suffix : '+';
+    const digits = String(target).length;
+    const duration = 1400;
+    const flickerUntil = duration * 0.62;
+    const start = performance.now();
+
+    function frame(now){
+      const elapsed = now - start;
+      if (elapsed < flickerUntil) {
+        const rnd = Math.floor(Math.random() * Math.pow(10, digits));
+        el.textContent = rnd + suffix;
+        requestAnimationFrame(frame);
+      } else if (elapsed < duration) {
+        const p = (elapsed - flickerUntil) / (duration - flickerUntil);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const cur = Math.round(target * eased);
+        el.textContent = cur + suffix;
+        requestAnimationFrame(frame);
+      } else {
+        el.textContent = target + suffix;
+        el.classList.add('landed');
+        setTimeout(() => el.classList.remove('landed'), 550);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  const countedGroups = new Map();
+  document.querySelectorAll('.counter').forEach(el => {
+    const parentSection = el.closest('section') || el.closest('.impact-card') || document.body;
+    if (!countedGroups.has(parentSection)) countedGroups.set(parentSection, []);
+    countedGroups.get(parentSection).push(el);
+  });
+
+  countedGroups.forEach((els, section) => {
+    let fired = false;
+    const gIO = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !fired) {
+          fired = true;
+          els.forEach((el, i) => setTimeout(() => animateCounter(el), i * 120));
+        }
+      });
+    }, { threshold: 0.35 });
+    gIO.observe(section);
+  });
+</script>
+</body>
+</html>
