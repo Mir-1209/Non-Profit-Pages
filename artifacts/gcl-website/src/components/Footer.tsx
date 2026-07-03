@@ -60,7 +60,6 @@ export function Footer() {
         }}
       >
         <div>GLOBAL capital league</div>
-        <div>CAPITAL</div>
       </div>
     </footer>
   );
