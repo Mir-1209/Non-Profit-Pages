@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useAdmin } from '../context/AdminContext';
 import { StoriesCarousel } from '../components/StoriesCarousel';
+import { GlobeSection } from '../components/GlobeSection';
 import { stories } from '../data/stories';
 
 // ─── Real impact assets ───────────────────────────────────────────────────
@@ -315,6 +316,8 @@ export function Home() {
           </Reveal>
         </div>
       </section>
+
+      <GlobeSection />
 
       {/* ─── PROGRAMS (dark) with real photos ───────────────────────── */}
       <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)]">

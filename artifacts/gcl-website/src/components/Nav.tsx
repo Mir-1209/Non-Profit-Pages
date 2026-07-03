@@ -29,9 +29,10 @@ export function Nav() {
 
   const isActive = (href: string) => href === '/' ? location === '/' : location.startsWith(href);
 
-  // On home at top = dark hero video beneath nav → use light/white text
+  // Always use light text — site is predominantly dark-themed; scrolled nav gets solid dark glass
   const isHome = location === '/';
   const heroMode = isHome && !scrolled;
+  const darkNav = heroMode || scrolled; // both states use white text
 
   return (
     <>
@@ -39,18 +40,16 @@ export function Nav() {
         <nav
           className="pointer-events-auto w-full max-w-[1180px] flex items-center justify-between px-5 py-3 rounded-[16px] transition-all duration-500 border-t-[2px] border-r-[2px] border-b-[2px] border-l-[2px] rounded-tl-[30px] rounded-tr-[30px] rounded-br-[30px] rounded-bl-[30px] border-t-[#ffffff00] border-r-[#ffffff00] border-b-[#ffffff00] border-l-[#ffffff00]"
           style={{
-            background: heroMode
-              ? 'rgba(6,4,18,0.18)'
-              : scrolled
-                ? 'rgba(255,255,255,0.07)'
-                : 'rgba(255,255,255,0.05)',
+            background: darkNav
+              ? 'rgba(8, 5, 22, 0.72)'
+              : 'rgba(255,255,255,0.05)',
             backdropFilter: 'blur(36px) saturate(200%) brightness(1.1)',
             WebkitBackdropFilter: 'blur(36px) saturate(200%) brightness(1.1)',
-            border: heroMode
-              ? '1px solid rgba(255,255,255,0.14)'
+            border: darkNav
+              ? '1px solid rgba(255,255,255,0.12)'
               : '1px solid rgba(255,255,255,0.22)',
-            boxShadow: heroMode
-              ? '0 2px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08)'
+            boxShadow: darkNav
+              ? '0 2px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)'
               : '0 4px 28px rgba(21,19,44,0.07), inset 0 1px 0 rgba(255,255,255,0.5)',
           }}
           data-testid="nav"
@@ -72,7 +71,7 @@ export function Nav() {
                   href={link.href}
                   className="relative px-[14px] py-[9px] text-[14px] font-[600] rounded-[10px] transition-colors duration-200 block"
                   style={{
-                    color: heroMode
+                    color: darkNav
                       ? isActive(link.href) ? '#fff' : 'rgba(255,255,255,0.65)'
                       : isActive(link.href) ? 'var(--ink)' : 'var(--ink-soft)',
                   }}
@@ -82,7 +81,7 @@ export function Nav() {
                     <motion.span
                       layoutId="nav-active"
                       className="absolute inset-0 rounded-[10px]"
-                      style={{ background: heroMode ? 'rgba(255,255,255,0.12)' : 'rgba(21,19,44,0.06)' }}
+                      style={{ background: darkNav ? 'rgba(255,255,255,0.12)' : 'rgba(21,19,44,0.06)' }}
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                     />
                   )}
@@ -97,14 +96,14 @@ export function Nav() {
             {isAdmin ? (
               <Link href="/admin"
                 className="text-[13px] font-[700] px-4 py-2 rounded-[10px] transition-colors"
-                style={{ color: heroMode ? 'rgba(255,255,255,0.8)' : 'var(--ink)' }}
+                style={{ color: darkNav ? 'rgba(255,255,255,0.8)' : 'var(--ink)' }}
                 data-testid="nav-admin">
                 ⚙ Admin
               </Link>
             ) : (
               <Link href="/signin"
                 className="text-[13.5px] font-[600] px-4 py-2 rounded-[10px] transition-colors"
-                style={{ color: heroMode ? 'rgba(255,255,255,0.6)' : 'var(--ink-soft)' }}
+                style={{ color: darkNav ? 'rgba(255,255,255,0.6)' : 'var(--ink-soft)' }}
                 data-testid="nav-signin">
                 Sign In
               </Link>
@@ -113,12 +112,12 @@ export function Nav() {
               href="/courses"
               className="text-[13.5px] font-[700] px-5 py-2.5 rounded-[10px] text-white transition-all hover:-translate-y-[1px]"
               style={{
-                background: heroMode
+                background: darkNav
                   ? 'rgba(255,255,255,0.15)'
                   : 'var(--ink)',
-                border: heroMode ? '1px solid rgba(255,255,255,0.25)' : 'none',
-                backdropFilter: heroMode ? 'blur(10px)' : 'none',
-                boxShadow: heroMode ? 'none' : '3px 3px 0px rgba(21,19,44,0.25)',
+                border: darkNav ? '1px solid rgba(255,255,255,0.25)' : 'none',
+                backdropFilter: darkNav ? 'blur(10px)' : 'none',
+                boxShadow: darkNav ? 'none' : '3px 3px 0px rgba(21,19,44,0.25)',
               }}
               data-testid="nav-cta"
             >
@@ -131,7 +130,7 @@ export function Nav() {
             className="md:hidden p-2 rounded-[10px] transition-colors"
             onClick={() => setMobileOpen(v => !v)}
             aria-label="Menu"
-            style={{ color: heroMode ? '#fff' : 'var(--ink)' }}
+            style={{ color: darkNav ? '#fff' : 'var(--ink)' }}
             data-testid="nav-burger"
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
