@@ -229,16 +229,78 @@ function EarthGroup({
   );
 }
 
-// ─── Moon ─────────────────────────────────────────────────────────────────────
-function MoonModel() {
-  const moonRef = useRef<THREE.Group>(null);
-  const { scene } = useGLTF(MOON_URL);
+// ─── Planet Label ─────────────────────────────────────────────────────────────
+function PlanetLabel({ name, offsetY = 0 }: { name: string; offsetY?: number }) {
+  return (
+    <Html
+      center
+      position={[0, offsetY, 0]}
+      style={{ pointerEvents: 'none', userSelect: 'none' }}
+      zIndexRange={[50, 0]}
+    >
+      <div style={{
+        color: 'rgba(255,255,255,0.92)',
+        fontSize: 11,
+        fontWeight: 800,
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        textAlign: 'center',
+        textShadow: '0 0 12px rgba(255,220,100,0.8), 0 0 24px rgba(255,220,100,0.4)',
+        whiteSpace: 'nowrap',
+        fontFamily: 'inherit',
+      }}>
+        {name}
+      </div>
+    </Html>
+  );
+}
+
+// ─── Sun ──────────────────────────────────────────────────────────────────────
+// Positioned centrally behind Earth, enormous scale so it dominates the backdrop
+const SUN_POS = new THREE.Vector3(0, 0, -85);
+const SUN_SCALE = 22;
+
+function SunModel() {
+  const { scene } = useGLTF(SUN_URL);
+  const sunRef = useRef<THREE.Group>(null);
 
   useEffect(() => {
     const box = new THREE.Box3().setFromObject(scene);
     const s = new THREE.Sphere();
     box.getBoundingSphere(s);
-    const factor = 0.5 / (s.radius || 1);
+    scene.scale.setScalar(SUN_SCALE / (s.radius || 1));
+    scene.position.copy(s.center).multiplyScalar(-SUN_SCALE / (s.radius || 1));
+    scene.traverse((c) => { if (c instanceof THREE.Mesh) c.raycast = () => {}; });
+  }, [scene]);
+
+  useFrame((_, delta) => {
+    if (sunRef.current) sunRef.current.rotation.y += delta * 0.012;
+  });
+
+  return (
+    <group ref={sunRef} position={SUN_POS}>
+      <primitive object={scene} />
+      {/* Strong central light that reaches Earth */}
+      <pointLight intensity={8}  distance={300} color="#fff8e0" decay={0.7} />
+      <pointLight intensity={3}  distance={200} color="#ffcc44" decay={1.0} />
+      <PlanetLabel name="Sun" offsetY={SUN_SCALE + 2} />
+    </group>
+  );
+}
+
+// ─── Moon ─────────────────────────────────────────────────────────────────────
+// Orbits Earth — Moon is Earth's satellite, sits between Earth and Jupiter visually
+function MoonModel() {
+  const moonRef = useRef<THREE.Group>(null);
+  const { scene } = useGLTF(MOON_URL);
+  const MOON_SIZE = 0.45;
+  const MOON_ORBIT = 3.8; // tight orbit around Earth
+
+  useEffect(() => {
+    const box = new THREE.Box3().setFromObject(scene);
+    const s = new THREE.Sphere();
+    box.getBoundingSphere(s);
+    const factor = MOON_SIZE / (s.radius || 1);
     scene.scale.setScalar(factor);
     scene.position.copy(s.center).multiplyScalar(-factor);
     scene.traverse((c) => {
@@ -256,88 +318,31 @@ function MoonModel() {
   }, [scene]);
 
   useFrame(({ clock }) => {
-    const t = clock.getElapsedTime() * 0.12;
+    const t = clock.getElapsedTime() * 0.14;
     if (moonRef.current) {
-      moonRef.current.position.set(Math.sin(t) * 5.5, Math.sin(t * 0.3) * 0.5, Math.cos(t) * 5.5);
+      moonRef.current.position.set(
+        Math.sin(t) * MOON_ORBIT,
+        Math.sin(t * 0.28) * 0.4,
+        Math.cos(t) * MOON_ORBIT,
+      );
       moonRef.current.rotation.y += 0.003;
     }
   });
 
   return (
     <group ref={moonRef}>
-      {/* Moon's own light so it's always visible */}
-      <pointLight intensity={0.9} distance={8} color="#e8dfc8" decay={2} />
+      <pointLight intensity={0.7} distance={6} color="#ddd8c0" decay={2} />
       <primitive object={scene} />
-    </group>
-  );
-}
-
-// ─── Sun ──────────────────────────────────────────────────────────────────────
-function SunModel() {
-  const { scene } = useGLTF(SUN_URL);
-  const sunRef = useRef<THREE.Group>(null);
-
-  useEffect(() => {
-    const box = new THREE.Box3().setFromObject(scene);
-    const s = new THREE.Sphere();
-    box.getBoundingSphere(s);
-    scene.scale.setScalar(3.5 / (s.radius || 1));
-    scene.position.copy(s.center).multiplyScalar(-3.5 / (s.radius || 1));
-    scene.traverse((c) => { if (c instanceof THREE.Mesh) c.raycast = () => {}; });
-  }, [scene]);
-
-  useFrame((_, delta) => {
-    if (sunRef.current) sunRef.current.rotation.y += delta * 0.02;
-  });
-
-  return (
-    <group ref={sunRef} position={[22, 6, -18]}>
-      <primitive object={scene} />
-      <pointLight intensity={5} distance={140} color="#fff5d6" decay={0.9} />
-      <pointLight intensity={2} distance={80} color="#ffe8a0" decay={1.2} />
-    </group>
-  );
-}
-
-// ─── Saturn ───────────────────────────────────────────────────────────────────
-function SaturnModel() {
-  const saturnRef = useRef<THREE.Group>(null);
-  const { scene } = useGLTF(SATURN_URL);
-
-  useEffect(() => {
-    const box = new THREE.Box3().setFromObject(scene);
-    const s = new THREE.Sphere();
-    box.getBoundingSphere(s);
-    scene.scale.setScalar(2.2 / (s.radius || 1));
-    scene.position.copy(s.center).multiplyScalar(-2.2 / (s.radius || 1));
-    scene.traverse((c) => {
-      if (c instanceof THREE.Mesh) {
-        c.raycast = () => {};
-        boostMaterials(c, 1.8);
-      }
-    });
-  }, [scene]);
-
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime() * 0.018;
-    if (saturnRef.current) {
-      saturnRef.current.position.set(
-        -14 + Math.sin(t) * 2,
-        -5 + Math.sin(t * 0.4) * 1.5,
-        -22 + Math.cos(t) * 2,
-      );
-      saturnRef.current.rotation.y += 0.003;
-    }
-  });
-
-  return (
-    <group ref={saturnRef} position={[-14, -5, -22]}>
-      <primitive object={scene} />
+      <PlanetLabel name="Moon" offsetY={MOON_SIZE + 0.5} />
     </group>
   );
 }
 
 // ─── Jupiter ──────────────────────────────────────────────────────────────────
+// 5th planet from Sun — first gas giant, placed to the right of Earth, further back
+const JUPITER_POS = new THREE.Vector3(28, 1, -38);
+const JUPITER_SCALE = 4.5;
+
 function JupiterModel() {
   const jupiterRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF(JUPITER_URL);
@@ -346,31 +351,61 @@ function JupiterModel() {
     const box = new THREE.Box3().setFromObject(scene);
     const s = new THREE.Sphere();
     box.getBoundingSphere(s);
-    scene.scale.setScalar(2.8 / (s.radius || 1));
-    scene.position.copy(s.center).multiplyScalar(-2.8 / (s.radius || 1));
+    scene.scale.setScalar(JUPITER_SCALE / (s.radius || 1));
+    scene.position.copy(s.center).multiplyScalar(-JUPITER_SCALE / (s.radius || 1));
     scene.traverse((c) => {
       if (c instanceof THREE.Mesh) {
         c.raycast = () => {};
-        boostMaterials(c, 1.8);
+        boostMaterials(c, 2.0);
       }
     });
   }, [scene]);
 
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime() * 0.014;
-    if (jupiterRef.current) {
-      jupiterRef.current.position.set(
-        18 + Math.cos(t) * 2,
-        3 + Math.sin(t * 0.3) * 1,
-        -30 + Math.sin(t) * 2,
-      );
-      jupiterRef.current.rotation.y += 0.004;
-    }
+  useFrame((_, delta) => {
+    // Slow self-rotation only — no position drift so planets never collide
+    if (jupiterRef.current) jupiterRef.current.rotation.y += delta * 0.05;
   });
 
   return (
-    <group ref={jupiterRef} position={[18, 3, -30]}>
+    <group ref={jupiterRef} position={JUPITER_POS}>
       <primitive object={scene} />
+      <PlanetLabel name="Jupiter" offsetY={JUPITER_SCALE + 0.8} />
+    </group>
+  );
+}
+
+// ─── Saturn ───────────────────────────────────────────────────────────────────
+// 6th planet from Sun — placed beyond Jupiter, further right and deeper back
+const SATURN_POS = new THREE.Vector3(-30, -2, -55);
+const SATURN_SCALE = 4.0;
+
+function SaturnModel() {
+  const saturnRef = useRef<THREE.Group>(null);
+  const { scene } = useGLTF(SATURN_URL);
+
+  useEffect(() => {
+    const box = new THREE.Box3().setFromObject(scene);
+    const s = new THREE.Sphere();
+    box.getBoundingSphere(s);
+    scene.scale.setScalar(SATURN_SCALE / (s.radius || 1));
+    scene.position.copy(s.center).multiplyScalar(-SATURN_SCALE / (s.radius || 1));
+    scene.traverse((c) => {
+      if (c instanceof THREE.Mesh) {
+        c.raycast = () => {};
+        boostMaterials(c, 2.0);
+      }
+    });
+  }, [scene]);
+
+  useFrame((_, delta) => {
+    // Slow self-rotation only
+    if (saturnRef.current) saturnRef.current.rotation.y += delta * 0.035;
+  });
+
+  return (
+    <group ref={saturnRef} position={SATURN_POS}>
+      <primitive object={scene} />
+      <PlanetLabel name="Saturn" offsetY={SATURN_SCALE + 0.8} />
     </group>
   );
 }
@@ -387,17 +422,16 @@ function Scene({
   return (
     <>
       <color attach="background" args={['#020010']} />
-      <Stars radius={120} depth={60} count={7000} factor={4} saturation={0} fade speed={0.6} />
-      {/* Boosted ambient so everything is more visible */}
+      <Stars radius={150} depth={80} count={8000} factor={4} saturation={0} fade speed={0.5} />
       <ambientLight intensity={0.65} />
-      {/* Warm fill from the opposite side of the sun */}
       <directionalLight position={[-6, 2, 4]} intensity={0.4} color="#c8d8ff" />
       <Suspense fallback={null}>
+        {/* Solar system order: Sun → Earth → Moon → Jupiter → Saturn */}
         <SunModel />
         <EarthGroup hoveredId={hoveredId} onHover={onHover} onLeave={onLeave} onSelect={onSelect} />
         <MoonModel />
-        <SaturnModel />
         <JupiterModel />
+        <SaturnModel />
       </Suspense>
       <OrbitControls
         enablePan={false}
