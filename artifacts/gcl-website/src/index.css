@@ -187,13 +187,29 @@
   --elevate-2: rgba(255, 255, 255, 0.09);
 }
 
+/* ── Global reset: dark base so no white ever bleeds through ─────────────── */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #020010;
+}
+
+/* Root container fills the full viewport so there is never a shorter-than-
+   screen gap between the last page section and the bottom of the window. */
+#root {
+  min-height: 100vh;
+  background-color: #020010;
+}
+
 @layer base {
   * {
     @apply border-border;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground overflow-x-hidden;
-    background: var(--paper);
+    /* bg-background removed — background is set above on html/body/root */
+    @apply font-sans antialiased text-foreground overflow-x-hidden;
+    background-color: #020010;
     color: var(--ink);
   }
   ::selection { background: var(--magenta); color: #fff; }

@@ -999,7 +999,7 @@ export function Chapters() {
     });
 
   return (
-    <div style={{ background: '#020010', minHeight: '100vh', color: '#fff' }}>
+    <div style={{ color: '#fff' }}>
 
       {/* ── Hero: 3D Space Globe ── */}
       <div style={{ position: 'relative', height: '100vh' }}>
