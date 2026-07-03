@@ -50,7 +50,9 @@ function boostMaterials(scene: THREE.Object3D, brightness: number) {
 // ─── Pin ──────────────────────────────────────────────────────────────────────
 const PIN_BASE_SCALE = 0.022;
 const PIN_HOVERED_SCALE = 0.042;
-const PIN_SURFACE_OFFSET = 0.015; // 30% closer — accounts for model's outer transparent layer
+// Negative offset pushes pins through the transparent atmosphere layer
+// and onto the actual opaque surface of the globe model
+const PIN_SURFACE_OFFSET = -0.16;
 
 function Pin({
   chapter,
