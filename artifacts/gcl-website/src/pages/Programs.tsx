@@ -108,30 +108,30 @@ export function Programs() {
   return (
     <main className="pb-32" style={{ background: 'var(--paper-alt)' }}>
       {/* Hero */}
-      <section className="relative pt-[90px] pb-[80px] overflow-hidden" style={{ background: 'var(--brutal-bg)' }}>
-        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, var(--violet), transparent)' }} />
+      <section className="relative pt-[90px] pb-[80px] overflow-hidden bg-white">
+        <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, var(--violet), transparent)' }} />
         <div className="max-w-[1240px] mx-auto px-8 relative z-10">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-[800px]">
             <div className="flex items-center gap-3 mb-8">
-              <div className="h-[2px] w-12" style={{ background: 'var(--grad-brand)' }} />
-              <span className="text-[13px] font-[800] tracking-[0.1em] uppercase text-[var(--neon-cyan)]">How We Work</span>
+              <div className="h-[2px] w-12 bg-[var(--ink)]" />
+              <span className="text-[13px] font-[800] tracking-[0.1em] uppercase text-[var(--violet)]">How We Work</span>
             </div>
-            <h1 className="font-[800] text-[clamp(48px,7vw,88px)] leading-[0.95] tracking-[-0.03em] text-white uppercase mb-8">
+            <h1 className="font-[800] text-[clamp(48px,7vw,88px)] leading-[0.95] tracking-[-0.03em] text-[var(--ink)] uppercase mb-8">
               Four Ways<br />
-              <span style={{ background: 'var(--grad-brand)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>We Move</span><br />
+              <span className="text-[var(--violet)]">We Move</span><br />
               The Needle.
             </h1>
-            <p className="text-[18px] text-[var(--brutal-text-dim)] leading-[1.7] max-w-[540px]">
+            <p className="text-[18px] text-[var(--ink-soft)] leading-[1.7] max-w-[540px]">
               From live workshops to global institutional partnerships — every program meets people exactly where their financial decisions happen.
             </p>
           </motion.div>
 
           {/* Impact stats strip */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="grid grid-cols-2 md:grid-cols-4 gap-[2.5px] mt-16 rounded-[16px] overflow-hidden border border-[var(--brutal-line)]">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
             {[{ n: '14+', l: 'Countries' }, { n: '120+', l: 'Workshops' }, { n: '40+', l: 'Partners' }, { n: '8K+', l: 'Youth Reached' }].map(s => (
-              <div key={s.l} className="px-6 py-5" style={{ background: 'var(--brutal-bg-2)' }}>
-                <div className="font-[800] text-[clamp(28px,3.5vw,40px)] tracking-[-0.02em]" style={{ background: 'linear-gradient(100deg,var(--neon-cyan),var(--violet) 60%,var(--magenta))', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>{s.n}</div>
-                <div className="text-[12px] font-[700] text-[var(--brutal-text-dim)] uppercase tracking-[0.06em] mt-1">{s.l}</div>
+              <div key={s.l} className="px-6 py-5 bg-[var(--paper-alt)] border-[2.5px] border-[var(--ink)] shadow-[4px_4px_0px_var(--ink)]">
+                <div className="font-[800] text-[clamp(28px,3.5vw,40px)] tracking-[-0.02em] text-[var(--ink)]">{s.n}</div>
+                <div className="text-[12px] font-[700] text-[var(--ink-soft)] uppercase tracking-[0.06em] mt-1">{s.l}</div>
               </div>
             ))}
           </motion.div>
@@ -174,7 +174,7 @@ export function Programs() {
                     <div className="font-[800] text-[28px] tracking-[-0.02em]" style={{ background: 'var(--grad-brand)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>{p.stat.num}</div>
                     <div className="text-[12px] font-[700] uppercase tracking-[0.06em] text-[var(--ink-soft)] mt-1">{p.stat.label}</div>
                   </div>
-                  <Link href="/events" className="text-[14.5px] font-[700] px-6 py-3 rounded-full text-white transition-all hover:-translate-y-[2px]" style={{ background: 'var(--grad-brand)', boxShadow: '0 6px 18px rgba(139,92,246,0.3)' }} data-testid={`program-cta-${p.id}`}>
+                  <Link href="/events" className="text-[14.5px] font-[700] px-6 py-3 rounded-full text-white transition-all hover:-translate-y-[2px]" style={{ background: 'var(--ink)', boxShadow: '0 4px 14px rgba(21,19,44,0.15)' }} data-testid={`program-cta-${p.id}`}>
                     Get Involved →
                   </Link>
                 </div>

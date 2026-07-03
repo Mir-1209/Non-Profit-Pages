@@ -39,21 +39,21 @@ export function About() {
   return (
     <main className="pb-32" style={{ background: 'var(--paper-alt)' }}>
       {/* Hero */}
-      <section className="relative pt-[90px] pb-[80px] overflow-hidden" style={{ background: 'var(--brutal-bg)' }}>
-        <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 60% at 30% 20%, var(--violet), transparent)' }} />
+      <section className="relative pt-[90px] pb-[80px] overflow-hidden bg-white">
+        <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 60% at 30% 20%, var(--violet), transparent)' }} />
         <div className="max-w-[1240px] mx-auto px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
               <div className="flex items-center gap-3 mb-8">
-                <div className="h-[2px] w-12" style={{ background: 'var(--grad-brand)' }} />
-                <span className="text-[13px] font-[800] tracking-[0.1em] uppercase text-[var(--neon-cyan)]">Who We Are</span>
+                <div className="h-[2px] w-12 bg-[var(--ink)]" />
+                <span className="text-[13px] font-[800] tracking-[0.1em] uppercase text-[var(--violet)]">Who We Are</span>
               </div>
-              <h1 className="font-[800] text-[clamp(48px,7vw,88px)] leading-[0.95] tracking-[-0.03em] text-white uppercase mb-8">
+              <h1 className="font-[800] text-[clamp(48px,7vw,88px)] leading-[0.95] tracking-[-0.03em] text-[var(--ink)] uppercase mb-8">
                 About<br />
-                <span style={{ background: 'var(--grad-brand)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Global</span><br />
+                <span className="text-[var(--violet)]">Global</span><br />
                 Capital League.
               </h1>
-              <p className="text-[17px] text-[var(--brutal-text-dim)] leading-[1.7] max-w-[480px]">
+              <p className="text-[17px] text-[var(--ink-soft)] leading-[1.7] max-w-[480px]">
                 A youth-led nonprofit using behavioral economics to make financial literacy accessible to every community — not just the privileged few.
               </p>
             </motion.div>
@@ -103,19 +103,19 @@ export function About() {
       </section>
 
       {/* Values */}
-      <section className="py-20" style={{ background: 'var(--brutal-bg)' }}>
+      <section className="py-20 bg-white">
         <div className="max-w-[1240px] mx-auto px-8">
           <Reveal className="mb-14 text-center max-w-[560px] mx-auto">
-            <h2 className="font-[800] text-[clamp(28px,3.5vw,44px)] leading-[1.1] tracking-[-0.025em] text-white uppercase mb-4">What We Stand For</h2>
-            <p className="text-[16px] text-[var(--brutal-text-dim)]">Four principles that shape every decision we make — from curriculum design to partnership selection.</p>
+            <h2 className="font-[800] text-[clamp(28px,3.5vw,44px)] leading-[1.1] tracking-[-0.025em] text-[var(--ink)] uppercase mb-4">What We Stand For</h2>
+            <p className="text-[16px] text-[var(--ink-soft)]">Four principles that shape every decision we make — from curriculum design to partnership selection.</p>
           </Reveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {values.map((v, i) => (
               <Reveal key={v.label} delay={i * 0.08}>
-                <div className="p-7 rounded-[16px] h-full transition-all hover:-translate-x-[3px] hover:-translate-y-[3px]" style={{ background: 'var(--brutal-bg-2)', border: '2.5px solid rgba(246,244,255,0.7)', boxShadow: '8px 8px 0px rgba(94,234,255,0.2)' }}>
+                <div className="p-7 rounded-[16px] h-full transition-all hover:-translate-x-[3px] hover:-translate-y-[3px]" style={{ background: 'var(--paper-alt)', border: '2.5px solid var(--ink)', boxShadow: '6px 6px 0px var(--ink)' }}>
                   <div className="text-[28px] font-[800] mb-4" style={{ color: v.color }}>{v.icon}</div>
-                  <div className="font-[800] text-[17px] text-white uppercase tracking-wider mb-3">{v.label}</div>
-                  <p className="text-[13.5px] text-[var(--brutal-text-dim)] leading-[1.6]">{v.desc}</p>
+                  <div className="font-[800] text-[17px] text-[var(--ink)] uppercase tracking-wider mb-3">{v.label}</div>
+                  <p className="text-[13.5px] text-[var(--ink-soft)] leading-[1.6]">{v.desc}</p>
                 </div>
               </Reveal>
             ))}

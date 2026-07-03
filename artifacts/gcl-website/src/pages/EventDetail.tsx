@@ -190,39 +190,38 @@ export function EventDetail() {
   return (
     <main className="pb-32 pt-[90px]" style={{ background: 'var(--paper-alt)' }}>
       {/* ─── HERO BANNER ─── */}
-      <section className="pt-0 pb-0 overflow-hidden" style={{ background: 'var(--brutal-bg)' }}>
-        <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'repeating-linear-gradient(90deg,white 0px,white 1px,transparent 1px,transparent 80px),repeating-linear-gradient(0deg,white 0px,white 1px,transparent 1px,transparent 80px)' }} />
+      <section className="pt-0 pb-0 overflow-hidden bg-white border-b-[2.5px] border-[var(--ink)]">
         <div className="max-w-[1240px] mx-auto px-8 pt-8 pb-12 relative z-10">
-          <Link href="/events" className="inline-flex items-center gap-2 text-[13px] font-[700] text-[var(--brutal-text-dim)] hover:text-[var(--neon-cyan)] transition-colors mb-8 uppercase tracking-wider">
+          <Link href="/events" className="inline-flex items-center gap-2 text-[13px] font-[700] text-[var(--ink-soft)] hover:text-[var(--violet)] transition-colors mb-8 uppercase tracking-wider">
             ← All Events
           </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 items-start">
             <div>
               <div className="flex flex-wrap gap-2 mb-5">
-                <span className="text-[10px] font-[800] uppercase tracking-wider px-3 py-1.5 border border-[var(--neon-cyan)]/40 text-[var(--neon-cyan)]">{event.format}</span>
-                <span className="text-[10px] font-[800] uppercase tracking-wider px-3 py-1.5 border text-[var(--ink-faint)]"
-                  style={{ borderColor: event.type === 'Free' ? 'rgba(40,200,64,0.4)' : 'rgba(255,255,255,0.15)', color: event.type === 'Free' ? '#28c840' : 'rgba(255,255,255,0.4)' }}>
+                <span className="text-[10px] font-[800] uppercase tracking-wider px-3 py-1.5 border border-[var(--violet)]/40 text-[var(--violet)]">{event.format}</span>
+                <span className="text-[10px] font-[800] uppercase tracking-wider px-3 py-1.5 border border-[var(--line)] text-[var(--ink-faint)]"
+                  style={{ color: event.type === 'Free' ? '#15803d' : 'var(--ink-faint)' }}>
                   {event.type}
                 </span>
                 {event.tags.map(tag => (
-                  <span key={tag} className="text-[10px] font-[600] uppercase tracking-wider px-3 py-1.5 border border-white/10 text-white/40">{tag}</span>
+                  <span key={tag} className="text-[10px] font-[600] uppercase tracking-wider px-3 py-1.5 border border-[var(--line)] text-[var(--ink-faint)]">{tag}</span>
                 ))}
               </div>
 
-              <h1 className="font-[800] text-[clamp(28px,5vw,58px)] leading-[1.0] tracking-[-0.03em] text-white mb-3">{event.title}</h1>
-              <p className="text-[16px] text-[var(--neon-cyan)] font-[600] mb-5">{event.subtitle}</p>
-              <p className="text-[15px] text-[var(--brutal-text-dim)] leading-[1.7] max-w-[580px]">{event.description}</p>
+              <h1 className="font-[800] text-[clamp(28px,5vw,58px)] leading-[1.0] tracking-[-0.03em] text-[var(--ink)] mb-3">{event.title}</h1>
+              <p className="text-[16px] text-[var(--violet)] font-[600] mb-5">{event.subtitle}</p>
+              <p className="text-[15px] text-[var(--ink-soft)] leading-[1.7] max-w-[580px]">{event.description}</p>
             </div>
 
             {/* Date block */}
-            <div className="border-[2.5px] border-white/20 px-10 py-8 text-center shrink-0">
-              <div className="font-[800] text-[64px] leading-none text-[var(--neon-cyan)]">{event.date.day}</div>
-              <div className="font-[800] text-[18px] uppercase tracking-wider text-white/70 mt-1">{event.date.month}</div>
-              <div className="font-[600] text-[14px] text-white/50">{event.date.year}</div>
-              <div className="mt-4 pt-4 border-t border-white/15">
-                <div className="font-[700] text-[16px] text-white">{event.time}</div>
-                <div className="text-[12px] text-white/50">{event.timezone}</div>
+            <div className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] px-10 py-8 text-center shrink-0 bg-[var(--paper-alt)]">
+              <div className="font-[800] text-[64px] leading-none text-[var(--ink)]">{event.date.day}</div>
+              <div className="font-[800] text-[18px] uppercase tracking-wider text-[var(--ink-soft)] mt-1">{event.date.month}</div>
+              <div className="font-[600] text-[14px] text-[var(--ink-faint)]">{event.date.year}</div>
+              <div className="mt-4 pt-4 border-t border-[var(--line)]">
+                <div className="font-[700] text-[16px] text-[var(--ink)]">{event.time}</div>
+                <div className="text-[12px] text-[var(--ink-faint)]">{event.timezone}</div>
               </div>
             </div>
           </div>
@@ -379,12 +378,12 @@ export function EventDetail() {
               <Reveal key={ev.id} delay={i * 0.08}>
                 <Link href={`/events/${ev.id}`}
                   className="block border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] bg-white hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0px_var(--ink)] transition-all group">
-                  <div className="border-b-[2.5px] border-[var(--ink)] px-5 py-4 flex items-center justify-between" style={{ background: 'var(--brutal-bg)' }}>
+                  <div className="border-b-[2.5px] border-[var(--ink)] px-5 py-4 flex items-center justify-between bg-[var(--paper-alt)]">
                     <div>
-                      <div className="font-[800] text-[28px] text-[var(--neon-cyan)] leading-none">{ev.date.day}</div>
-                      <div className="text-[11px] font-[700] uppercase tracking-wider text-white/60">{ev.date.month} {ev.date.year}</div>
+                      <div className="font-[800] text-[28px] text-[var(--ink)] leading-none">{ev.date.day}</div>
+                      <div className="text-[11px] font-[700] uppercase tracking-wider text-[var(--ink-soft)]">{ev.date.month} {ev.date.year}</div>
                     </div>
-                    <span className="text-[10px] font-[800] uppercase px-2.5 py-1 border border-[var(--neon-cyan)]/30 text-[var(--neon-cyan)]">{ev.format}</span>
+                    <span className="text-[10px] font-[800] uppercase px-2.5 py-1 border border-[var(--violet)]/30 text-[var(--violet)]">{ev.format}</span>
                   </div>
                   <div className="p-5">
                     <h3 className="font-[800] text-[16px] leading-tight mb-2 group-hover:underline underline-offset-2">{ev.title}</h3>

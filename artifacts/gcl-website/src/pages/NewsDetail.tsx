@@ -208,8 +208,8 @@ export function NewsDetail() {
             </div>
 
             {/* Key Facts */}
-            <div className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] p-6 bg-[var(--brutal-bg)]">
-              <div className="text-[10px] font-[800] uppercase tracking-[0.15em] text-[var(--neon-cyan)] mb-4">Key Facts</div>
+            <div className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] p-6 bg-white">
+              <div className="text-[10px] font-[800] uppercase tracking-[0.15em] text-[var(--violet)] mb-4">Key Facts</div>
               <div className="space-y-4">
                 {[
                   { label: 'Category', value: post.category },
@@ -217,9 +217,9 @@ export function NewsDetail() {
                   { label: 'Author', value: post.author },
                   { label: 'Read Time', value: post.readTime },
                 ].map(item => (
-                  <div key={item.label} className="border-b border-white/10 pb-3">
-                    <div className="text-[10px] font-[700] uppercase tracking-wider text-[var(--brutal-text-dim)] mb-1">{item.label}</div>
-                    <div className="text-[14px] font-[700] text-white">{item.value}</div>
+                  <div key={item.label} className="border-b border-[var(--line)] pb-3">
+                    <div className="text-[10px] font-[700] uppercase tracking-wider text-[var(--ink-faint)] mb-1">{item.label}</div>
+                    <div className="text-[14px] font-[700] text-[var(--ink)]">{item.value}</div>
                   </div>
                 ))}
               </div>

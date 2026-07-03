@@ -26,20 +26,20 @@ export function Stories() {
   return (
     <main className="pb-32" style={{ background: 'var(--paper-alt)' }}>
       {/* Hero */}
-      <section className="relative pt-[90px] pb-[80px] overflow-hidden" style={{ background: 'var(--brutal-bg)' }}>
-        <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 60% at 40% 20%, var(--blue), transparent)' }} />
+      <section className="relative pt-[90px] pb-[80px] overflow-hidden bg-white">
+        <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 60% at 40% 20%, var(--blue), transparent)' }} />
         <div className="max-w-[1240px] mx-auto px-8 relative z-10">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-[760px]">
             <div className="flex items-center gap-3 mb-8">
-              <div className="h-[2px] w-12" style={{ background: 'var(--grad-brand)' }} />
-              <span className="text-[13px] font-[800] tracking-[0.1em] uppercase text-[var(--neon-cyan)]">Real People, Real Decisions</span>
+              <div className="h-[2px] w-12 bg-[var(--ink)]" />
+              <span className="text-[13px] font-[800] tracking-[0.1em] uppercase text-[var(--violet)]">Real People, Real Decisions</span>
             </div>
-            <h1 className="font-[800] text-[clamp(48px,7vw,88px)] leading-[0.95] tracking-[-0.03em] text-white uppercase mb-8">
+            <h1 className="font-[800] text-[clamp(48px,7vw,88px)] leading-[0.95] tracking-[-0.03em] text-[var(--ink)] uppercase mb-8">
               Decisions<br />
               People Made<br />
-              <span style={{ background: 'var(--grad-brand)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Differently.</span>
+              <span className="text-[var(--violet)]">Differently.</span>
             </h1>
-            <p className="text-[17px] text-[var(--brutal-text-dim)] leading-[1.7] max-w-[520px]">
+            <p className="text-[17px] text-[var(--ink-soft)] leading-[1.7] max-w-[520px]">
               Real accounts from students, educators, and community leaders in the GCL network — from Nairobi to Mumbai, Bogotá to Belgrade.
             </p>
           </motion.div>
@@ -47,15 +47,15 @@ export function Stories() {
           {/* Global reach mini stats */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.6 }} className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-14">
             {regions.map((r, i) => (
-              <motion.div key={r.name} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.06 }} className="flex items-center justify-between px-5 py-4 rounded-[12px]" style={{ background: 'var(--brutal-bg-2)', border: '1px solid var(--brutal-line)' }}>
+              <motion.div key={r.name} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.06 }} className="flex items-center justify-between px-5 py-4 rounded-[12px] bg-white border-[2px] border-[var(--ink)]">
                 <div className="flex items-center gap-3">
                   <span className="text-xl">{r.flag}</span>
                   <div>
-                    <div className="font-[700] text-[14px] text-white">{r.name}</div>
-                    <div className="text-[12px] text-[var(--brutal-text-dim)]">{r.count} reached</div>
+                    <div className="font-[700] text-[14px] text-[var(--ink)]">{r.name}</div>
+                    <div className="text-[12px] text-[var(--ink-soft)]">{r.count} reached</div>
                   </div>
                 </div>
-                <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: r.status === 'Active' ? 'rgba(40,200,64,0.15)' : 'rgba(94,234,255,0.1)', color: r.status === 'Active' ? '#28c840' : 'var(--neon-cyan)' }}>{r.status}</span>
+                <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: r.status === 'Active' ? 'rgba(40,200,64,0.12)' : 'rgba(99,102,241,0.1)', color: r.status === 'Active' ? '#15803d' : 'var(--violet)' }}>{r.status}</span>
               </motion.div>
             ))}
           </motion.div>
@@ -76,18 +76,18 @@ export function Stories() {
       </section>
 
       {/* Impact pull quote */}
-      <section className="py-16" style={{ background: 'var(--brutal-bg)' }}>
+      <section className="py-16 bg-white border-y-[2.5px] border-[var(--ink)]">
         <div className="max-w-[1240px] mx-auto px-8">
           <Reveal className="text-center max-w-[800px] mx-auto">
             <div className="text-[72px] leading-none text-[var(--violet)] font-[800] mb-4">"</div>
-            <p className="font-[800] text-[clamp(22px,3vw,34px)] text-white leading-[1.35] tracking-[-0.02em] mb-8">
+            <p className="font-[800] text-[clamp(22px,3vw,34px)] text-[var(--ink)] leading-[1.35] tracking-[-0.02em] mb-8">
               It's the first financial program that treated our community like it had potential, not just problems.
             </p>
             <div className="flex items-center justify-center gap-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-[800] text-white" style={{ background: 'var(--grad-brand)' }}>P</div>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center font-[800] text-white bg-[var(--ink)]">P</div>
               <div className="text-left">
-                <div className="font-[700] text-white text-[15px]">Priya S.</div>
-                <div className="text-[13px] text-[var(--brutal-text-dim)]">Community Organizer · Mumbai, India</div>
+                <div className="font-[700] text-[var(--ink)] text-[15px]">Priya S.</div>
+                <div className="text-[13px] text-[var(--ink-soft)]">Community Organizer · Mumbai, India</div>
               </div>
             </div>
           </Reveal>
