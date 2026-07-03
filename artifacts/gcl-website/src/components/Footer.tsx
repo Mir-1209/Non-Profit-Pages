@@ -48,7 +48,6 @@ export function Footer() {
           <span className="italic">Made by youth, for the world.</span>
         </div>
       </div>
-
       {/* Ghost word — stacked GLOBAL / CAPITAL / LEAGUE */}
       <div
         className="text-center leading-[0.88] tracking-[-0.02em] select-none pb-0 pt-2 px-4"
@@ -60,7 +59,7 @@ export function Footer() {
           WebkitTextStroke: '1px rgba(255,255,255,0.11)',
         }}
       >
-        <div>GLOBAL</div>
+        <div>GLOBAL capital league</div>
         <div>CAPITAL</div>
         <div>LEAGUE</div>
       </div>
