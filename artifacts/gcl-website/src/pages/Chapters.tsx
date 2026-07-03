@@ -1,5 +1,4 @@
-import React, { useRef, useState, useEffect, Suspense, Component } from 'react';
-import type { ErrorInfo, ReactNode } from 'react';
+import React, { useRef, useState, useEffect, Suspense, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars, useGLTF, Html } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,16 +7,19 @@ import { chapters, Chapter, STATUS_LABEL, STATUS_COLOR, ChapterStatus } from '..
 
 // ─── Asset URLs (from public/) ──────────────────────────────────────────────
 const BASE = import.meta.env.BASE_URL ?? '/';
-const EARTH_URL = `${BASE}earth.glb`;
-const MOON_URL  = `${BASE}moon.glb`;
-const SUN_URL   = `${BASE}sun.glb`;
+const EARTH_URL   = `${BASE}earth.glb`;
+const MOON_URL    = `${BASE}moon.glb`;
+const SUN_URL     = `${BASE}sun.glb`;
+const SATURN_URL  = `${BASE}saturn.glb`;
+const JUPITER_URL = `${BASE}jupiter.glb`;
 
-// Preload all models
 useGLTF.preload(EARTH_URL);
 useGLTF.preload(MOON_URL);
 useGLTF.preload(SUN_URL);
+useGLTF.preload(SATURN_URL);
+useGLTF.preload(JUPITER_URL);
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function latLngToVec3(lat: number, lng: number, radius: number): THREE.Vector3 {
   const φ = (lat * Math.PI) / 180;
   const λ = (lng * Math.PI) / 180;
@@ -28,7 +30,28 @@ function latLngToVec3(lat: number, lng: number, radius: number): THREE.Vector3 {
   );
 }
 
-// ─── Individual Pin ──────────────────────────────────────────────────────────
+function boostMaterials(scene: THREE.Object3D, brightness: number) {
+  scene.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      const mats = Array.isArray(child.material) ? child.material : [child.material];
+      mats.forEach((mat) => {
+        if (mat instanceof THREE.MeshStandardMaterial) {
+          mat.envMapIntensity = brightness;
+          if (mat.emissive && mat.emissiveMap) {
+            mat.emissiveIntensity = Math.max(mat.emissiveIntensity ?? 0, 0.25);
+          }
+          mat.needsUpdate = true;
+        }
+      });
+    }
+  });
+}
+
+// ─── Pin ──────────────────────────────────────────────────────────────────────
+const PIN_BASE_SCALE = 0.022;
+const PIN_HOVERED_SCALE = 0.042;
+const PIN_SURFACE_OFFSET = PIN_BASE_SCALE; // center sits exactly on surface
+
 function Pin({
   chapter,
   earthRadius,
@@ -44,88 +67,109 @@ function Pin({
   onClick: (ch: Chapter) => void;
   isHovered: boolean;
 }) {
-  const pos = latLngToVec3(chapter.lat, chapter.lng, earthRadius + 0.06);
+  const pos = latLngToVec3(chapter.lat, chapter.lng, earthRadius + PIN_SURFACE_OFFSET);
   const color = STATUS_COLOR[chapter.status];
   const meshRef = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!meshRef.current) return;
-    const target = isHovered ? 0.045 : 0.025;
-    const current = (meshRef.current.scale.x - target) * 0.15;
-    meshRef.current.scale.setScalar(meshRef.current.scale.x - current);
+    const target = isHovered ? PIN_HOVERED_SCALE : PIN_BASE_SCALE;
+    meshRef.current.scale.lerp(new THREE.Vector3(target, target, target), 0.15);
+    if (ringRef.current) {
+      ringRef.current.scale.lerp(
+        new THREE.Vector3(isHovered ? 2.8 : 1.6, isHovered ? 2.8 : 1.6, isHovered ? 2.8 : 1.6),
+        0.12
+      );
+      (ringRef.current.material as THREE.MeshBasicMaterial).opacity = isHovered ? 0.5 : 0.2;
+    }
   });
 
   return (
-    <mesh
-      ref={meshRef}
-      position={pos}
-      scale={0.025}
-      onPointerOver={(e) => { e.stopPropagation(); onHover(chapter); }}
-      onPointerOut={(e) => { e.stopPropagation(); onLeave(); }}
-      onClick={(e) => { e.stopPropagation(); onClick(chapter); }}
-    >
-      <sphereGeometry args={[1, 10, 10]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={isHovered ? 4 : 1.8}
-        toneMapped={false}
-      />
+    <group position={pos}>
+      {/* Pulse ring */}
+      <mesh ref={ringRef} scale={1.6}>
+        <torusGeometry args={[PIN_BASE_SCALE, PIN_BASE_SCALE * 0.18, 8, 32]} />
+        <meshBasicMaterial color={color} transparent opacity={0.2} toneMapped={false} />
+      </mesh>
+      {/* Core dot */}
+      <mesh
+        ref={meshRef}
+        scale={PIN_BASE_SCALE}
+        onPointerOver={(e) => { e.stopPropagation(); onHover(chapter); }}
+        onPointerOut={(e) => { e.stopPropagation(); onLeave(); }}
+        onClick={(e) => { e.stopPropagation(); onClick(chapter); }}
+      >
+        <sphereGeometry args={[1, 14, 14]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={isHovered ? 5 : 2.5}
+          toneMapped={false}
+        />
+      </mesh>
       {isHovered && (
         <Html
           distanceFactor={8}
           center
+          position={[0, PIN_HOVERED_SCALE * 2.5, 0]}
           style={{ pointerEvents: 'none', userSelect: 'none' }}
           zIndexRange={[100, 0]}
         >
-          <div
-            style={{
-              background: 'rgba(8,5,22,0.95)',
-              border: `1px solid ${color}55`,
-              borderRadius: 12,
-              padding: '10px 14px',
-              minWidth: 180,
-              boxShadow: `0 0 20px ${color}33, 0 8px 32px rgba(0,0,0,0.7)`,
-              backdropFilter: 'blur(20px)',
-              fontSize: 12,
-              lineHeight: 1.5,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            <div style={{ fontWeight: 800, color: '#fff', marginBottom: 6, fontSize: 13 }}>
+          <div style={{
+            background: 'rgba(6,3,18,0.97)',
+            border: `1px solid ${color}66`,
+            borderRadius: 14,
+            padding: '12px 16px',
+            minWidth: 200,
+            boxShadow: `0 0 28px ${color}44, 0 12px 40px rgba(0,0,0,0.8)`,
+            backdropFilter: 'blur(24px)',
+            fontSize: 12,
+            lineHeight: 1.5,
+            whiteSpace: 'nowrap',
+          }}>
+            <div style={{ fontWeight: 800, color: '#fff', marginBottom: 6, fontSize: 14 }}>
               {chapter.name}
             </div>
-            <div style={{ color: 'rgba(255,255,255,0.6)', marginBottom: 3 }}>
+            <div style={{ color: 'rgba(255,255,255,0.55)', marginBottom: 6 }}>
               📍 {chapter.city}, {chapter.country}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               <span style={{
                 background: color, borderRadius: 4,
-                padding: '1px 6px', fontSize: 10,
-                fontWeight: 700, color: '#000',
+                padding: '2px 8px', fontSize: 10,
+                fontWeight: 800, color: '#000',
               }}>
                 {STATUS_LABEL[chapter.status]}
               </span>
-              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
+              <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11 }}>
                 Est. {chapter.founded}
               </span>
             </div>
-            <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10, marginTop: 6 }}>
+            <div style={{ display: 'flex', gap: 14 }}>
+              {[
+                { v: chapter.members, l: 'members' },
+                { v: chapter.eventsHosted, l: 'events' },
+              ].map(s => (
+                <div key={s.l}>
+                  <span style={{ fontWeight: 800, color: '#fff', fontSize: 13 }}>{s.v}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 10, marginLeft: 3 }}>{s.l}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10, marginTop: 8 }}>
               Click to open profile →
             </div>
           </div>
         </Html>
       )}
-    </mesh>
+    </group>
   );
 }
 
-// ─── Earth + Pins ────────────────────────────────────────────────────────────
+// ─── Earth + Pins ─────────────────────────────────────────────────────────────
 function EarthGroup({
-  hoveredId,
-  onHover,
-  onLeave,
-  onSelect,
+  hoveredId, onHover, onLeave, onSelect,
 }: {
   hoveredId: string | null;
   onHover: (ch: Chapter) => void;
@@ -136,7 +180,6 @@ function EarthGroup({
   const { scene: earthScene } = useGLTF(EARTH_URL);
   const [earthRadius, setEarthRadius] = useState(1.8);
 
-  // Normalise Earth model scale and disable its raycasting
   useEffect(() => {
     const box = new THREE.Box3().setFromObject(earthScene);
     const sphere = new THREE.Sphere();
@@ -144,27 +187,32 @@ function EarthGroup({
     const desired = 1.8;
     const factor = desired / (sphere.radius || 1);
     earthScene.scale.setScalar(factor);
-    // Centre model at origin
     earthScene.position.copy(sphere.center).multiplyScalar(-factor);
     setEarthRadius(desired);
 
-    // Disable raycasting on Earth mesh so pins are hittable
     earthScene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.raycast = () => {};
+        // Boost Earth brightness
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((mat) => {
+          if (mat instanceof THREE.MeshStandardMaterial) {
+            mat.envMapIntensity = 2.2;
+            mat.needsUpdate = true;
+          }
+        });
       }
     });
   }, [earthScene]);
 
-  // Slow auto-rotation
   useFrame((_, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.04;
-    }
+    if (groupRef.current) groupRef.current.rotation.y += delta * 0.04;
   });
 
   return (
     <group ref={groupRef}>
+      {/* Dedicated fill light for Earth */}
+      <pointLight position={[-4, 3, 3]} intensity={1.4} color="#b8d4ff" distance={18} decay={1.5} />
       <primitive object={earthScene} />
       {chapters.map((ch) => (
         <Pin
@@ -181,7 +229,7 @@ function EarthGroup({
   );
 }
 
-// ─── Moon ────────────────────────────────────────────────────────────────────
+// ─── Moon ─────────────────────────────────────────────────────────────────────
 function MoonModel() {
   const moonRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF(MOON_URL);
@@ -190,9 +238,21 @@ function MoonModel() {
     const box = new THREE.Box3().setFromObject(scene);
     const s = new THREE.Sphere();
     box.getBoundingSphere(s);
-    scene.scale.setScalar(0.5 / (s.radius || 1));
-    scene.position.copy(s.center).multiplyScalar(-0.5 / (s.radius || 1));
-    scene.traverse((c) => { if (c instanceof THREE.Mesh) c.raycast = () => {}; });
+    const factor = 0.5 / (s.radius || 1);
+    scene.scale.setScalar(factor);
+    scene.position.copy(s.center).multiplyScalar(-factor);
+    scene.traverse((c) => {
+      if (c instanceof THREE.Mesh) {
+        c.raycast = () => {};
+        const mats = Array.isArray(c.material) ? c.material : [c.material];
+        mats.forEach((mat) => {
+          if (mat instanceof THREE.MeshStandardMaterial) {
+            mat.envMapIntensity = 2.8;
+            mat.needsUpdate = true;
+          }
+        });
+      }
+    });
   }, [scene]);
 
   useFrame(({ clock }) => {
@@ -205,12 +265,14 @@ function MoonModel() {
 
   return (
     <group ref={moonRef}>
+      {/* Moon's own light so it's always visible */}
+      <pointLight intensity={0.9} distance={8} color="#e8dfc8" decay={2} />
       <primitive object={scene} />
     </group>
   );
 }
 
-// ─── Sun ─────────────────────────────────────────────────────────────────────
+// ─── Sun ──────────────────────────────────────────────────────────────────────
 function SunModel() {
   const { scene } = useGLTF(SUN_URL);
   const sunRef = useRef<THREE.Group>(null);
@@ -231,17 +293,91 @@ function SunModel() {
   return (
     <group ref={sunRef} position={[22, 6, -18]}>
       <primitive object={scene} />
-      <pointLight intensity={3} distance={120} color="#fff5d6" decay={1} />
+      <pointLight intensity={5} distance={140} color="#fff5d6" decay={0.9} />
+      <pointLight intensity={2} distance={80} color="#ffe8a0" decay={1.2} />
     </group>
   );
 }
 
-// ─── Scene ───────────────────────────────────────────────────────────────────
+// ─── Saturn ───────────────────────────────────────────────────────────────────
+function SaturnModel() {
+  const saturnRef = useRef<THREE.Group>(null);
+  const { scene } = useGLTF(SATURN_URL);
+
+  useEffect(() => {
+    const box = new THREE.Box3().setFromObject(scene);
+    const s = new THREE.Sphere();
+    box.getBoundingSphere(s);
+    scene.scale.setScalar(2.2 / (s.radius || 1));
+    scene.position.copy(s.center).multiplyScalar(-2.2 / (s.radius || 1));
+    scene.traverse((c) => {
+      if (c instanceof THREE.Mesh) {
+        c.raycast = () => {};
+        boostMaterials(c, 1.8);
+      }
+    });
+  }, [scene]);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime() * 0.018;
+    if (saturnRef.current) {
+      saturnRef.current.position.set(
+        -14 + Math.sin(t) * 2,
+        -5 + Math.sin(t * 0.4) * 1.5,
+        -22 + Math.cos(t) * 2,
+      );
+      saturnRef.current.rotation.y += 0.003;
+    }
+  });
+
+  return (
+    <group ref={saturnRef} position={[-14, -5, -22]}>
+      <primitive object={scene} />
+    </group>
+  );
+}
+
+// ─── Jupiter ──────────────────────────────────────────────────────────────────
+function JupiterModel() {
+  const jupiterRef = useRef<THREE.Group>(null);
+  const { scene } = useGLTF(JUPITER_URL);
+
+  useEffect(() => {
+    const box = new THREE.Box3().setFromObject(scene);
+    const s = new THREE.Sphere();
+    box.getBoundingSphere(s);
+    scene.scale.setScalar(2.8 / (s.radius || 1));
+    scene.position.copy(s.center).multiplyScalar(-2.8 / (s.radius || 1));
+    scene.traverse((c) => {
+      if (c instanceof THREE.Mesh) {
+        c.raycast = () => {};
+        boostMaterials(c, 1.8);
+      }
+    });
+  }, [scene]);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime() * 0.014;
+    if (jupiterRef.current) {
+      jupiterRef.current.position.set(
+        18 + Math.cos(t) * 2,
+        3 + Math.sin(t * 0.3) * 1,
+        -30 + Math.sin(t) * 2,
+      );
+      jupiterRef.current.rotation.y += 0.004;
+    }
+  });
+
+  return (
+    <group ref={jupiterRef} position={[18, 3, -30]}>
+      <primitive object={scene} />
+    </group>
+  );
+}
+
+// ─── Scene ────────────────────────────────────────────────────────────────────
 function Scene({
-  hoveredId,
-  onHover,
-  onLeave,
-  onSelect,
+  hoveredId, onHover, onLeave, onSelect,
 }: {
   hoveredId: string | null;
   onHover: (ch: Chapter) => void;
@@ -252,16 +388,16 @@ function Scene({
     <>
       <color attach="background" args={['#020010']} />
       <Stars radius={120} depth={60} count={7000} factor={4} saturation={0} fade speed={0.6} />
-      <ambientLight intensity={0.18} />
+      {/* Boosted ambient so everything is more visible */}
+      <ambientLight intensity={0.65} />
+      {/* Warm fill from the opposite side of the sun */}
+      <directionalLight position={[-6, 2, 4]} intensity={0.4} color="#c8d8ff" />
       <Suspense fallback={null}>
         <SunModel />
-        <EarthGroup
-          hoveredId={hoveredId}
-          onHover={onHover}
-          onLeave={onLeave}
-          onSelect={onSelect}
-        />
+        <EarthGroup hoveredId={hoveredId} onHover={onHover} onLeave={onLeave} onSelect={onSelect} />
         <MoonModel />
+        <SaturnModel />
+        <JupiterModel />
       </Suspense>
       <OrbitControls
         enablePan={false}
@@ -276,167 +412,470 @@ function Scene({
   );
 }
 
-// ─── Chapter Profile Panel ────────────────────────────────────────────────────
+// ─── Placeholder helpers ───────────────────────────────────────────────────────
+function AvatarPlaceholder({ name, role, color }: { name: string; role: string; color: string }) {
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <div style={{
+        width: 56, height: 56, borderRadius: '50%',
+        background: `linear-gradient(135deg, ${color}33, ${color}11)`,
+        border: `2px solid ${color}44`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 18, fontWeight: 800, color,
+      }}>{initials}</div>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{name}</div>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{role}</div>
+      </div>
+    </div>
+  );
+}
+
+function PhotoPlaceholder({ index }: { index: number }) {
+  const labels = ['Workshop Highlights', 'Community Event', 'Guest Speaker', 'Team Meetup', 'Awards Night', 'Study Session'];
+  return (
+    <div style={{
+      aspectRatio: '16/10',
+      background: 'rgba(255,255,255,0.03)',
+      border: '1px dashed rgba(255,255,255,0.12)',
+      borderRadius: 10,
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      gap: 8, padding: 12,
+    }}>
+      <div style={{ fontSize: 22, opacity: 0.3 }}>📷</div>
+      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', textAlign: 'center' }}>
+        {labels[index % labels.length]}
+      </div>
+    </div>
+  );
+}
+
+function EventPlaceholder({ title, date, attendees, color }: { title: string; date: string; attendees: number; color: string }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 14,
+      padding: '12px 16px',
+      background: 'rgba(255,255,255,0.03)',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 10,
+    }}>
+      <div style={{
+        width: 44, height: 44, borderRadius: 10, flexShrink: 0,
+        background: `${color}18`,
+        border: `1px solid ${color}33`,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        fontSize: 10, fontWeight: 800, color, lineHeight: 1.2,
+      }}>
+        <div>{date.split(' ')[0]}</div>
+        <div style={{ fontWeight: 400, opacity: 0.7 }}>{date.split(' ')[1]}</div>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</div>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{attendees} expected attendees</div>
+      </div>
+      <div style={{ fontSize: 10, color, fontWeight: 700, whiteSpace: 'nowrap', background: `${color}15`, padding: '4px 10px', borderRadius: 6 }}>
+        Register →
+      </div>
+    </div>
+  );
+}
+
+// ─── Chapter Profile Modal ─────────────────────────────────────────────────────
 function ChapterPanel({ chapter, onClose }: { chapter: Chapter; onClose: () => void }) {
   const color = STATUS_COLOR[chapter.status];
+  const [copied, setCopied] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '', motivation: '' });
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    const url = `${window.location.origin}${window.location.pathname}#${chapter.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [chapter.id]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (form.name && form.email) setSubmitted(true);
+  };
+
+  // Placeholder team members derived from real data
+  const teamMembers = [
+    { name: chapter.founder, role: 'Chapter Founder' },
+    { name: chapter.lead, role: 'Current Lead' },
+    { name: 'Open Position', role: 'Events Coordinator' },
+    { name: 'Open Position', role: 'Marketing Lead' },
+    { name: 'Open Position', role: 'Finance Officer' },
+  ];
+
+  // Placeholder upcoming events
+  const upcomingEvents = [
+    { title: `${chapter.name} Monthly Meetup`, date: 'AUG 12', attendees: 40 },
+    { title: 'Behavioral Finance Workshop', date: 'SEP 3', attendees: 60 },
+    { title: 'Investment Basics Bootcamp', date: 'SEP 18', attendees: 35 },
+  ];
+
   return (
     <motion.div
       key={chapter.id}
-      initial={{ x: '100%', opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: '100%', opacity: 0 }}
-      transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+      initial={{ opacity: 0, scale: 0.94, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.94, y: 20 }}
+      transition={{ type: 'spring', damping: 30, stiffness: 260 }}
       style={{
-        position: 'fixed', top: 0, right: 0, bottom: 0,
-        width: '90%', maxWidth: 560, zIndex: 200,
-        background: 'rgba(6,3,18,0.98)',
-        borderLeft: '1px solid rgba(255,255,255,0.1)',
-        backdropFilter: 'blur(40px)',
+        position: 'relative',
+        width: '92%',
+        maxWidth: 980,
+        maxHeight: '90vh',
+        zIndex: 200,
+        background: 'rgba(5,2,16,0.99)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        backdropFilter: 'blur(48px)',
+        borderRadius: 20,
         overflowY: 'auto',
-        boxShadow: '-24px 0 80px rgba(0,0,0,0.7)',
+        boxShadow: `0 0 0 1px rgba(255,255,255,0.06), 0 40px 120px rgba(0,0,0,0.9), 0 0 80px ${color}18`,
       }}
+      onClick={e => e.stopPropagation()}
     >
-      {/* Header */}
-      <div style={{ padding: '28px 32px 20px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+      {/* ── Accent top bar ── */}
+      <div style={{ height: 3, background: `linear-gradient(90deg, ${color}, ${color}00)`, borderRadius: '20px 20px 0 0' }} />
+
+      {/* ── Header ── */}
+      <div style={{ padding: '24px 32px 20px', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+        {/* Chapter avatar */}
+        <div style={{
+          width: 56, height: 56, flexShrink: 0, borderRadius: 14,
+          background: `linear-gradient(135deg, ${color}30, ${color}10)`,
+          border: `1.5px solid ${color}50`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 22,
+        }}>
+          🌍
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: '#fff', margin: 0 }}>{chapter.name}</h2>
+            <span style={{
+              background: color, borderRadius: 6, padding: '3px 10px',
+              fontSize: 10, fontWeight: 800, color: '#000', whiteSpace: 'nowrap',
+            }}>
+              {STATUS_LABEL[chapter.status]}
+            </span>
+          </div>
+          <p style={{ color: 'rgba(255,255,255,0.45)', margin: 0, fontSize: 14 }}>
+            📍 {chapter.city}, {chapter.country} · Est. {chapter.founded}
+          </p>
+        </div>
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+          <button
+            onClick={handleCopy}
+            title="Copy chapter link"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: copied ? `${color}22` : 'rgba(255,255,255,0.07)',
+              border: `1px solid ${copied ? color + '55' : 'rgba(255,255,255,0.12)'}`,
+              borderRadius: 9, padding: '8px 14px',
+              color: copied ? color : 'rgba(255,255,255,0.7)',
+              cursor: 'pointer', fontSize: 12, fontWeight: 700,
+              transition: 'all 0.2s', whiteSpace: 'nowrap',
+            }}
+          >
+            {copied ? '✓ Copied!' : '🔗 Share'}
+          </button>
           <button
             onClick={onClose}
             style={{
               background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 8, padding: '6px 12px', color: 'rgba(255,255,255,0.6)',
-              cursor: 'pointer', fontSize: 13,
+              borderRadius: 9, padding: '8px 14px', color: 'rgba(255,255,255,0.55)',
+              cursor: 'pointer', fontSize: 13, fontWeight: 600,
             }}
           >
-            ← Back
+            ✕
           </button>
-          <span style={{
-            background: color, borderRadius: 6, padding: '3px 10px',
-            fontSize: 11, fontWeight: 800, color: '#000',
-          }}>
-            {STATUS_LABEL[chapter.status]}
-          </span>
         </div>
-        <h2 style={{ fontSize: 28, fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.1 }}>
-          {chapter.name}
-        </h2>
-        <p style={{ color: 'rgba(255,255,255,0.5)', margin: '6px 0 0', fontSize: 15 }}>
-          {chapter.city}, {chapter.country}
-        </p>
       </div>
 
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'rgba(255,255,255,0.06)', margin: '20px 32px', borderRadius: 12, overflow: 'hidden' }}>
+      {/* ── Stats bar ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'rgba(255,255,255,0.05)', margin: '20px 32px', borderRadius: 14, overflow: 'hidden' }}>
         {[
-          { label: 'Members', value: chapter.members },
-          { label: 'Events', value: chapter.eventsHosted },
-          { label: 'Students', value: `${chapter.studentsEducated.toLocaleString()}` },
+          { label: 'Members', value: chapter.members, icon: '👥' },
+          { label: 'Events Hosted', value: chapter.eventsHosted, icon: '📅' },
+          { label: 'Students Educated', value: chapter.studentsEducated.toLocaleString(), icon: '🎓' },
         ].map(s => (
-          <div key={s.label} style={{ background: 'rgba(6,3,18,0.9)', padding: '16px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>{s.value}</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{s.label}</div>
+          <div key={s.label} style={{ background: 'rgba(5,2,16,0.95)', padding: '18px 16px', textAlign: 'center' }}>
+            <div style={{ fontSize: 16, marginBottom: 4 }}>{s.icon}</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>{s.value}</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 3 }}>{s.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Details */}
-      <div style={{ padding: '0 32px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-        {/* About */}
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 8 }}>About</div>
-          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, lineHeight: 1.7, margin: 0 }}>{chapter.about}</p>
-        </div>
+      {/* ── Content grid ── */}
+      <div style={{ padding: '0 32px 32px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
 
-        {/* Leadership */}
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Leadership</div>
-          {[
-            { role: 'Chapter Founder', name: chapter.founder },
-            { role: 'Current Lead', name: chapter.lead },
-          ].map(l => (
-            <div key={l.role} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{l.role}</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{l.name}</span>
+        {/* Left column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+          {/* About */}
+          <section>
+            <SectionLabel>About</SectionLabel>
+            <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: 14, lineHeight: 1.75, margin: 0 }}>{chapter.about}</p>
+          </section>
+
+          {/* Details */}
+          <section>
+            <SectionLabel>Details</SectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {[
+                { label: 'Founded', value: String(chapter.founded) },
+                { label: 'Location', value: `${chapter.city}, ${chapter.country}` },
+                { label: 'Contact', value: chapter.contact },
+              ].map(r => (
+                <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)' }}>{r.label}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{r.value}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </section>
 
-        {/* Info rows */}
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Details</div>
-          {[
-            { label: 'Founded', value: chapter.founded },
-            { label: 'Location', value: `${chapter.city}, ${chapter.country}` },
-            { label: 'Contact', value: chapter.contact },
-          ].map(r => (
-            <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{r.label}</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{r.value}</span>
+          {/* Team */}
+          <section>
+            <SectionLabel>Team</SectionLabel>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))', gap: 16 }}>
+              {teamMembers.map((m, i) => (
+                <AvatarPlaceholder
+                  key={i}
+                  name={m.name}
+                  role={m.role}
+                  color={m.name === 'Open Position' ? 'rgba(255,255,255,0.3)' : color}
+                />
+              ))}
             </div>
-          ))}
+          </section>
+
         </div>
 
-        {/* Join */}
-        <button
-          style={{
-            marginTop: 8, marginBottom: 32,
-            width: '100%', padding: '14px',
-            background: color, borderRadius: 12, border: 'none',
-            fontSize: 15, fontWeight: 800, color: '#000', cursor: 'pointer',
-            boxShadow: `0 4px 24px ${color}55`,
-          }}
-        >
-          Join {chapter.name}
-        </button>
+        {/* Right column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+          {/* Photo Gallery */}
+          <section>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <SectionLabel noMargin>Photo Gallery</SectionLabel>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', background: 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: 5 }}>
+                Photos coming soon
+              </span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {[0, 1, 2, 3].map(i => <PhotoPlaceholder key={i} index={i} />)}
+            </div>
+          </section>
+
+          {/* Upcoming Events */}
+          <section>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <SectionLabel noMargin>Upcoming Events</SectionLabel>
+              <span style={{ fontSize: 10, color: color, fontWeight: 700, cursor: 'pointer' }}>View all →</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {upcomingEvents.map((ev, i) => (
+                <EventPlaceholder key={i} {...ev} color={color} />
+              ))}
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      {/* ── Registration ── */}
+      <div style={{
+        margin: '0 32px 32px',
+        padding: '28px',
+        background: `linear-gradient(135deg, ${color}0f, rgba(255,255,255,0.02))`,
+        border: `1px solid ${color}2a`,
+        borderRadius: 16,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 4 }}>
+              Join {chapter.name}
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+              Register your interest — the chapter lead will reach out within 3 days.
+            </div>
+          </div>
+          <div style={{
+            fontSize: 11, fontWeight: 700, color,
+            background: `${color}18`, border: `1px solid ${color}33`,
+            borderRadius: 8, padding: '4px 12px',
+          }}>
+            {chapter.members} members
+          </div>
+        </div>
+
+        {submitted ? (
+          <div style={{
+            padding: '20px', textAlign: 'center',
+            background: `${color}12`, borderRadius: 12,
+            border: `1px solid ${color}33`,
+          }}>
+            <div style={{ fontSize: 24, marginBottom: 8 }}>🎉</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 4 }}>Application Received!</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
+              {chapter.lead} from {chapter.name} will be in touch soon.
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 6, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Full Name *
+                </label>
+                <input
+                  value={form.name}
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder="Your full name"
+                  required
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    borderRadius: 9, padding: '10px 14px',
+                    color: '#fff', fontSize: 13, outline: 'none',
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 6, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Email *
+                </label>
+                <input
+                  value={form.email}
+                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                  placeholder="your@email.com"
+                  type="email"
+                  required
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    borderRadius: 9, padding: '10px 14px',
+                    color: '#fff', fontSize: 13, outline: 'none',
+                  }}
+                />
+              </div>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 6, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                Why do you want to join?
+              </label>
+              <textarea
+                value={form.motivation}
+                onChange={e => setForm(f => ({ ...f, motivation: e.target.value }))}
+                placeholder="Tell us a bit about yourself and your interest in financial literacy…"
+                rows={3}
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: 9, padding: '10px 14px',
+                  color: '#fff', fontSize: 13, outline: 'none',
+                  resize: 'vertical', fontFamily: 'inherit',
+                }}
+              />
+            </div>
+            <button
+              type="submit"
+              style={{
+                width: '100%', padding: '13px',
+                background: color, borderRadius: 10, border: 'none',
+                fontSize: 14, fontWeight: 800, color: '#000', cursor: 'pointer',
+                boxShadow: `0 4px 24px ${color}44`,
+                transition: 'opacity 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            >
+              Apply to Join {chapter.name} →
+            </button>
+          </form>
+        )}
       </div>
     </motion.div>
   );
 }
 
-// ─── Chapter Card (grid) ──────────────────────────────────────────────────────
+// ─── Small helper component ───────────────────────────────────────────────────
+function SectionLabel({ children, noMargin }: { children: React.ReactNode; noMargin?: boolean }) {
+  return (
+    <div style={{
+      fontSize: 10, fontWeight: 800, letterSpacing: '0.12em',
+      textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)',
+      marginBottom: noMargin ? 0 : 12,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+// ─── Chapter Card ─────────────────────────────────────────────────────────────
 function ChapterCard({ chapter, onSelect }: { chapter: Chapter; onSelect: (ch: Chapter) => void }) {
   const color = STATUS_COLOR[chapter.status];
   return (
     <motion.div
-      whileHover={{ y: -3 }}
+      whileHover={{ y: -4 }}
       onClick={() => onSelect(chapter)}
       style={{
         background: 'rgba(255,255,255,0.03)',
         border: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 14, padding: '18px 20px',
-        cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 10,
-        transition: 'border-color 0.2s',
+        borderRadius: 14, padding: '20px',
+        cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 12,
+        transition: 'border-color 0.2s, box-shadow 0.2s',
       }}
-      onMouseEnter={e => (e.currentTarget.style.borderColor = color + '55')}
-      onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
+      onMouseEnter={e => {
+        e.currentTarget.style.borderColor = color + '55';
+        e.currentTarget.style.boxShadow = `0 8px 32px ${color}18`;
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{chapter.name}</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{chapter.city}, {chapter.country}</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>📍 {chapter.city}, {chapter.country}</div>
         </div>
         <span style={{
           background: color + '22', border: `1px solid ${color}55`,
-          borderRadius: 6, padding: '2px 8px',
+          borderRadius: 6, padding: '3px 9px',
           fontSize: 10, fontWeight: 700, color, whiteSpace: 'nowrap',
         }}>
           {STATUS_LABEL[chapter.status]}
         </span>
       </div>
-      <div style={{ display: 'flex', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 20 }}>
         {[
           { v: chapter.members, l: 'members' },
           { v: chapter.eventsHosted, l: 'events' },
-          { v: chapter.studentsEducated, l: 'students' },
+          { v: chapter.studentsEducated.toLocaleString(), l: 'students' },
         ].map(s => (
           <div key={s.l}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>{s.v}</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{s.l}</div>
+            <div style={{ fontSize: 17, fontWeight: 800, color: '#fff' }}>{s.v}</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{s.l}</div>
           </div>
         ))}
       </div>
-      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.42)', margin: 0, lineHeight: 1.65, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
         {chapter.about}
       </p>
+      <div style={{ fontSize: 11, color, fontWeight: 700 }}>Open profile →</div>
     </motion.div>
   );
 }
@@ -460,7 +899,6 @@ export function Chapters() {
       if (sort === 'newest') return b.founded - a.founded;
       if (sort === 'oldest') return a.founded - b.founded;
       if (sort === 'largest') return b.members - a.members;
-      // active: active first, then growing, then new, then dormant
       const rank: Record<ChapterStatus, number> = { active: 0, growing: 1, new: 2, dormant: 3 };
       return rank[a.status] - rank[b.status];
     });
@@ -473,7 +911,7 @@ export function Chapters() {
         <Canvas
           camera={{ position: [0, 0, 7], fov: 50 }}
           style={{ position: 'absolute', inset: 0 }}
-          gl={{ antialias: true }}
+          gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.3 }}
         >
           <Scene
             hoveredId={hoveredId}
@@ -489,11 +927,7 @@ export function Chapters() {
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           paddingTop: 100, pointerEvents: 'none', textAlign: 'center',
         }}>
-          <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-          >
+          <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8 }}>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(100,200,255,0.8)', marginBottom: 12 }}>
               Our Reach
             </div>
@@ -510,60 +944,66 @@ export function Chapters() {
         <div style={{
           position: 'absolute', bottom: 32, left: 32,
           display: 'flex', flexDirection: 'column', gap: 8,
-          background: 'rgba(8,5,22,0.7)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: 12, padding: '12px 16px',
+          background: 'rgba(8,5,22,0.75)', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '12px 16px',
         }}>
           {(['active', 'growing', 'new', 'dormant'] as ChapterStatus[]).map(s => (
             <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: STATUS_COLOR[s], boxShadow: `0 0 6px ${STATUS_COLOR[s]}` }} />
+              <div style={{ width: 9, height: 9, borderRadius: '50%', background: STATUS_COLOR[s], boxShadow: `0 0 8px ${STATUS_COLOR[s]}` }} />
               <span style={{ color: 'rgba(255,255,255,0.65)' }}>{STATUS_LABEL[s]}</span>
             </div>
           ))}
         </div>
 
         {/* Stats */}
-        <div style={{
-          position: 'absolute', bottom: 32, right: 32,
-          display: 'flex', gap: 16,
-        }}>
+        <div style={{ position: 'absolute', bottom: 32, right: 32, display: 'flex', gap: 12 }}>
           {[
             { value: chapters.length, label: 'Chapters' },
             { value: chapters.reduce((a, c) => a + c.members, 0), label: 'Members' },
             { value: chapters.reduce((a, c) => a + c.studentsEducated, 0).toLocaleString(), label: 'Students Educated' },
           ].map(s => (
             <div key={s.label} style={{
-              background: 'rgba(8,5,22,0.7)', backdropFilter: 'blur(20px)',
+              background: 'rgba(8,5,22,0.75)', backdropFilter: 'blur(20px)',
               border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12,
               padding: '12px 20px', textAlign: 'center',
             }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#fff' }}>{s.value}</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>{s.value}</div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{s.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Scroll hint */}
         <div style={{
           position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)',
-          fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center', letterSpacing: '0.1em', textTransform: 'uppercase',
+          fontSize: 11, color: 'rgba(255,255,255,0.28)', textAlign: 'center', letterSpacing: '0.1em', textTransform: 'uppercase',
         }}>
-          Drag to rotate · Scroll to zoom
+          Drag to rotate · Scroll to zoom · Click pin to open chapter
         </div>
       </div>
 
       {/* ── Chapter List ── */}
-      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '60px 32px' }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '64px 32px' }}>
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(100,200,255,0.6)', marginBottom: 8 }}>
+            Global Directory
+          </div>
+          <h2 style={{ fontSize: 'clamp(22px,3.5vw,38px)', fontWeight: 800, margin: '0 0 6px', letterSpacing: '-0.02em' }}>
+            All Chapters
+          </h2>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, margin: 0 }}>
+            {chapters.length} chapters across {new Set(chapters.map(c => c.country)).size} countries
+          </p>
+        </div>
 
         {/* Search + Filters */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40 }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 32 }}>
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name, city, country…"
             style={{
-              flex: 1, minWidth: 240, background: 'rgba(255,255,255,0.05)',
+              flex: 1, minWidth: 240,
+              background: 'rgba(255,255,255,0.05)',
               border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10,
               padding: '10px 16px', color: '#fff', fontSize: 14, outline: 'none',
             }}
@@ -598,10 +1038,8 @@ export function Chapters() {
         </div>
 
         {/* Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
-          {filtered.map(ch => (
-            <ChapterCard key={ch.id} chapter={ch} onSelect={setSelected} />
-          ))}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+          {filtered.map(ch => <ChapterCard key={ch.id} chapter={ch} onSelect={setSelected} />)}
         </div>
         {filtered.length === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.3)' }}>
@@ -637,7 +1075,7 @@ export function Chapters() {
           </div>
           <button style={{
             background: 'rgba(100,200,255,0.15)', border: '1px solid rgba(100,200,255,0.35)',
-            borderRadius: 12, padding: '14px 32px', color: 'rgba(100,200,255,1)',
+            borderRadius: 12, padding: '14px 36px', color: 'rgba(100,200,255,1)',
             fontSize: 15, fontWeight: 800, cursor: 'pointer',
             boxShadow: '0 0 32px rgba(100,200,255,0.12)',
           }}>
@@ -655,22 +1093,28 @@ export function Chapters() {
           </h2>
           <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
             Before humanity builds cities on Mars, help us build financial literacy on Earth.
-            The Moon and Sun are there to remind us — our ambition has no ceiling.
+            Saturn, Jupiter, and the Moon are up there to remind us — our ambition has no ceiling.
           </p>
         </div>
       </div>
 
-      {/* ── Chapter Profile Panel ── */}
+      {/* ── Chapter Profile Modal ── */}
       <AnimatePresence>
         {selected && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setSelected(null)}
-              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 199 }}
-            />
-            <ChapterPanel chapter={selected} onClose={() => setSelected(null)} />
+              style={{
+                position: 'fixed', inset: 0,
+                background: 'rgba(0,0,0,0.7)',
+                backdropFilter: 'blur(6px)',
+                zIndex: 199,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              <ChapterPanel chapter={selected} onClose={() => setSelected(null)} />
+            </motion.div>
           </>
         )}
       </AnimatePresence>
