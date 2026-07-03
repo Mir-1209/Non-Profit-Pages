@@ -50,9 +50,9 @@ function boostMaterials(scene: THREE.Object3D, brightness: number) {
 // ─── Pin ──────────────────────────────────────────────────────────────────────
 const PIN_BASE_SCALE = 0.022;
 const PIN_HOVERED_SCALE = 0.042;
-// Negative offset pushes pins through the transparent atmosphere layer
-// and onto the actual opaque surface of the globe model
-const PIN_SURFACE_OFFSET = -0.16;
+// Deep negative offset — pushes pins well inside the transparent atmosphere
+// to sit flush on the opaque surface of the globe model
+const PIN_SURFACE_OFFSET = -0.32;
 
 function Pin({
   chapter,
@@ -232,11 +232,14 @@ function EarthGroup({
 }
 
 // ─── Planet Label ─────────────────────────────────────────────────────────────
+// distanceFactor makes the HTML label scale with camera distance so it stays
+// visually tight to the planet surface regardless of zoom level.
 function PlanetLabel({ name, offsetY = 0 }: { name: string; offsetY?: number }) {
   return (
     <Html
       center
       position={[0, offsetY, 0]}
+      distanceFactor={18}
       style={{ pointerEvents: 'none', userSelect: 'none' }}
       zIndexRange={[50, 0]}
     >
@@ -258,8 +261,8 @@ function PlanetLabel({ name, offsetY = 0 }: { name: string; offsetY?: number }) 
 }
 
 // ─── Sun ──────────────────────────────────────────────────────────────────────
-// Positioned centrally behind Earth, enormous scale so it dominates the backdrop
-const SUN_POS = new THREE.Vector3(0, 0, -85);
+// Deep behind Earth — enormous backdrop
+const SUN_POS = new THREE.Vector3(0, 0, -130);
 const SUN_SCALE = 22;
 
 function SunModel() {
@@ -285,7 +288,7 @@ function SunModel() {
       {/* Strong central light that reaches Earth */}
       <pointLight intensity={8}  distance={300} color="#fff8e0" decay={0.7} />
       <pointLight intensity={3}  distance={200} color="#ffcc44" decay={1.0} />
-      <PlanetLabel name="Sun" offsetY={SUN_SCALE + 2} />
+      <PlanetLabel name="Sun" offsetY={SUN_SCALE * 0.18} />
     </group>
   );
 }
@@ -335,17 +338,18 @@ function MoonModel() {
     <group ref={moonRef}>
       <pointLight intensity={0.7} distance={6} color="#ddd8c0" decay={2} />
       <primitive object={scene} />
-      <PlanetLabel name="Moon" offsetY={MOON_SIZE + 0.5} />
+      <PlanetLabel name="Moon" offsetY={MOON_SIZE + 0.1} />
     </group>
   );
 }
 
 // ─── Jupiter ──────────────────────────────────────────────────────────────────
-// 5th planet from Sun — first gas giant, placed to the right of Earth, further back
-const JUPITER_POS = new THREE.Vector3(28, 1, -38);
-const JUPITER_SCALE = 4.5;
+// 5th planet from Sun — first gas giant. Correct solar-system order: beyond Earth.
+// Placed far right and deeper back so it never overlaps Earth or Saturn.
+const JUPITER_POS = new THREE.Vector3(75, 4, -55);
+const JUPITER_SCALE = 2.25; // half the original size
 
-function JupiterModel() {
+function JupiterModel({ onFocus }: { onFocus: () => void }) {
   const jupiterRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF(JUPITER_URL);
 
@@ -364,24 +368,28 @@ function JupiterModel() {
   }, [scene]);
 
   useFrame((_, delta) => {
-    // Slow self-rotation only — no position drift so planets never collide
     if (jupiterRef.current) jupiterRef.current.rotation.y += delta * 0.05;
   });
 
   return (
     <group ref={jupiterRef} position={JUPITER_POS}>
       <primitive object={scene} />
-      <PlanetLabel name="Jupiter" offsetY={JUPITER_SCALE + 0.8} />
+      {/* Invisible hit sphere so clicks register anywhere on the planet */}
+      <mesh onClick={(e) => { e.stopPropagation(); onFocus(); }}>
+        <sphereGeometry args={[JUPITER_SCALE * 1.1, 12, 12]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+      <PlanetLabel name="Jupiter" offsetY={JUPITER_SCALE + 0.3} />
     </group>
   );
 }
 
 // ─── Saturn ───────────────────────────────────────────────────────────────────
-// 6th planet from Sun — placed beyond Jupiter, further right and deeper back
-const SATURN_POS = new THREE.Vector3(-30, -2, -55);
+// 6th planet from Sun — beyond Jupiter, far left and deep back
+const SATURN_POS = new THREE.Vector3(-95, -6, -80);
 const SATURN_SCALE = 4.0;
 
-function SaturnModel() {
+function SaturnModel({ onFocus }: { onFocus: () => void }) {
   const saturnRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF(SATURN_URL);
 
@@ -400,45 +408,95 @@ function SaturnModel() {
   }, [scene]);
 
   useFrame((_, delta) => {
-    // Slow self-rotation only
     if (saturnRef.current) saturnRef.current.rotation.y += delta * 0.035;
   });
 
   return (
     <group ref={saturnRef} position={SATURN_POS}>
       <primitive object={scene} />
-      <PlanetLabel name="Saturn" offsetY={SATURN_SCALE + 0.8} />
+      {/* Invisible hit sphere — Saturn rings make bounding box unreliable */}
+      <mesh onClick={(e) => { e.stopPropagation(); onFocus(); }}>
+        <sphereGeometry args={[SATURN_SCALE * 1.4, 12, 12]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+      <PlanetLabel name="Saturn" offsetY={SATURN_SCALE + 0.3} />
     </group>
   );
 }
 
+// ─── Camera focus state ────────────────────────────────────────────────────────
+interface CamFocus {
+  target: THREE.Vector3;
+  distance: number; // how far from the target to park the camera
+}
+const EARTH_FOCUS: CamFocus = { target: new THREE.Vector3(0, 0, 0), distance: 8 };
+
 // ─── Scene ────────────────────────────────────────────────────────────────────
 function Scene({
-  hoveredId, onHover, onLeave, onSelect,
+  hoveredId, onHover, onLeave, onSelect, focusedPlanet, setFocusedPlanet,
 }: {
   hoveredId: string | null;
   onHover: (ch: Chapter) => void;
   onLeave: () => void;
   onSelect: (ch: Chapter) => void;
+  focusedPlanet: string | null;
+  setFocusedPlanet: (name: string | null) => void;
 }) {
+  const controlsRef = useRef<any>(null);
+  const [camFocus, setCamFocus] = useState<CamFocus>(EARTH_FOCUS);
+  // Only drive the camera while actively transitioning — stops once settled
+  // so it never fights user scroll / orbit after arrival
+  const isTransitioning = useRef(false);
+
+  useEffect(() => {
+    if (focusedPlanet === 'Jupiter') {
+      setCamFocus({ target: JUPITER_POS.clone(), distance: JUPITER_SCALE * 7 });
+    } else if (focusedPlanet === 'Saturn') {
+      setCamFocus({ target: SATURN_POS.clone(), distance: SATURN_SCALE * 7 });
+    } else {
+      setCamFocus(EARTH_FOCUS);
+    }
+    isTransitioning.current = true;
+  }, [focusedPlanet]);
+
+  useFrame(({ camera }) => {
+    if (!controlsRef.current || !isTransitioning.current) return;
+
+    // Lerp orbit target
+    controlsRef.current.target.lerp(camFocus.target, 0.06);
+    // Lerp camera toward desired standoff distance from the new target
+    const dir = camera.position.clone().sub(controlsRef.current.target).normalize();
+    const desired = camFocus.target.clone().add(dir.multiplyScalar(camFocus.distance));
+    camera.position.lerp(desired, 0.06);
+    controlsRef.current.update();
+
+    // Settle check — stop fighting OrbitControls once close enough
+    const orbitErr = controlsRef.current.target.distanceTo(camFocus.target);
+    const camErr   = camera.position.distanceTo(desired);
+    if (orbitErr < 0.08 && camErr < 0.15) {
+      isTransitioning.current = false;
+    }
+  });
+
   return (
     <>
       <color attach="background" args={['#020010']} />
-      <Stars radius={150} depth={80} count={8000} factor={4} saturation={0} fade speed={0.5} />
+      <Stars radius={200} depth={80} count={8000} factor={4} saturation={0} fade speed={0.5} />
       <ambientLight intensity={0.65} />
       <directionalLight position={[-6, 2, 4]} intensity={0.4} color="#c8d8ff" />
       <Suspense fallback={null}>
-        {/* Solar system order: Sun → Earth → Moon → Jupiter → Saturn */}
+        {/* Solar system order (Sun at back): Sun → Earth → Moon → Jupiter → Saturn */}
         <SunModel />
         <EarthGroup hoveredId={hoveredId} onHover={onHover} onLeave={onLeave} onSelect={onSelect} />
         <MoonModel />
-        <JupiterModel />
-        <SaturnModel />
+        <JupiterModel onFocus={() => setFocusedPlanet('Jupiter')} />
+        <SaturnModel  onFocus={() => setFocusedPlanet('Saturn')} />
       </Suspense>
       <OrbitControls
+        ref={controlsRef}
         enablePan={false}
-        minDistance={3.5}
-        maxDistance={14}
+        minDistance={3}
+        maxDistance={200}
         enableDamping
         dampingFactor={0.08}
         rotateSpeed={0.55}
@@ -923,6 +981,7 @@ export function Chapters() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ChapterStatus | 'all'>('all');
   const [sort, setSort] = useState<'newest' | 'oldest' | 'largest' | 'active'>('active');
+  const [focusedPlanet, setFocusedPlanet] = useState<string | null>(null);
 
   const filtered = chapters
     .filter(ch => {
@@ -954,6 +1013,8 @@ export function Chapters() {
             onHover={(ch) => setHoveredId(ch.id)}
             onLeave={() => setHoveredId(null)}
             onSelect={(ch) => setSelected(ch)}
+            focusedPlanet={focusedPlanet}
+            setFocusedPlanet={setFocusedPlanet}
           />
         </Canvas>
 
@@ -1009,12 +1070,40 @@ export function Chapters() {
           ))}
         </div>
 
-        <div style={{
-          position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)',
-          fontSize: 11, color: 'rgba(255,255,255,0.28)', textAlign: 'center', letterSpacing: '0.1em', textTransform: 'uppercase',
-        }}>
-          Drag to rotate · Scroll to zoom · Click pin to open chapter
-        </div>
+        {/* Back to Earth button — appears when zoomed to a planet */}
+        <AnimatePresence>
+          {focusedPlanet && (
+            <motion.button
+              key="back-to-earth"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setFocusedPlanet(null)}
+              style={{
+                position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)',
+                display: 'flex', alignItems: 'center', gap: 8,
+                background: 'rgba(8,5,22,0.85)', backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(100,180,255,0.35)', borderRadius: 20,
+                padding: '10px 20px', color: 'rgba(100,200,255,0.9)',
+                cursor: 'pointer', fontSize: 12, fontWeight: 700,
+                letterSpacing: '0.08em', textTransform: 'uppercase',
+                boxShadow: '0 0 24px rgba(100,180,255,0.15)',
+              }}
+            >
+              ← Back to Earth
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        {!focusedPlanet && (
+          <div style={{
+            position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)',
+            fontSize: 11, color: 'rgba(255,255,255,0.28)', textAlign: 'center', letterSpacing: '0.1em', textTransform: 'uppercase',
+          }}>
+            Drag to rotate · Scroll to zoom · Click pin to open chapter · Click planet to fly to it
+          </div>
+        )}
       </div>
 
       {/* ── Chapter List ── */}
