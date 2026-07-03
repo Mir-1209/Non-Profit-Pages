@@ -112,16 +112,6 @@ export function Home() {
 
             {/* ── Left: headline + copy ── */}
             <div className="max-w-[660px]">
-              {/* Label pill */}
-              <motion.span
-                initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 text-[12.5px] font-[800] tracking-[0.08em] uppercase text-white/90 px-4 py-2 rounded-full mb-7 border border-white/20"
-                style={{ background: 'rgba(255,255,255,0.09)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
-              >
-                <span className="w-[7px] h-[7px] rounded-full animate-pulse" style={{ background: 'var(--grad-brand)' }} />
-                Youth-Led · Financial Education
-              </motion.span>
-
               {/* Headline with cycling last word */}
               <motion.h1
                 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
