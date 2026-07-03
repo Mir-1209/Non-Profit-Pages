@@ -54,7 +54,7 @@ export function News() {
   const rest = filtered.slice(1);
 
   return (
-    <main className="pb-32">
+    <main className="bg-[var(--paper-alt)] pb-32">
       {/* ─── HERO ─── */}
       <section className="pt-[90px] pb-0 overflow-hidden" style={{ background: 'var(--brutal-bg)' }}>
         <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'repeating-linear-gradient(90deg,white 0px,white 1px,transparent 1px,transparent 80px),repeating-linear-gradient(0deg,white 0px,white 1px,transparent 1px,transparent 80px)' }} />

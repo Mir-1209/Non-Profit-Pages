@@ -270,7 +270,7 @@ export function Home() {
       </div>
 
       {/* ─── MISSION ──────────────────────────────────────────────────── */}
-      <section className="py-[110px]">
+      <section className="py-[110px] bg-white">
         <div className="max-w-[1240px] mx-auto px-8 grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-[64px] items-center">
           <Reveal>
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-5">
@@ -404,7 +404,7 @@ export function Home() {
       </section>
 
       {/* ─── EVENTS PREVIEW ─── */}
-      <section className="py-[110px]" id="events">
+      <section className="py-[110px] bg-[var(--paper-alt)]" id="events">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
             <div className="max-w-[560px]">
@@ -503,7 +503,7 @@ export function Home() {
       </section>
 
       {/* ─── FROM THE FIELD — photo gallery ──────────────────────────── */}
-      <section className="py-[110px]">
+      <section className="py-[110px] bg-white">
         <div className="max-w-[1240px] mx-auto px-8">
           <Reveal className="mb-[52px]">
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-5">
@@ -680,7 +680,7 @@ export function Home() {
       </section>
 
       {/* ─── CTA PANEL ─── */}
-      <section className="py-[40px]">
+      <section className="py-[40px] bg-[var(--paper-alt)]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="rounded-[28px] p-[80px_40px] text-center relative overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[10px_10px_0px_var(--ink)]"
             style={{ background: 'linear-gradient(135deg, #e9edff 0%, #f7e6fb 50%, #fce4f2 100%)' }}>

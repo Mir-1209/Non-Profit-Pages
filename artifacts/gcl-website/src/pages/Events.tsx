@@ -115,7 +115,7 @@ export function Events() {
       )}
 
       {/* ─── ALL EVENTS ─── */}
-      <section className="py-12">
+      <section className="py-12 bg-white">
         <div className="max-w-[1240px] mx-auto px-8">
           {/* Filter */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 mb-8 pb-6 border-b-[2.5px] border-[var(--ink)]">
