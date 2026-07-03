@@ -24,7 +24,7 @@ const regions = [
 
 export function Stories() {
   return (
-    <main className="pb-32">
+    <main className="pb-32" style={{ background: 'var(--paper-alt)' }}>
       {/* Hero */}
       <section className="relative pt-[90px] pb-[80px] overflow-hidden" style={{ background: 'var(--brutal-bg)' }}>
         <div className="absolute inset-0 opacity-15 pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 60% at 40% 20%, var(--blue), transparent)' }} />

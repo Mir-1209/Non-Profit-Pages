@@ -188,7 +188,7 @@ export function EventDetail() {
   const relatedEvents = events.filter(e => e.id !== event.id).slice(0, 3);
 
   return (
-    <main className="pb-32 pt-[90px]">
+    <main className="pb-32 pt-[90px]" style={{ background: 'var(--paper-alt)' }}>
       {/* ─── HERO BANNER ─── */}
       <section className="pt-0 pb-0 overflow-hidden" style={{ background: 'var(--brutal-bg)' }}>
         <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'repeating-linear-gradient(90deg,white 0px,white 1px,transparent 1px,transparent 80px),repeating-linear-gradient(0deg,white 0px,white 1px,transparent 1px,transparent 80px)' }} />

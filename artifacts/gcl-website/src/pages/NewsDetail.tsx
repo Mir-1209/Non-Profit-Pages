@@ -43,7 +43,7 @@ export function NewsDetail() {
   const otherPosts = newsPosts.filter(p => p.id !== post.id && p.published).slice(0, 3);
 
   return (
-    <main className="pb-32 pt-[90px]">
+    <main className="pb-32 pt-[90px]" style={{ background: 'var(--paper-alt)' }}>
       <div className="max-w-[1240px] mx-auto px-8">
 
         {/* ─── NEWSPAPER MASTHEAD ─── */}

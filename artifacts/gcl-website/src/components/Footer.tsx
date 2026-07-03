@@ -59,7 +59,7 @@ export function Footer() {
           WebkitTextStroke: '1px rgba(255,255,255,0.11)',
         }}
       >
-        <div>GLOBAL capital league</div>
+        <div className="text-[70px]">GLOBAL capital league</div>
       </div>
     </footer>
   );
