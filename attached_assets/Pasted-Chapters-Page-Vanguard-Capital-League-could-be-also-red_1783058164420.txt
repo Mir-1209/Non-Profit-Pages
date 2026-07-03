@@ -1,0 +1,281 @@
+Chapters Page – Vanguard Capital League (could be also redirected from header and also chapers section of home page.
+
+Create an immersive "Chapters" page for the Vanguard Capital League website. This page should feel like exploring humanity's financial literacy network from space.
+
+The page should be visually stunning, interactive, and highly engaging while remaining professional.
+
+Hero Experience
+
+The page opens with a dark space background.
+
+Centered on the screen is a beautiful interactive 3D Earth, Monn, son that slowly rotates.
+
+The Earth should display glowing pins representing every official Vanguard chapter around the world.
+
+Users can rotate and zoom the globe naturally.
+
+The experience should feel smooth and premium.
+
+Above the globe, display a headline similar to:
+
+Explore the Vanguard Network
+
+Underneath:
+
+"Every chapter begins on Earth. Every mission reaches beyond it."
+
+Interactive Globe
+
+Every official chapter appears as a glowing pin.
+
+Pin colors indicate chapter status:
+
+
+
+
+
+🟢 Active Chapter
+
+
+
+🔵 Growing Chapter
+
+
+
+⚪ Newly Founded
+
+
+
+⚫ Dormant Chapter
+
+Hovering over a pin displays:
+
+
+
+
+
+Chapter name
+
+
+
+City
+
+
+
+Country
+
+
+
+Status
+
+Clicking a pin smoothly opens that chapter's profile.
+
+Chapter Profiles
+
+Each chapter should have its own dedicated page. (u can gi back with a back button) and chapter pages are like poining wondows but they take 85 - 90% of space.
+
+Every chapter page includes:
+
+
+
+
+
+Chapter name
+
+
+
+Chapter logo (if uploaded)
+
+
+
+Banner image
+
+
+
+City & Country
+
+
+
+Founder
+
+
+
+Current Chapter Lead
+
+
+
+Chapter status
+
+
+
+Date founded
+
+
+
+Number of members
+
+
+
+Events hosted
+
+
+
+Students educated
+
+
+
+About section
+
+
+
+Leadership team
+
+
+
+Upcoming events
+
+
+
+Contact information
+
+
+
+Social links
+
+
+
+Gallery
+
+
+
+"Join This Chapter" button
+
+Starting a Chapter
+
+Include a prominent section titled:
+
+Start a Chapter
+
+Briefly explain the process:
+
+
+
+
+
+Register your interest.
+
+
+
+Organize your first financial literacy event.
+
+
+
+Successfully host an event with at least 10 verified attendees.
+
+
+
+Your chapter becomes officially recognized and receives a permanent location on the Vanguard map.
+
+After approval, the organizer earns the permanent title:
+
+Chapter Founder
+
+Include a clear Start a Chapter button.
+
+Dormant Chapters
+
+If a chapter becomes inactive for an extended period (for example, six months without a verified event), it enters a Dormant status.
+
+Dormant chapters remain visible on the globe with gray pins.
+
+Any volunteer can apply to revive a dormant chapter by organizing a new verified event.
+
+After successfully reactivating the chapter, that volunteer receives the title:
+
+Chapter Reviver
+
+The original founder should always remain credited as the chapter's founder, while the reviver becomes the current chapter lead if approved.
+
+Expansion Beyond Earth
+
+As user choose moon on the button, r out from Earth, subtly reveal the other probelms vbased on naviagtion
+
+These planets are symbolic, representing Vanguard's vision of limitless expansion—not actual chapter locations.
+
+Include a playful message such as:
+
+Before humanity builds cities on Mars, help us build financial literacy on Earth.
+
+or
+
+The next chapter is yours to build. Earth first. The galaxy can wait.
+
+The planets should serve as visual storytelling rather than interactive chapter locations.
+
+Search & Filters
+
+Allow users to:
+
+
+
+
+
+Search chapters by name
+
+
+
+Search by country
+
+
+
+Search by city
+
+
+
+Filter by chapter status
+
+
+
+Sort by newest, oldest, most active, or largest
+
+Design Style
+
+The page should feel modern, elegant, and immersive.
+
+Use:
+
+
+
+
+
+Dark space background
+
+
+
+Realistic 3D Earth
+
+
+
+Soft glow effects
+
+
+
+Glassmorphism UI panels
+
+
+
+Smooth camera animations
+
+
+
+Responsive design for desktop and mobile
+
+The overall experience should make visitors feel like they are exploring a living, growing global network of financial literacy leaders rather than browsing a traditional directory.
+
+
+
+
+
+
+
+i also uploaded GLB FILES for moon, earth and sun planet model. make sure that they pinned chapers work, and when hovering the edges it should go to bplaces the user is trying to lokk at. it should be controlable, and make sure, pins work too. previiously there were lost of bug with hovering the pins to get info, so fix it PLS

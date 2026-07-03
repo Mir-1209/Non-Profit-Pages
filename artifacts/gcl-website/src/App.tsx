@@ -7,6 +7,7 @@ import { Nav } from './components/Nav';
 import { Footer } from './components/Footer';
 
 import { Home } from './pages/Home';
+import { Chapters } from './pages/Chapters';
 import { Courses } from './pages/Courses';
 import { CourseDetail } from './pages/CourseDetail';
 import { CourseLearn } from './pages/CourseLearn';
@@ -33,6 +34,7 @@ function SiteLayout() {
         <AnimatePresence mode="wait">
           <Switch>
             <Route path="/" component={Home} />
+            <Route path="/chapters" component={Chapters} />
             <Route path="/courses" component={Courses} />
             <Route path="/courses/:slug" component={CourseDetail} />
             <Route path="/events" component={Events} />

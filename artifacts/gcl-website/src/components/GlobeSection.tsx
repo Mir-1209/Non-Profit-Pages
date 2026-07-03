@@ -192,7 +192,7 @@ export function GlobeSection() {
                       {[
                         { label: 'Location', value: `${hovered.city}, ${hovered.country}` },
                         { label: 'Founded',  value: hovered.founded.toString() },
-                        { label: 'Team',     value: `${hovered.team} members` },
+                        { label: 'Team',     value: `${hovered.members} members` },
                       ].map(row => (
                         <div key={row.label} className="flex items-baseline gap-2">
                           <span className="text-[10px] font-[700] tracking-[0.08em] uppercase text-[var(--neon-cyan)] w-[56px] shrink-0">{row.label}</span>
