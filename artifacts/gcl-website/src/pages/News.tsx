@@ -3,6 +3,20 @@ import { motion } from 'framer-motion';
 import { Link } from 'wouter';
 import { newsPosts } from '../data/news';
 
+import imgClassroomWide from '@assets/20250717_111123_1782999964183.jpg';
+import imgInstructor from '@assets/20250717_105006_1782999950691.jpg';
+import imgStudents3 from '@assets/20250717_110926_1782999964182.jpg';
+import imgSchool1 from '@assets/20251118_091859_1783000021515.jpg';
+import imgKids1 from '@assets/photo_2026-05-14_09.47.09_1782999997790.jpeg';
+import imgGroupSelfie from '@assets/photo_2026-01-12_21.22.30_1783000075275.jpeg';
+import imgAudience from '@assets/20251118_091918_1783000021516.jpg';
+import imgClassroomBack from '@assets/20250717_110921_1782999950691.jpg';
+
+const NEWS_PHOTOS = [
+  imgClassroomWide, imgInstructor, imgStudents3, imgSchool1,
+  imgKids1, imgGroupSelfie, imgAudience, imgClassroomBack,
+];
+
 const CATS = ['All', 'Research', 'Update', 'Story', 'Announcement'] as const;
 
 const catAccent: Record<string, string> = {
@@ -19,16 +33,6 @@ const catLabel: Record<string, string> = {
   Announcement: 'ANNOUNCEMENT',
 };
 
-function PhotoPlaceholder({ bg, label, className = '' }: { bg: string; label: string; className?: string }) {
-  return (
-    <div className={`relative overflow-hidden flex items-end ${className}`} style={{ background: bg }}>
-      <div className="absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(135deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 1px,transparent 1px,transparent 24px)' }} />
-      <div className="relative z-10 p-4">
-        <div className="text-[10px] font-[800] uppercase tracking-[0.12em] text-white/40 border border-white/20 px-2 py-1 rounded inline-block">{label}</div>
-      </div>
-    </div>
-  );
-}
 
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -103,7 +107,9 @@ export function News() {
           <Reveal className="mb-10">
             <Link href={`/news/${featured.id}`}
               className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] border-[2.5px] border-[var(--ink)] shadow-[8px_8px_0px_var(--ink)] overflow-hidden group hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[12px_12px_0px_var(--ink)] transition-all block">
-              <PhotoPlaceholder bg={featured.imageBg} label={featured.imageLabel} className="h-[280px] lg:h-auto min-h-[280px]" />
+              <div className="h-[280px] lg:h-auto min-h-[280px] overflow-hidden">
+                <img src={NEWS_PHOTOS[0]} alt={featured.title} className="w-full h-full object-cover" />
+              </div>
               <div className="bg-white p-8 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-3 mb-5">
@@ -131,12 +137,13 @@ export function News() {
         )}
 
         {/* ─── GRID ─── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {rest.map((post, i) => (
-            <Reveal key={post.id} delay={i * 0.05}
-              className={`border-[var(--ink)] ${i % 3 !== 2 ? 'lg:border-r-[2.5px]' : ''} ${i < rest.length - (rest.length % 3 || 3) ? 'border-b-[2.5px]' : ''} md:${i % 2 === 0 ? 'border-r-[2.5px]' : ''}`}>
-              <Link href={`/news/${post.id}`} className="flex flex-col group h-full block">
-                <PhotoPlaceholder bg={post.imageBg} label={post.imageLabel} className="h-[180px] border-b-[2.5px] border-[var(--ink)]" />
+            <Reveal key={post.id} delay={i * 0.05}>
+              <Link href={`/news/${post.id}`} className="flex flex-col group h-full block border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] overflow-hidden hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[8px_8px_0px_var(--ink)] transition-all">
+                <div className="h-[180px] overflow-hidden border-b-[2.5px] border-[var(--ink)] shrink-0">
+                  <img src={NEWS_PHOTOS[(i + 1) % NEWS_PHOTOS.length]} alt={post.title} className="w-full h-full object-cover" />
+                </div>
                 <div className="bg-white p-6 flex flex-col flex-1">
                   <div className="flex items-center gap-2 mb-3 flex-wrap">
                     <span className="text-[10px] font-[800] uppercase tracking-[0.12em] px-2 py-1 border border-[var(--ink)]">{catLabel[post.category]}</span>

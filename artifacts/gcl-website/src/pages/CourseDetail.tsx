@@ -52,7 +52,7 @@ export function CourseDetail() {
   const isPsychology = course.slug === 'psychology-of-spending';
   const content = isPsychology ? psychologyOfSpendingContent : null;
 
-  const gradientMap = { t1: 'from-[#dbe4ff] to-[#c9b8ff]', t2: 'from-[#f1c9f7] to-[#ffd3ea]', t3: 'from-[#c7f0ff] to-[#c3e3ff]' };
+  const gradientMap = { t1: 'from-[#dbe4ff] to-[#c9b8ff]', t2: 'from-[#e8edff] to-[#dcd5ff]', t3: 'from-[#c7f0ff] to-[#c3e3ff]' };
   const gradient = gradientMap[course.color] ?? gradientMap.t1;
   const totalModules = course.modules.length;
   const totalHours = parseFloat(course.duration) * 1.5 || totalModules * 0.6;
@@ -148,12 +148,12 @@ export function CourseDetail() {
                   {isPsychology ? (
                     <Link href={`/courses/${course.slug}/learn`}
                       className="w-full py-4 rounded-[14px] text-white font-[800] text-[16px] flex items-center justify-center gap-2 transition-all hover:-translate-y-[2px] mb-4"
-                      style={{ background: 'var(--grad-brand)', boxShadow: '0 6px 20px rgba(139,92,246,0.35)' }}>
+                      style={{ background: 'var(--ink)', boxShadow: '0 4px 14px rgba(21,19,44,0.2)' }}>
                       Enroll Now — Start Learning →
                     </Link>
                   ) : (
                     <button className="w-full py-4 rounded-[14px] text-white font-[800] text-[16px] flex items-center justify-center gap-2 transition-all hover:-translate-y-[2px] mb-4"
-                      style={{ background: 'var(--grad-brand)', boxShadow: '0 6px 20px rgba(139,92,246,0.35)' }}>
+                      style={{ background: 'var(--ink)', boxShadow: '0 4px 14px rgba(21,19,44,0.2)' }}>
                       Enroll Now →
                     </button>
                   )}
@@ -309,7 +309,7 @@ export function CourseDetail() {
                 {course.instructors.map((inst, i) => (
                   <div key={i} className="flex items-center gap-4 p-5 rounded-[16px] border-[2px] border-[var(--line)] bg-white hover:border-[var(--violet)] transition-colors">
                     <div className="w-[56px] h-[56px] rounded-full flex items-center justify-center text-white font-[800] text-[20px] shrink-0"
-                      style={{ background: i % 2 === 0 ? 'linear-gradient(135deg,var(--blue),var(--violet))' : 'linear-gradient(135deg,var(--violet),var(--magenta))' }}>
+                      style={{ background: 'linear-gradient(135deg,var(--blue),var(--violet))' }}>
                       {inst.name.charAt(0)}
                     </div>
                     <div>
@@ -355,12 +355,12 @@ export function CourseDetail() {
             {isPsychology ? (
               <Link href={`/courses/${course.slug}/learn`}
                 className="shrink-0 py-4 px-10 rounded-full text-white font-[800] text-[16px] transition-all hover:-translate-y-[2px] whitespace-nowrap"
-                style={{ background: 'var(--grad-brand)', boxShadow: '0 6px 24px rgba(139,92,246,0.4)' }}>
+                style={{ background: 'var(--ink)', boxShadow: '0 4px 14px rgba(21,19,44,0.2)' }}>
                 Start Learning Free →
               </Link>
             ) : (
               <button className="shrink-0 py-4 px-10 rounded-full text-white font-[800] text-[16px] transition-all hover:-translate-y-[2px] whitespace-nowrap"
-                style={{ background: 'var(--grad-brand)', boxShadow: '0 6px 24px rgba(139,92,246,0.4)' }}>
+                style={{ background: 'var(--ink)', boxShadow: '0 4px 14px rgba(21,19,44,0.2)' }}>
                 Enroll Now — It's Free →
               </button>
             )}

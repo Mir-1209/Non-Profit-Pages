@@ -23,7 +23,7 @@ function Reveal({ children, delay = 0, className = '' }: { children: React.React
 // ─── Course photo placeholder ──────────────────────────────────────────────────
 const COURSE_META: Record<string, { emoji: string; pattern: string; accent: string; bg: string; label: string }> = {
   't1': { emoji: '🧠', pattern: 'repeating-linear-gradient(45deg,rgba(255,255,255,0.06) 0px,rgba(255,255,255,0.06) 1px,transparent 1px,transparent 24px)', accent: '#6875f5', bg: 'linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#4338ca 100%)', label: 'Behavioral Economics' },
-  't2': { emoji: '💸', pattern: 'repeating-linear-gradient(135deg,rgba(255,255,255,0.06) 0px,rgba(255,255,255,0.06) 1px,transparent 1px,transparent 28px)', accent: '#ec4899', bg: 'linear-gradient(135deg,#4a044e 0%,#7e22ce 50%,#db2777 100%)', label: 'Applied Finance' },
+  't2': { emoji: '💸', pattern: 'repeating-linear-gradient(135deg,rgba(255,255,255,0.06) 0px,rgba(255,255,255,0.06) 1px,transparent 1px,transparent 28px)', accent: '#3b82f6', bg: 'linear-gradient(135deg,#0f2440 0%,#1e3a6e 50%,#1e4488 100%)', label: 'Applied Finance' },
   't3': { emoji: '🚀', pattern: 'repeating-linear-gradient(90deg,rgba(255,255,255,0.05) 0px,rgba(255,255,255,0.05) 1px,transparent 1px,transparent 32px)', accent: '#06b6d4', bg: 'linear-gradient(135deg,#0c1445 0%,#0e4f6d 50%,#0284c7 100%)', label: 'Systems Thinking' },
 };
 
@@ -155,7 +155,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
                 {course.instructors.map((inst, i) => (
                   <div key={i}
                     className="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-[800] shrink-0"
-                    style={{ background: i % 2 === 0 ? 'linear-gradient(135deg,var(--blue),var(--violet))' : 'linear-gradient(135deg,var(--violet),var(--magenta))' }}>
+                    style={{ background: 'linear-gradient(135deg,var(--blue),var(--violet))' }}>
                     {inst.name.charAt(0)}
                   </div>
                 ))}
@@ -168,7 +168,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
             {/* CTA */}
             <div className="flex items-center gap-3">
               <div className="flex-1 py-3 rounded-[12px] text-center text-[13px] font-[800] text-white transition-all group-hover:-translate-y-[1px]"
-                style={{ background: 'var(--grad-brand)', boxShadow: '0 4px 14px rgba(139,92,246,0.25)' }}>
+                style={{ background: 'var(--ink)', boxShadow: '0 4px 14px rgba(21,19,44,0.15)' }}>
                 {isPsychology ? 'Start Learning →' : 'Enroll Free →'}
               </div>
               <div className="w-10 h-10 rounded-[12px] border-[2px] border-[var(--ink)] flex items-center justify-center text-[var(--ink)] font-[800] text-[13px] shrink-0 hover:bg-[var(--ink)] hover:text-white transition-colors">
@@ -273,7 +273,7 @@ function EnrollModal({ course, onClose }: { course: Course; onClose: () => void 
 
               <button type="submit"
                 className="w-full py-4 rounded-[14px] text-white font-[800] text-[15px] transition-all hover:-translate-y-[2px] mt-2"
-                style={{ background: 'var(--grad-brand)', boxShadow: '0 6px 20px rgba(139,92,246,0.35)' }}>
+                style={{ background: 'var(--ink)', boxShadow: '0 4px 14px rgba(21,19,44,0.2)' }}>
                 Enroll Now — It's Free →
               </button>
 
@@ -294,13 +294,13 @@ function EnrollModal({ course, onClose }: { course: Course; onClose: () => void 
               {course.slug === 'psychology-of-spending' ? (
                 <Link href={`/courses/${course.slug}/learn`}
                   className="py-4 px-8 rounded-full text-white font-[800] text-[15px] inline-block"
-                  style={{ background: 'var(--grad-brand)', boxShadow: '0 6px 20px rgba(139,92,246,0.35)' }}>
+                  style={{ background: 'var(--ink)', boxShadow: '0 4px 14px rgba(21,19,44,0.2)' }}>
                   Start Learning Now →
                 </Link>
               ) : (
                 <button onClick={onClose}
                   className="py-4 px-8 rounded-full text-white font-[800] text-[15px]"
-                  style={{ background: 'var(--grad-brand)', boxShadow: '0 6px 20px rgba(139,92,246,0.35)' }}>
+                  style={{ background: 'var(--ink)', boxShadow: '0 4px 14px rgba(21,19,44,0.2)' }}>
                   Explore More Courses →
                 </button>
               )}
@@ -532,7 +532,7 @@ export function Courses() {
                 <div className="flex justify-center gap-4 flex-wrap">
                   <Link href="/courses/psychology-of-spending"
                     className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-white font-[800] text-[15px] transition-all hover:-translate-y-[2px]"
-                    style={{ background: 'var(--grad-brand)', boxShadow: '0 8px 24px rgba(139,92,246,0.35)' }}>
+                    style={{ background: 'var(--ink)', boxShadow: '0 4px 16px rgba(21,19,44,0.2)' }}>
                     Start with Psychology of Spending →
                   </Link>
                   <Link href="/events"
