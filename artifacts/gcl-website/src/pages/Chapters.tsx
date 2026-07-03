@@ -50,7 +50,7 @@ function boostMaterials(scene: THREE.Object3D, brightness: number) {
 // ─── Pin ──────────────────────────────────────────────────────────────────────
 const PIN_BASE_SCALE = 0.022;
 const PIN_HOVERED_SCALE = 0.042;
-const PIN_SURFACE_OFFSET = PIN_BASE_SCALE; // center sits exactly on surface
+const PIN_SURFACE_OFFSET = 0.015; // 30% closer — accounts for model's outer transparent layer
 
 function Pin({
   chapter,
