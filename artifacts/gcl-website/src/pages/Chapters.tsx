@@ -936,60 +936,102 @@ function SectionLabel({ children, noMargin }: { children: React.ReactNode; noMar
 function ChapterCard({ chapter, onSelect }: { chapter: Chapter; onSelect: (ch: Chapter) => void }) {
   const color = STATUS_COLOR[chapter.status];
   const [, navigate] = useLocation();
+  const [hovered, setHovered] = useState(false);
+
   return (
     <motion.div
-      whileHover={{ y: -5 }}
+      whileHover={{ y: -8, scale: 1.01 }}
+      transition={{ type: 'spring', stiffness: 340, damping: 28 }}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
       style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: 18, overflow: 'hidden',
+        borderRadius: 22, overflow: 'hidden',
         cursor: 'pointer', display: 'flex', flexDirection: 'column',
-        transition: 'border-color 0.2s, box-shadow 0.2s',
-        position: 'relative',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.borderColor = color + '60';
-        e.currentTarget.style.boxShadow = `0 12px 40px ${color}20`;
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
-        e.currentTarget.style.boxShadow = 'none';
+        border: `1px solid ${hovered ? color + '55' : 'rgba(255,255,255,0.07)'}`,
+        boxShadow: hovered ? `0 24px 64px ${color}28, 0 0 0 1px ${color}20` : '0 4px 24px rgba(0,0,0,0.4)',
+        background: '#0a0718',
+        transition: 'border-color 0.3s, box-shadow 0.3s',
       }}
     >
-      {/* Accent top bar */}
-      <div style={{ height: 3, background: `linear-gradient(90deg, ${color}, ${color}00)` }} />
+      {/* ── COVER (top 44% of card) ── */}
+      <div style={{
+        position: 'relative', height: 160, overflow: 'hidden', flexShrink: 0,
+        background: `linear-gradient(135deg, ${color}28 0%, ${color}08 50%, rgba(10,7,24,0) 100%)`,
+      }}>
+        {/* Noise texture via repeating gradient */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: `radial-gradient(circle at 25% 25%, ${color}30 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255,255,255,0.04) 0%, transparent 50%)`,
+        }} />
+        {/* Diagonal line accent */}
+        <div style={{
+          position: 'absolute', top: -20, right: 40, width: 1, height: '200%',
+          background: `linear-gradient(to bottom, transparent, ${color}40, transparent)`,
+          transform: 'rotate(20deg)',
+        }} />
+        <div style={{
+          position: 'absolute', top: -20, right: 80, width: 1, height: '200%',
+          background: `linear-gradient(to bottom, transparent, ${color}15, transparent)`,
+          transform: 'rotate(20deg)',
+        }} />
 
-      {/* Card body */}
-      <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 14, flex: 1 }}>
-
-        {/* Header row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 26 }}>{chapter.flagEmoji}</span>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{chapter.name}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{chapter.city}, {chapter.country}</div>
-            </div>
-          </div>
+        {/* Status pill — top left */}
+        <div style={{ position: 'absolute', top: 14, left: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{
-            background: color + '20', border: `1px solid ${color}50`,
-            borderRadius: 20, padding: '4px 10px',
-            fontSize: 9, fontWeight: 800, color, whiteSpace: 'nowrap',
-            letterSpacing: '0.06em', textTransform: 'uppercase',
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)',
+            border: `1px solid ${color}50`,
+            borderRadius: 99, padding: '5px 12px',
+            fontSize: 9, fontWeight: 800, color, letterSpacing: '0.1em', textTransform: 'uppercase',
           }}>
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, display: 'inline-block', boxShadow: `0 0 6px ${color}` }} />
             {STATUS_LABEL[chapter.status]}
           </span>
         </div>
 
-        {/* University */}
-        {chapter.university && (
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span>🎓</span> {chapter.university}
-          </div>
-        )}
+        {/* Est. year — top right */}
+        <div style={{ position: 'absolute', top: 14, right: 16, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', padding: '5px 10px', borderRadius: 99, border: '1px solid rgba(255,255,255,0.08)' }}>
+          Est. {chapter.founded}
+        </div>
 
-        {/* About text */}
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: 1.65, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        {/* Flag — centered, massive */}
+        <div style={{
+          position: 'absolute', bottom: 8, left: 20,
+          fontSize: 72, lineHeight: 1,
+          filter: hovered ? `drop-shadow(0 0 24px ${color}80)` : `drop-shadow(0 4px 12px rgba(0,0,0,0.5))`,
+          transition: 'filter 0.4s',
+          userSelect: 'none',
+        }}>
+          {chapter.flagEmoji}
+        </div>
+
+        {/* Chapter city label — bottom right of cover */}
+        <div style={{ position: 'absolute', bottom: 14, right: 16, textAlign: 'right' }}>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, letterSpacing: '0.04em' }}>{chapter.city}</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>{chapter.country}</div>
+        </div>
+      </div>
+
+      {/* ── BODY ── */}
+      <div style={{ padding: '18px 20px 20px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
+
+        {/* Name */}
+        <div>
+          <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 4px', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+            {chapter.name}
+          </h3>
+          {chapter.university && (
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ opacity: 0.6 }}>🎓</span> {chapter.university}
+            </div>
+          )}
+        </div>
+
+        {/* About snippet */}
+        <p style={{
+          fontSize: 12, color: 'rgba(255,255,255,0.48)', margin: 0, lineHeight: 1.65,
+          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+        }}>
           {chapter.about}
         </p>
 
@@ -997,55 +1039,61 @@ function ChapterCard({ chapter, onSelect }: { chapter: Chapter; onSelect: (ch: C
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
           {chapter.tags.slice(0, 3).map(tag => (
             <span key={tag} style={{
-              fontSize: 9, fontWeight: 700, padding: '3px 8px',
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 20, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.04em',
+              fontSize: 9, fontWeight: 700, padding: '4px 9px',
+              background: `${color}12`, border: `1px solid ${color}25`,
+              borderRadius: 99, color, letterSpacing: '0.05em',
             }}>
               {tag}
             </span>
           ))}
         </div>
 
-        {/* Stats row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 1, background: 'rgba(255,255,255,0.05)', borderRadius: 10, overflow: 'hidden' }}>
+        {/* Stats — horizontal pill-style */}
+        <div style={{ display: 'flex', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' }}>
           {[
-            { v: chapter.members, l: 'Members', icon: '👥' },
-            { v: chapter.eventsHosted, l: 'Events', icon: '📅' },
-            { v: chapter.studentsEducated >= 1000 ? `${(chapter.studentsEducated/1000).toFixed(1)}k` : chapter.studentsEducated, l: 'Students', icon: '🎓' },
-          ].map(s => (
-            <div key={s.l} style={{ background: 'rgba(5,2,16,0.9)', padding: '10px 6px', textAlign: 'center' }}>
-              <div style={{ fontSize: 9, marginBottom: 3 }}>{s.icon}</div>
-              <div style={{ fontSize: 15, fontWeight: 900, color: '#fff' }}>{s.v}</div>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{s.l}</div>
+            { v: chapter.members, l: 'Members' },
+            { v: chapter.eventsHosted, l: 'Events' },
+            { v: chapter.studentsEducated >= 1000 ? `${(chapter.studentsEducated / 1000).toFixed(1)}k` : chapter.studentsEducated, l: 'Students' },
+          ].map((s, i) => (
+            <div key={s.l} style={{
+              flex: 1, padding: '10px 8px', textAlign: 'center',
+              background: 'rgba(255,255,255,0.03)',
+              borderRight: i < 2 ? '1px solid rgba(255,255,255,0.07)' : 'none',
+            }}>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.v}</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 3, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{s.l}</div>
             </div>
           ))}
         </div>
 
-        {/* Founded + actions */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 4 }}>
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', fontWeight: 600 }}>Est. {chapter.founded}</span>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              onClick={e => { e.stopPropagation(); onSelect(chapter); }}
-              style={{
-                fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 700,
-                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 8, padding: '5px 10px', cursor: 'pointer',
-              }}
-            >
-              Quick view
-            </button>
-            <button
-              onClick={e => { e.stopPropagation(); navigate(`/chapters/${chapter.id}`); }}
-              style={{
-                fontSize: 10, color: '#000', fontWeight: 800,
-                background: color, border: 'none',
-                borderRadius: 8, padding: '5px 10px', cursor: 'pointer',
-              }}
-            >
-              View page →
-            </button>
-          </div>
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 'auto', paddingTop: 4 }}>
+          <button
+            onClick={e => { e.stopPropagation(); onSelect(chapter); }}
+            style={{
+              flex: 1, padding: '10px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)',
+              background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)',
+              fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'background 0.2s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.09)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+          >
+            Quick View
+          </button>
+          <button
+            onClick={e => { e.stopPropagation(); navigate(`/chapters/${chapter.id}`); }}
+            style={{
+              flex: 2, padding: '10px', borderRadius: 10, border: 'none',
+              background: color, color: '#000',
+              fontSize: 12, fontWeight: 800, cursor: 'pointer',
+              boxShadow: `0 4px 16px ${color}40`,
+              transition: 'opacity 0.2s, transform 0.1s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >
+            Explore Chapter →
+          </button>
         </div>
       </div>
     </motion.div>
