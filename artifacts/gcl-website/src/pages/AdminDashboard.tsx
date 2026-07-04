@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin, RegisteredUser } from '../context/AdminContext';
+import { useAppAuth } from '../context/AuthContext';
+import { useListAllUsers, useUpdateUserRole, UserRole } from '@workspace/api-client-react';
 import { Event } from '../data/events';
 import { Course } from '../data/courses';
 import { NewsPost } from '../data/news';
 
-type Section = 'overview' | 'events' | 'courses' | 'news' | 'users';
+type Section = 'overview' | 'events' | 'courses' | 'news' | 'users' | 'roles';
 
 const NAV_ITEMS: { id: Section; label: string; icon: string }[] = [
   { id: 'overview', label: 'Overview', icon: '📊' },
@@ -14,6 +16,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: string }[] = [
   { id: 'courses', label: 'Courses', icon: '📚' },
   { id: 'news', label: 'News Posts', icon: '📰' },
   { id: 'users', label: 'Members', icon: '👥' },
+  { id: 'roles', label: 'Team & Roles', icon: '🛡️' },
 ];
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
@@ -506,20 +509,99 @@ function UsersSection() {
   );
 }
 
+// ─── Roles Section ─────────────────────────────────────────────
+const ROLE_META: Record<string, { label: string; color: string; bg: string }> = {
+  member: { label: 'Member', color: 'var(--ink-soft)', bg: 'var(--paper-alt)' },
+  gcl_team: { label: 'GCL Team', color: '#0891b2', bg: '#ecfeff' },
+  admin: { label: 'Admin', color: '#7c3aed', bg: '#f5f3ff' },
+};
+
+function RolesSection() {
+  const { data, isLoading, refetch } = useListAllUsers();
+  const updateRole = useUpdateUserRole();
+  const [pendingId, setPendingId] = useState<string | null>(null);
+
+  const users = data?.users ?? [];
+
+  const handleChange = (userId: string, role: UserRole) => {
+    setPendingId(userId);
+    updateRole.mutate({ userId, data: { role } }, {
+      onSettled: () => { setPendingId(null); refetch(); },
+    });
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="font-[800] text-[26px] tracking-[-0.02em]">Team & Roles</h2>
+          <p className="text-[13px] text-[var(--ink-soft)] mt-1">Promote members to GCL Team or Admin, or revoke access.</p>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="py-16 flex justify-center"><div className="w-6 h-6 border-2 border-[var(--line)] border-t-[var(--violet)] rounded-full animate-spin" /></div>
+      ) : (
+        <div className="bg-white rounded-[18px] border-[2px] border-[var(--line)] shadow-[4px_4px_0px_var(--ink)] overflow-hidden">
+          <div className="grid grid-cols-[2fr_2fr_1fr_1.3fr] gap-0 px-5 py-3 bg-[var(--paper-alt)] border-b border-[var(--line)] text-[12px] font-[800] uppercase tracking-wider text-[var(--ink-faint)]">
+            <div>Name</div>
+            <div>Email</div>
+            <div>Role</div>
+            <div>Change Role</div>
+          </div>
+          {users.map((u, i) => {
+            const meta = ROLE_META[u.role] ?? ROLE_META.member;
+            const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || '—';
+            return (
+              <motion.div
+                key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+                className="grid grid-cols-[2fr_2fr_1fr_1.3fr] gap-0 px-5 py-3.5 border-b border-[var(--line)] last:border-0 items-center"
+              >
+                <div className="font-[700] text-[14px]">{name}</div>
+                <div className="text-[13px] text-[var(--ink-soft)] truncate">{u.email ?? '—'}</div>
+                <div>
+                  <span className="text-[11px] font-[800] px-2.5 py-1 rounded-full" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
+                </div>
+                <select
+                  value={u.role}
+                  disabled={pendingId === u.id}
+                  onChange={e => handleChange(u.id, e.target.value as UserRole)}
+                  className="text-[13px] font-[600] px-3 py-2 rounded-[8px] border-[1.5px] border-[var(--line)] bg-[var(--paper-alt)] disabled:opacity-50"
+                >
+                  <option value="member">Member</option>
+                  <option value="gcl_team">GCL Team</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </motion.div>
+            );
+          })}
+          {users.length === 0 && (
+            <div className="px-5 py-10 text-center text-[13px] text-[var(--ink-faint)]">No accounts have signed in yet.</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Dashboard ────────────────────────────────────────────
 export function AdminDashboard() {
-  const { isAdmin, logout } = useAdmin();
+  const { isAuthenticated, isLoading, isAdmin, user, logout } = useAppAuth();
   const [, setLocation] = useLocation();
   const [section, setSection] = useState<Section>('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (!isAdmin) {
+  if (isLoading) {
+    return <main className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-[var(--line)] border-t-[var(--violet)] rounded-full animate-spin" /></main>;
+  }
+
+  if (!isAuthenticated || !isAdmin) {
     return (
       <main className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
           <div className="text-5xl mb-4">🔒</div>
           <h2 className="font-[800] text-[24px] mb-2">Access Denied</h2>
-          <p className="text-[var(--ink-soft)] mb-6">You need to be logged in as an admin.</p>
+          <p className="text-[var(--ink-soft)] mb-6">You need to be logged in as an admin to view this page.</p>
           <Link href="/signin" className="btn btn-dark">Go to Sign In</Link>
         </div>
       </main>
@@ -577,6 +659,7 @@ export function AdminDashboard() {
             {section === 'courses' && <CoursesSection />}
             {section === 'news' && <NewsSection />}
             {section === 'users' && <UsersSection />}
+            {section === 'roles' && <RolesSection />}
           </motion.div>
         </AnimatePresence>
       </main>

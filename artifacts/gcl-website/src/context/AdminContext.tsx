@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { courses as initialCourses, Course } from '../data/courses';
 import { events as initialEvents, Event } from '../data/events';
 import { newsPosts as initialNews, NewsPost } from '../data/news';
@@ -13,9 +13,6 @@ export interface RegisteredUser {
 }
 
 interface AdminContextType {
-  isAdmin: boolean;
-  login: (username: string, password: string) => boolean;
-  logout: () => void;
   events: Event[];
   addEvent: (event: Event) => void;
   updateEvent: (event: Event) => void;
@@ -59,7 +56,6 @@ function save<T>(key: string, value: T) {
 }
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
-  const [isAdmin, setIsAdmin] = useState(() => localStorage.getItem('gcl_admin') === '1');
   const [events, setEvents] = useState<Event[]>(() => load('gcl_events', initialEvents));
   const [courses, setCourses] = useState<Course[]>(() => load('gcl_courses', initialCourses));
   const [news, setNews] = useState<NewsPost[]>(() => load('gcl_news', initialNews));
@@ -68,20 +64,6 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { save('gcl_events', events); }, [events]);
   useEffect(() => { save('gcl_courses', courses); }, [courses]);
   useEffect(() => { save('gcl_news', news); }, [news]);
-
-  const login = useCallback((username: string, password: string): boolean => {
-    if (username === 'Mirzo12' && password === 'vandy') {
-      setIsAdmin(true);
-      localStorage.setItem('gcl_admin', '1');
-      return true;
-    }
-    return false;
-  }, []);
-
-  const logout = useCallback(() => {
-    setIsAdmin(false);
-    localStorage.removeItem('gcl_admin');
-  }, []);
 
   const addEvent = (e: Event) => setEvents(prev => [e, ...prev]);
   const updateEvent = (e: Event) => setEvents(prev => prev.map(x => x.id === e.id ? e : x));
@@ -96,7 +78,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const deleteNews = (id: string) => setNews(prev => prev.filter(x => x.id !== id));
 
   return (
-    <AdminContext.Provider value={{ isAdmin, login, logout, events, addEvent, updateEvent, deleteEvent, courses, addCourse, updateCourse, deleteCourse, news, addNews, updateNews, deleteNews, users }}>
+    <AdminContext.Provider value={{ events, addEvent, updateEvent, deleteEvent, courses, addCourse, updateCourse, deleteCourse, news, addNews, updateNews, deleteNews, users }}>
       {children}
     </AdminContext.Provider>
   );

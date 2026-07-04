@@ -3,6 +3,7 @@ import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { AnimatePresence } from 'framer-motion';
 
 import { AdminProvider } from './context/AdminContext';
+import { AuthProvider } from './context/AuthContext';
 import { Nav } from './components/Nav';
 import { Footer } from './components/Footer';
 
@@ -17,6 +18,8 @@ import { News } from './pages/News';
 import { NewsDetail } from './pages/NewsDetail';
 import { SignIn } from './pages/SignIn';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { MemberDashboard } from './pages/MemberDashboard';
+import { TeamPortal } from './pages/TeamPortal';
 import { Privacy, Terms } from './pages/Legal';
 import { ChapterDetail } from './pages/ChapterDetail';
 import NotFound from './pages/not-found';
@@ -44,6 +47,8 @@ function SiteLayout() {
             <Route path="/news" component={News} />
             <Route path="/news/:id" component={NewsDetail} />
             <Route path="/signin" component={SignIn} />
+            <Route path="/dashboard" component={MemberDashboard} />
+            <Route path="/portal" component={TeamPortal} />
             <Route path="/privacy" component={Privacy} />
             <Route path="/terms" component={Terms} />
             <Route component={NotFound} />
@@ -69,9 +74,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-        <AdminProvider>
-          <Router />
-        </AdminProvider>
+        <AuthProvider>
+          <AdminProvider>
+            <Router />
+          </AdminProvider>
+        </AuthProvider>
       </WouterRouter>
     </QueryClientProvider>
   );
