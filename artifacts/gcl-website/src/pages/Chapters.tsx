@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect, Suspense, useCallback } from 'react
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars, useGLTF, Html } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link, useLocation } from 'wouter';
 import * as THREE from 'three';
 import { chapters, Chapter, STATUS_LABEL, STATUS_COLOR, ChapterStatus } from '../data/chapters';
 
@@ -582,6 +583,7 @@ function ChapterPanel({ chapter, onClose }: { chapter: Chapter; onClose: () => v
   const [copied, setCopied] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', motivation: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [, navigate] = useLocation();
 
   const handleCopy = useCallback(() => {
     const url = `${window.location.origin}${window.location.pathname}#${chapter.id}`;
@@ -664,7 +666,19 @@ function ChapterPanel({ chapter, onClose }: { chapter: Chapter; onClose: () => v
           </p>
         </div>
         {/* Actions */}
-        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
+          <button
+            onClick={() => { onClose(); navigate(`/chapters/${chapter.id}`); }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: color, border: 'none',
+              borderRadius: 9, padding: '8px 14px',
+              color: '#000', cursor: 'pointer', fontSize: 12, fontWeight: 800,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            View Full Profile →
+          </button>
           <button
             onClick={handleCopy}
             title="Copy chapter link"
@@ -921,55 +935,119 @@ function SectionLabel({ children, noMargin }: { children: React.ReactNode; noMar
 // ─── Chapter Card ─────────────────────────────────────────────────────────────
 function ChapterCard({ chapter, onSelect }: { chapter: Chapter; onSelect: (ch: Chapter) => void }) {
   const color = STATUS_COLOR[chapter.status];
+  const [, navigate] = useLocation();
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      onClick={() => onSelect(chapter)}
+      whileHover={{ y: -5 }}
       style={{
         background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: 14, padding: '20px',
-        cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 12,
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 18, overflow: 'hidden',
+        cursor: 'pointer', display: 'flex', flexDirection: 'column',
         transition: 'border-color 0.2s, box-shadow 0.2s',
+        position: 'relative',
       }}
       onMouseEnter={e => {
-        e.currentTarget.style.borderColor = color + '55';
-        e.currentTarget.style.boxShadow = `0 8px 32px ${color}18`;
+        e.currentTarget.style.borderColor = color + '60';
+        e.currentTarget.style.boxShadow = `0 12px 40px ${color}20`;
       }}
       onMouseLeave={e => {
-        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
+        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
         e.currentTarget.style.boxShadow = 'none';
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{chapter.name}</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>📍 {chapter.city}, {chapter.country}</div>
-        </div>
-        <span style={{
-          background: color + '22', border: `1px solid ${color}55`,
-          borderRadius: 6, padding: '3px 9px',
-          fontSize: 10, fontWeight: 700, color, whiteSpace: 'nowrap',
-        }}>
-          {STATUS_LABEL[chapter.status]}
-        </span>
-      </div>
-      <div style={{ display: 'flex', gap: 20 }}>
-        {[
-          { v: chapter.members, l: 'members' },
-          { v: chapter.eventsHosted, l: 'events' },
-          { v: chapter.studentsEducated.toLocaleString(), l: 'students' },
-        ].map(s => (
-          <div key={s.l}>
-            <div style={{ fontSize: 17, fontWeight: 800, color: '#fff' }}>{s.v}</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{s.l}</div>
+      {/* Accent top bar */}
+      <div style={{ height: 3, background: `linear-gradient(90deg, ${color}, ${color}00)` }} />
+
+      {/* Card body */}
+      <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 14, flex: 1 }}>
+
+        {/* Header row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 26 }}>{chapter.flagEmoji}</span>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{chapter.name}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{chapter.city}, {chapter.country}</div>
+            </div>
           </div>
-        ))}
+          <span style={{
+            background: color + '20', border: `1px solid ${color}50`,
+            borderRadius: 20, padding: '4px 10px',
+            fontSize: 9, fontWeight: 800, color, whiteSpace: 'nowrap',
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+          }}>
+            {STATUS_LABEL[chapter.status]}
+          </span>
+        </div>
+
+        {/* University */}
+        {chapter.university && (
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)', display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span>🎓</span> {chapter.university}
+          </div>
+        )}
+
+        {/* About text */}
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: 1.65, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {chapter.about}
+        </p>
+
+        {/* Tags */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+          {chapter.tags.slice(0, 3).map(tag => (
+            <span key={tag} style={{
+              fontSize: 9, fontWeight: 700, padding: '3px 8px',
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 20, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.04em',
+            }}>
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        {/* Stats row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 1, background: 'rgba(255,255,255,0.05)', borderRadius: 10, overflow: 'hidden' }}>
+          {[
+            { v: chapter.members, l: 'Members', icon: '👥' },
+            { v: chapter.eventsHosted, l: 'Events', icon: '📅' },
+            { v: chapter.studentsEducated >= 1000 ? `${(chapter.studentsEducated/1000).toFixed(1)}k` : chapter.studentsEducated, l: 'Students', icon: '🎓' },
+          ].map(s => (
+            <div key={s.l} style={{ background: 'rgba(5,2,16,0.9)', padding: '10px 6px', textAlign: 'center' }}>
+              <div style={{ fontSize: 9, marginBottom: 3 }}>{s.icon}</div>
+              <div style={{ fontSize: 15, fontWeight: 900, color: '#fff' }}>{s.v}</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Founded + actions */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 4 }}>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', fontWeight: 600 }}>Est. {chapter.founded}</span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={e => { e.stopPropagation(); onSelect(chapter); }}
+              style={{
+                fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 700,
+                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 8, padding: '5px 10px', cursor: 'pointer',
+              }}
+            >
+              Quick view
+            </button>
+            <button
+              onClick={e => { e.stopPropagation(); navigate(`/chapters/${chapter.id}`); }}
+              style={{
+                fontSize: 10, color: '#000', fontWeight: 800,
+                background: color, border: 'none',
+                borderRadius: 8, padding: '5px 10px', cursor: 'pointer',
+              }}
+            >
+              View page →
+            </button>
+          </div>
+        </div>
       </div>
-      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.42)', margin: 0, lineHeight: 1.65, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-        {chapter.about}
-      </p>
-      <div style={{ fontSize: 11, color, fontWeight: 700 }}>Open profile →</div>
     </motion.div>
   );
 }

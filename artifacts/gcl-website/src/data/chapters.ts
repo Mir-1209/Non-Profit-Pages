@@ -16,6 +16,10 @@ export interface Chapter {
   studentsEducated: number;
   about: string;
   contact: string;
+  tags: string[];
+  focus: string;
+  flagEmoji: string;
+  university?: string;
 }
 
 export const chapters: Chapter[] = [
@@ -29,6 +33,10 @@ export const chapters: Chapter[] = [
     members: 18, eventsHosted: 42, studentsEducated: 1240,
     about: 'The founding chapter of GCL, born from a single workshop at a Tashkent youth center. Now Central Asia\'s most active financial literacy hub, running weekly sessions across 6 districts.',
     contact: 'tashkent@gcl.org',
+    tags: ['Behavioral Economics', 'Financial Literacy', 'Youth Leadership'],
+    focus: 'Founding chapter and Central Asia hub for financial education programs.',
+    flagEmoji: '🇺🇿',
+    university: 'Westminster International University Tashkent',
   },
   {
     id: 'samarkand',
@@ -40,6 +48,10 @@ export const chapters: Chapter[] = [
     members: 9, eventsHosted: 18, studentsEducated: 430,
     about: 'Operating out of Samarkand State University, this chapter focuses on entrepreneurship and behavioral economics for history-city youth ready to build generational wealth.',
     contact: 'samarkand@gcl.org',
+    tags: ['Entrepreneurship', 'Generational Wealth', 'Behavioral Econ'],
+    focus: 'Entrepreneurship and behavioral economics for historical city youth.',
+    flagEmoji: '🇺🇿',
+    university: 'Samarkand State University',
   },
   {
     id: 'almaty',
@@ -51,6 +63,10 @@ export const chapters: Chapter[] = [
     members: 11, eventsHosted: 22, studentsEducated: 580,
     about: 'Kazakhstan\'s first GCL chapter, partnered with KIMEP University. Runs the region\'s only behavioral finance bootcamp for high-school students.',
     contact: 'almaty@gcl.org',
+    tags: ['Behavioral Finance', 'High School Outreach', 'Bootcamp'],
+    focus: 'Behavioral finance bootcamp and high school financial literacy outreach.',
+    flagEmoji: '🇰🇿',
+    university: 'KIMEP University',
   },
   {
     id: 'astana',
@@ -62,6 +78,10 @@ export const chapters: Chapter[] = [
     members: 7, eventsHosted: 10, studentsEducated: 210,
     about: 'Launched in the heart of Kazakhstan\'s capital, GCL Astana targets government employees and young professionals entering the financial sector.',
     contact: 'astana@gcl.org',
+    tags: ['Public Finance', 'Professional Development', 'Government'],
+    focus: 'Financial literacy for government employees and young professionals.',
+    flagEmoji: '🇰🇿',
+    university: 'Nazarbayev University',
   },
   {
     id: 'bishkek',
@@ -73,6 +93,10 @@ export const chapters: Chapter[] = [
     members: 8, eventsHosted: 16, studentsEducated: 340,
     about: 'Born from a grassroots movement at AUCA, GCL Bishkek has grown into Kyrgyzstan\'s only structured youth financial literacy program.',
     contact: 'bishkek@gcl.org',
+    tags: ['Grassroots', 'Financial Identity', 'Mindset'],
+    focus: 'Grassroots financial literacy and mindset programs for university students.',
+    flagEmoji: '🇰🇬',
+    university: 'American University of Central Asia (AUCA)',
   },
   {
     id: 'dushanbe',
@@ -84,6 +108,9 @@ export const chapters: Chapter[] = [
     members: 6, eventsHosted: 8, studentsEducated: 180,
     about: 'Tajikistan\'s first GCL chapter, operating in one of Central Asia\'s most underserved financial education markets. Partners with local NGOs to reach rural communities.',
     contact: 'dushanbe@gcl.org',
+    tags: ['Rural Outreach', 'NGO Partnership', 'Underserved Markets'],
+    focus: 'Reaching underserved rural communities through NGO partnerships.',
+    flagEmoji: '🇹🇯',
   },
   {
     id: 'ashgabat',
@@ -95,6 +122,9 @@ export const chapters: Chapter[] = [
     members: 4, eventsHosted: 3, studentsEducated: 55,
     about: 'Newest chapter in Central Asia, pioneering financial literacy education in a market with almost no prior youth programming.',
     contact: 'ashgabat@gcl.org',
+    tags: ['Pioneering', 'New Market', 'Youth Finance'],
+    focus: 'Pioneering financial education in an underserved youth market.',
+    flagEmoji: '🇹🇲',
   },
   {
     id: 'tbilisi',
@@ -106,6 +136,10 @@ export const chapters: Chapter[] = [
     members: 7, eventsHosted: 14, studentsEducated: 295,
     about: 'A Caucasus hub bridging Central Asia and Europe, GCL Tbilisi runs bilingual (Georgian/English) workshops and is the region\'s fastest-growing chapter.',
     contact: 'tbilisi@gcl.org',
+    tags: ['Bilingual', 'Caucasus Hub', 'Europe Bridge'],
+    focus: 'Bilingual financial education bridging Central Asia and European markets.',
+    flagEmoji: '🇬🇪',
+    university: 'Tbilisi State University',
   },
   {
     id: 'istanbul',
@@ -117,6 +151,10 @@ export const chapters: Chapter[] = [
     members: 10, eventsHosted: 19, studentsEducated: 470,
     about: 'One of GCL\'s most international chapters, hosting events in three languages and partnering with Boğaziçi University\'s economics faculty.',
     contact: 'istanbul@gcl.org',
+    tags: ['Multi-lingual', 'Impact Investing', 'International'],
+    focus: 'Multi-lingual international events and impact investment education.',
+    flagEmoji: '🇹🇷',
+    university: 'Boğaziçi University',
   },
   {
     id: 'london',
@@ -128,6 +166,10 @@ export const chapters: Chapter[] = [
     members: 12, eventsHosted: 26, studentsEducated: 720,
     about: 'GCL\'s Western European anchor, operating out of the London School of Economics. Runs the annual GCL Global Summit and connects chapters worldwide.',
     contact: 'london@gcl.org',
+    tags: ['Global Summit', 'Power & Systems', 'LSE'],
+    focus: 'Global summits, systems-level finance education, and chapter coordination.',
+    flagEmoji: '🇬🇧',
+    university: 'London School of Economics (LSE)',
   },
   {
     id: 'lagos',
@@ -139,6 +181,10 @@ export const chapters: Chapter[] = [
     members: 9, eventsHosted: 17, studentsEducated: 390,
     about: 'Africa\'s largest GCL chapter by student reach, partnering with Lagos Business School to bring behavioral finance to Nigeria\'s booming youth population.',
     contact: 'lagos@gcl.org',
+    tags: ['Community Finance', 'West Africa', 'Systems Building'],
+    focus: 'Community wealth building and systems-based finance education for African youth.',
+    flagEmoji: '🇳🇬',
+    university: 'Lagos Business School',
   },
   {
     id: 'nairobi',
@@ -150,6 +196,10 @@ export const chapters: Chapter[] = [
     members: 6, eventsHosted: 7, studentsEducated: 145,
     about: 'East Africa\'s first GCL chapter, running workshops across Nairobi\'s informal settlements and connecting youth to digital financial tools.',
     contact: 'nairobi@gcl.org',
+    tags: ['East Africa', 'Digital Finance', 'Community'],
+    focus: 'Digital financial tools and community workshops across informal settlements.',
+    flagEmoji: '🇰🇪',
+    university: 'University of Nairobi',
   },
   {
     id: 'mumbai',
@@ -161,6 +211,10 @@ export const chapters: Chapter[] = [
     members: 8, eventsHosted: 15, studentsEducated: 350,
     about: 'India\'s first GCL chapter, serving Mumbai\'s vast young professional population with workshops on behavioral economics and personal finance psychology.',
     contact: 'mumbai@gcl.org',
+    tags: ['Behavioral Econ', 'Finance Psychology', 'South Asia'],
+    focus: 'Behavioral economics and finance psychology for India\'s young professional class.',
+    flagEmoji: '🇮🇳',
+    university: 'IIM Bombay',
   },
   {
     id: 'bogota',
@@ -172,6 +226,10 @@ export const chapters: Chapter[] = [
     members: 5, eventsHosted: 5, studentsEducated: 90,
     about: 'Latin America\'s first GCL chapter, building bridges between Colombia\'s financial sector and the youth who have been shut out of it.',
     contact: 'bogota@gcl.org',
+    tags: ['Latin America', 'Access', 'Inclusion'],
+    focus: 'Bridging financial sector access gaps for Latin American youth.',
+    flagEmoji: '🇨🇴',
+    university: 'Universidad de los Andes',
   },
 ];
 

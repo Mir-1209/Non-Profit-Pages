@@ -1,5 +1,6 @@
 export interface Course {
   slug: string;
+  chapterId?: string;
   title: string;
   tag: string;
   level: string;
@@ -12,6 +13,7 @@ export interface Course {
 export const courses: Course[] = [
   {
     slug: "psychology-of-spending",
+    chapterId: "tashkent",
     title: "The Psychology of Spending",
     tag: "Foundations",
     level: "Beginner",
@@ -32,6 +34,7 @@ export const courses: Course[] = [
   },
   {
     slug: "decisions-under-scarcity",
+    chapterId: "almaty",
     title: "Decisions Under Scarcity",
     tag: "Behavioral Econ",
     level: "Intermediate",
@@ -54,6 +57,7 @@ export const courses: Course[] = [
   },
   {
     slug: "building-systems",
+    chapterId: "lagos",
     title: "Building Systems, Not Budgets",
     tag: "Applied Finance",
     level: "All Levels",
@@ -72,6 +76,7 @@ export const courses: Course[] = [
   },
   {
     slug: "money-and-power",
+    chapterId: "london",
     title: "Money & Power Dynamics",
     tag: "Advanced Theory",
     level: "Advanced",
@@ -93,6 +98,7 @@ export const courses: Course[] = [
   },
   {
     slug: "investing-for-impact",
+    chapterId: "london",
     title: "Investing for Impact",
     tag: "Investments",
     level: "Intermediate",
@@ -112,6 +118,7 @@ export const courses: Course[] = [
   },
   {
     slug: "financial-identity",
+    chapterId: "bishkek",
     title: "Financial Identity",
     tag: "Mindset",
     level: "Beginner",

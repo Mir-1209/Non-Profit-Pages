@@ -18,6 +18,7 @@ import { NewsDetail } from './pages/NewsDetail';
 import { SignIn } from './pages/SignIn';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { Privacy, Terms } from './pages/Legal';
+import { ChapterDetail } from './pages/ChapterDetail';
 import NotFound from './pages/not-found';
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ function SiteLayout() {
           <Switch>
             <Route path="/" component={Home} />
             <Route path="/chapters" component={Chapters} />
+            <Route path="/chapters/:id" component={ChapterDetail} />
             <Route path="/courses" component={Courses} />
             <Route path="/courses/:slug" component={CourseDetail} />
             <Route path="/events" component={Events} />

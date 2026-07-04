@@ -6,6 +6,7 @@ export interface EventAgendaItem {
 
 export interface Event {
   id: string;
+  chapterId?: string;
   date: { day: string; month: string; year: string; full: string };
   time: string;
   timezone: string;
@@ -30,6 +31,7 @@ export interface Event {
 export const events: Event[] = [
   {
     id: "e1",
+    chapterId: "tashkent",
     date: { day: "12", month: "AUG", year: "2026", full: "August 12, 2026" },
     time: "3:00 PM",
     timezone: "UTC",
@@ -57,6 +59,7 @@ export const events: Event[] = [
   },
   {
     id: "e2",
+    chapterId: "lagos",
     date: { day: "24", month: "AUG", year: "2026", full: "August 24, 2026" },
     time: "10:00 AM",
     timezone: "WAT (West Africa Time)",
@@ -84,6 +87,7 @@ export const events: Event[] = [
   },
   {
     id: "e3",
+    chapterId: "london",
     date: { day: "05", month: "SEP", year: "2026", full: "September 5, 2026" },
     time: "1:00 PM",
     timezone: "UTC",
@@ -114,6 +118,7 @@ export const events: Event[] = [
   },
   {
     id: "e4",
+    chapterId: "nairobi",
     date: { day: "18", month: "SEP", year: "2026", full: "September 18, 2026" },
     time: "9:00 AM",
     timezone: "EAT (East Africa Time)",
@@ -142,6 +147,7 @@ export const events: Event[] = [
   },
   {
     id: "e5",
+    chapterId: "almaty",
     date: { day: "02", month: "OCT", year: "2026", full: "October 2, 2026" },
     time: "6:00 PM",
     timezone: "UTC",
@@ -168,6 +174,7 @@ export const events: Event[] = [
   },
   {
     id: "e6",
+    chapterId: "istanbul",
     date: { day: "15", month: "OCT", year: "2026", full: "October 15, 2026" },
     time: "4:00 PM",
     timezone: "UTC",
@@ -194,6 +201,7 @@ export const events: Event[] = [
   },
   {
     id: "e7",
+    chapterId: "london",
     date: { day: "08", month: "NOV", year: "2026", full: "November 8, 2026" },
     time: "9:30 AM",
     timezone: "GMT",
@@ -224,6 +232,7 @@ export const events: Event[] = [
   },
   {
     id: "e8",
+    chapterId: "tashkent",
     date: { day: "22", month: "NOV", year: "2026", full: "November 22, 2026" },
     time: "5:00 PM",
     timezone: "UTC",
