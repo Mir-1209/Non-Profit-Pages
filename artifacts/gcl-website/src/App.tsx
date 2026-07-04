@@ -20,6 +20,7 @@ import { SignIn } from './pages/SignIn';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { MemberDashboard } from './pages/MemberDashboard';
 import { TeamPortal } from './pages/TeamPortal';
+import { Congratulations } from './pages/Congratulations';
 import { Privacy, Terms } from './pages/Legal';
 import { ChapterDetail } from './pages/ChapterDetail';
 import NotFound from './pages/not-found';
@@ -49,6 +50,7 @@ function SiteLayout() {
             <Route path="/signin" component={SignIn} />
             <Route path="/dashboard" component={MemberDashboard} />
             <Route path="/portal" component={TeamPortal} />
+            <Route path="/congratulations" component={Congratulations} />
             <Route path="/privacy" component={Privacy} />
             <Route path="/terms" component={Terms} />
             <Route component={NotFound} />
