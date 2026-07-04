@@ -1,10 +1,21 @@
 import React, { useRef, useState, useEffect, Suspense, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars, useGLTF, Html } from '@react-three/drei';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { Link, useLocation } from 'wouter';
 import * as THREE from 'three';
 import { chapters, Chapter, STATUS_LABEL, STATUS_COLOR, ChapterStatus } from '../data/chapters';
+
+function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const inView = useInView(ref as any, { once: true, margin: '-60px' });
+  return (
+    <motion.div ref={ref} initial={{ opacity: 0, y: 24 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay }} className={className}>
+      {children}
+    </motion.div>
+  );
+}
 
 // ─── Asset URLs (from public/) ──────────────────────────────────────────────
 const BASE = import.meta.env.BASE_URL ?? '/';
@@ -936,167 +947,100 @@ function SectionLabel({ children, noMargin }: { children: React.ReactNode; noMar
 function ChapterCard({ chapter, onSelect }: { chapter: Chapter; onSelect: (ch: Chapter) => void }) {
   const color = STATUS_COLOR[chapter.status];
   const [, navigate] = useLocation();
-  const [hovered, setHovered] = useState(false);
 
   return (
-    <motion.div
-      whileHover={{ y: -8, scale: 1.01 }}
-      transition={{ type: 'spring', stiffness: 340, damping: 28 }}
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      style={{
-        borderRadius: 22, overflow: 'hidden',
-        cursor: 'pointer', display: 'flex', flexDirection: 'column',
-        border: `1px solid ${hovered ? color + '55' : 'rgba(255,255,255,0.07)'}`,
-        boxShadow: hovered ? `0 24px 64px ${color}28, 0 0 0 1px ${color}20` : '0 4px 24px rgba(0,0,0,0.4)',
-        background: '#0a0718',
-        transition: 'border-color 0.3s, box-shadow 0.3s',
-      }}
-    >
-      {/* ── COVER (top 44% of card) ── */}
-      <div style={{
-        position: 'relative', height: 160, overflow: 'hidden', flexShrink: 0,
-        background: `linear-gradient(135deg, ${color}28 0%, ${color}08 50%, rgba(10,7,24,0) 100%)`,
-      }}>
-        {/* Noise texture via repeating gradient */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: `radial-gradient(circle at 25% 25%, ${color}30 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255,255,255,0.04) 0%, transparent 50%)`,
-        }} />
-        {/* Diagonal line accent */}
-        <div style={{
-          position: 'absolute', top: -20, right: 40, width: 1, height: '200%',
-          background: `linear-gradient(to bottom, transparent, ${color}40, transparent)`,
-          transform: 'rotate(20deg)',
-        }} />
-        <div style={{
-          position: 'absolute', top: -20, right: 80, width: 1, height: '200%',
-          background: `linear-gradient(to bottom, transparent, ${color}15, transparent)`,
-          transform: 'rotate(20deg)',
-        }} />
+    <Reveal>
+      <div className="h-full flex flex-col bg-white border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] transition-all duration-200 hover:shadow-[10px_10px_0px_var(--ink)] hover:-translate-y-1 hover:-translate-x-1 overflow-hidden cursor-pointer group">
 
-        {/* Status pill — top left */}
-        <div style={{ position: 'absolute', top: 14, left: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: 5,
-            background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)',
-            border: `1px solid ${color}50`,
-            borderRadius: 99, padding: '5px 12px',
-            fontSize: 9, fontWeight: 800, color, letterSpacing: '0.1em', textTransform: 'uppercase',
-          }}>
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, display: 'inline-block', boxShadow: `0 0 6px ${color}` }} />
-            {STATUS_LABEL[chapter.status]}
-          </span>
+        {/* ── COVER ── */}
+        <div className="relative shrink-0 overflow-hidden border-b-[2.5px] border-[var(--ink)]"
+          style={{ height: 150, background: `linear-gradient(135deg, ${color}22 0%, rgba(11,8,23,0.92) 100%)` }}>
+          {/* Diagonal stripe texture */}
+          <div className="absolute inset-0 opacity-25"
+            style={{ backgroundImage: `repeating-linear-gradient(55deg, ${color} 0px, ${color} 1px, transparent 1px, transparent 28px)` }} />
+          {/* Radial glow */}
+          <div className="absolute inset-0"
+            style={{ background: `radial-gradient(ellipse 70% 80% at 25% 50%, ${color}28, transparent 65%)` }} />
+
+          {/* Flag */}
+          <div className="absolute bottom-3 left-4 text-[64px] leading-none select-none group-hover:scale-110 transition-transform duration-300">
+            {chapter.flagEmoji}
+          </div>
+
+          {/* Status pill — top left */}
+          <div className="absolute top-3 left-4">
+            <span className="inline-flex items-center gap-1.5 text-[9px] font-[800] uppercase tracking-[0.1em] px-2.5 py-1.5"
+              style={{ background: 'rgba(0,0,0,0.55)', border: `1.5px solid ${color}60`, color, backdropFilter: 'blur(8px)' }}>
+              <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: color }} />
+              {STATUS_LABEL[chapter.status]}
+            </span>
+          </div>
+
+          {/* Est. year — top right */}
+          <div className="absolute top-3 right-4 text-[10px] font-[700] text-white/45 px-2 py-1 border border-white/15"
+            style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}>
+            Est. {chapter.founded}
+          </div>
+
+          {/* City/Country — bottom right */}
+          <div className="absolute bottom-3 right-4 text-right">
+            <div className="text-[11px] font-[700] text-white/55">{chapter.city}</div>
+            <div className="text-[10px] text-white/30">{chapter.country}</div>
+          </div>
         </div>
 
-        {/* Est. year — top right */}
-        <div style={{ position: 'absolute', top: 14, right: 16, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', padding: '5px 10px', borderRadius: 99, border: '1px solid rgba(255,255,255,0.08)' }}>
-          Est. {chapter.founded}
-        </div>
-
-        {/* Flag — centered, massive */}
-        <div style={{
-          position: 'absolute', bottom: 8, left: 20,
-          fontSize: 72, lineHeight: 1,
-          filter: hovered ? `drop-shadow(0 0 24px ${color}80)` : `drop-shadow(0 4px 12px rgba(0,0,0,0.5))`,
-          transition: 'filter 0.4s',
-          userSelect: 'none',
-        }}>
-          {chapter.flagEmoji}
-        </div>
-
-        {/* Chapter city label — bottom right of cover */}
-        <div style={{ position: 'absolute', bottom: 14, right: 16, textAlign: 'right' }}>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, letterSpacing: '0.04em' }}>{chapter.city}</div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>{chapter.country}</div>
-        </div>
-      </div>
-
-      {/* ── BODY ── */}
-      <div style={{ padding: '18px 20px 20px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
-
-        {/* Name */}
-        <div>
-          <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 4px', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+        {/* ── BODY ── */}
+        <div className="flex flex-col flex-1 p-5">
+          <h3 className="font-[800] text-[18px] tracking-[-0.02em] text-[var(--ink)] mb-1 leading-tight group-hover:text-[var(--violet)] transition-colors">
             {chapter.name}
           </h3>
           {chapter.university && (
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ opacity: 0.6 }}>🎓</span> {chapter.university}
-            </div>
+            <div className="text-[11px] text-[var(--ink-faint)] font-[600] mb-3">🎓 {chapter.university}</div>
           )}
-        </div>
 
-        {/* About snippet */}
-        <p style={{
-          fontSize: 12, color: 'rgba(255,255,255,0.48)', margin: 0, lineHeight: 1.65,
-          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-        }}>
-          {chapter.about}
-        </p>
+          <p className="text-[12.5px] text-[var(--ink-soft)] leading-[1.65] mb-3 line-clamp-2">{chapter.about}</p>
 
-        {/* Tags */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-          {chapter.tags.slice(0, 3).map(tag => (
-            <span key={tag} style={{
-              fontSize: 9, fontWeight: 700, padding: '4px 9px',
-              background: `${color}12`, border: `1px solid ${color}25`,
-              borderRadius: 99, color, letterSpacing: '0.05em',
-            }}>
-              {tag}
-            </span>
-          ))}
-        </div>
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {chapter.tags.slice(0, 3).map(tag => (
+              <span key={tag} className="text-[9px] font-[800] uppercase tracking-wider px-2.5 py-1 border-[1.5px]"
+                style={{ borderColor: color + '55', color }}>
+                {tag}
+              </span>
+            ))}
+          </div>
 
-        {/* Stats — horizontal pill-style */}
-        <div style={{ display: 'flex', gap: 0, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' }}>
-          {[
-            { v: chapter.members, l: 'Members' },
-            { v: chapter.eventsHosted, l: 'Events' },
-            { v: chapter.studentsEducated >= 1000 ? `${(chapter.studentsEducated / 1000).toFixed(1)}k` : chapter.studentsEducated, l: 'Students' },
-          ].map((s, i) => (
-            <div key={s.l} style={{
-              flex: 1, padding: '10px 8px', textAlign: 'center',
-              background: 'rgba(255,255,255,0.03)',
-              borderRight: i < 2 ? '1px solid rgba(255,255,255,0.07)' : 'none',
-            }}>
-              <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.v}</div>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 3, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>{s.l}</div>
-            </div>
-          ))}
-        </div>
+          {/* Stats — brutalist grid */}
+          <div className="grid grid-cols-3 border-[2px] border-[var(--ink)] mb-4 divide-x-[2px] divide-[var(--ink)]">
+            {[
+              { v: chapter.members, l: 'Members' },
+              { v: chapter.eventsHosted, l: 'Events' },
+              { v: chapter.studentsEducated >= 1000 ? `${(chapter.studentsEducated / 1000).toFixed(1)}k` : chapter.studentsEducated, l: 'Students' },
+            ].map(s => (
+              <div key={s.l} className="py-2.5 text-center" style={{ background: 'var(--paper-alt)' }}>
+                <div className="font-[800] text-[18px] tracking-[-0.03em] text-[var(--ink)] leading-none">{s.v}</div>
+                <div className="text-[9px] font-[700] uppercase tracking-wider text-[var(--ink-faint)] mt-1">{s.l}</div>
+              </div>
+            ))}
+          </div>
 
-        {/* Actions */}
-        <div style={{ display: 'flex', gap: 8, marginTop: 'auto', paddingTop: 4 }}>
-          <button
-            onClick={e => { e.stopPropagation(); onSelect(chapter); }}
-            style={{
-              flex: 1, padding: '10px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)',
-              background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)',
-              fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'background 0.2s',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.09)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
-          >
-            Quick View
-          </button>
-          <button
-            onClick={e => { e.stopPropagation(); navigate(`/chapters/${chapter.id}`); }}
-            style={{
-              flex: 2, padding: '10px', borderRadius: 10, border: 'none',
-              background: color, color: '#000',
-              fontSize: 12, fontWeight: 800, cursor: 'pointer',
-              boxShadow: `0 4px 16px ${color}40`,
-              transition: 'opacity 0.2s, transform 0.1s',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-          >
-            Explore Chapter →
-          </button>
+          {/* Actions */}
+          <div className="flex gap-2 mt-auto">
+            <button
+              onClick={e => { e.stopPropagation(); onSelect(chapter); }}
+              className="flex-1 py-2.5 text-[11px] font-[800] uppercase tracking-wider border-[2px] border-[var(--ink)] text-[var(--ink-soft)] hover:bg-[var(--ink)] hover:text-white transition-all cursor-pointer">
+              Quick View
+            </button>
+            <button
+              onClick={e => { e.stopPropagation(); navigate(`/chapters/${chapter.id}`); }}
+              className="flex-[2] py-2.5 text-[11px] font-[800] uppercase tracking-wider text-white transition-all hover:-translate-y-[1px] cursor-pointer"
+              style={{ background: 'var(--ink)', boxShadow: '0 4px 14px rgba(21,19,44,0.25)' }}>
+              Explore Chapter →
+            </button>
+          </div>
         </div>
       </div>
-    </motion.div>
+    </Reveal>
   );
 }
 
@@ -1233,116 +1177,112 @@ export function Chapters() {
       </div>
 
       {/* ── Chapter List ── */}
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '64px 32px' }}>
-        <div style={{ marginBottom: 40 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(100,200,255,0.6)', marginBottom: 8 }}>
-            Global Directory
-          </div>
-          <h2 style={{ fontSize: 'clamp(22px,3.5vw,38px)', fontWeight: 800, margin: '0 0 6px', letterSpacing: '-0.02em' }}>
-            All Chapters
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, margin: 0 }}>
-            {chapters.length} chapters across {new Set(chapters.map(c => c.country)).size} countries
-          </p>
-        </div>
+      <div className="bg-white border-t-[2.5px] border-[var(--ink)]">
+        <div className="max-w-[1280px] mx-auto px-8 py-[72px]">
 
-        {/* Search + Filters */}
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 32 }}>
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name, city, country…"
-            style={{
-              flex: 1, minWidth: 240,
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10,
-              padding: '10px 16px', color: '#fff', fontSize: 14, outline: 'none',
-            }}
-          />
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value as ChapterStatus | 'all')}
-            style={{
-              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 10, padding: '10px 14px', color: '#fff', fontSize: 13, outline: 'none',
-            }}
-          >
-            <option value="all">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="growing">Growing</option>
-            <option value="new">Newly Founded</option>
-            <option value="dormant">Dormant</option>
-          </select>
-          <select
-            value={sort}
-            onChange={e => setSort(e.target.value as typeof sort)}
-            style={{
-              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 10, padding: '10px 14px', color: '#fff', fontSize: 13, outline: 'none',
-            }}
-          >
-            <option value="active">Most Active</option>
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="largest">Largest Team</option>
-          </select>
-        </div>
-
-        {/* Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
-          {filtered.map(ch => <ChapterCard key={ch.id} chapter={ch} onSelect={setSelected} />)}
-        </div>
-        {filtered.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.3)' }}>
-            No chapters match your search.
+          {/* Header + filters */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-8 pb-6 border-b-[2.5px] border-[var(--ink)]">
+            <div>
+              <div className="text-[11px] font-[800] uppercase tracking-[0.16em] text-[var(--neon-cyan)] mb-3" style={{ color: 'var(--violet)' }}>
+                Global Directory
+              </div>
+              <h2 className="font-[800] text-[clamp(24px,3.5vw,42px)] tracking-[-0.03em] uppercase mb-1">
+                All Chapters
+              </h2>
+              <p className="text-[14px] text-[var(--ink-faint)] font-[600]">
+                {chapters.length} chapters · {new Set(chapters.map(c => c.country)).size} countries
+              </p>
+            </div>
+            {/* Filters */}
+            <div className="flex gap-2 flex-wrap items-center">
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search chapters…"
+                className="px-4 py-2.5 text-[13px] font-[600] border-[2px] border-[var(--ink)] outline-none min-w-[200px] text-[var(--ink)] placeholder:text-[var(--ink-faint)]"
+                style={{ background: 'var(--paper-alt)' }}
+              />
+              <select
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value as ChapterStatus | 'all')}
+                className="px-3 py-2.5 text-[12px] font-[800] uppercase tracking-wider border-[2px] border-[var(--ink)] outline-none text-[var(--ink)] cursor-pointer"
+                style={{ background: 'var(--paper-alt)' }}
+              >
+                <option value="all">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="growing">Growing</option>
+                <option value="new">New</option>
+                <option value="dormant">Dormant</option>
+              </select>
+              <select
+                value={sort}
+                onChange={e => setSort(e.target.value as typeof sort)}
+                className="px-3 py-2.5 text-[12px] font-[800] uppercase tracking-wider border-[2px] border-[var(--ink)] outline-none text-[var(--ink)] cursor-pointer"
+                style={{ background: 'var(--paper-alt)' }}
+              >
+                <option value="active">Most Active</option>
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="largest">Largest Team</option>
+              </select>
+            </div>
           </div>
-        )}
+
+          {/* Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filtered.map(ch => <ChapterCard key={ch.id} chapter={ch} onSelect={setSelected} />)}
+          </div>
+          {filtered.length === 0 && (
+            <div className="py-20 border-[2.5px] border-[var(--line)] text-center text-[var(--ink-faint)] font-[700] uppercase tracking-wider text-[14px]">
+              No chapters match your search.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Start a Chapter ── */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '80px 32px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(100,200,255,0.7)', marginBottom: 12 }}>
-            Grow the Network
+      <div className="py-[100px] px-8 border-t-[2.5px] border-[var(--ink)]" style={{ background: 'var(--brutal-bg)' }}>
+        <div className="max-w-[900px] mx-auto">
+          <div className="text-center mb-12">
+            <div className="text-[11px] font-[800] uppercase tracking-[0.16em] text-[var(--neon-cyan)] mb-4">Grow the Network</div>
+            <h2 className="font-[800] text-[clamp(28px,4.5vw,56px)] leading-[0.92] tracking-[-0.04em] text-white uppercase mb-5">
+              Start a Chapter
+            </h2>
+            <p className="text-[16px] text-[var(--brutal-text-dim)] leading-[1.7] max-w-[520px] mx-auto">
+              Every chapter on this globe started with one person who decided their city deserved better financial education. No cap.
+            </p>
           </div>
-          <h2 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, margin: '0 0 16px', lineHeight: 1.08, letterSpacing: '-0.02em' }}>
-            Start a Chapter
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16, lineHeight: 1.7, marginBottom: 40 }}>
-            Every chapter on this globe started with one person who decided their city deserved better financial education. No cap.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 40 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border-[2.5px] border-white/15 mb-10">
             {[
               { step: '01', text: 'Register your interest' },
               { step: '02', text: 'Organise your first financial literacy event' },
               { step: '03', text: 'Successfully host with 10+ verified attendees' },
               { step: '04', text: 'Earn your permanent spot on the GCL map as Chapter Founder' },
-            ].map(s => (
-              <div key={s.step} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '20px 16px', textAlign: 'center' }}>
-                <div style={{ fontSize: 28, fontWeight: 800, color: 'rgba(100,200,255,0.5)', marginBottom: 8 }}>{s.step}</div>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>{s.text}</div>
+            ].map((s, i, arr) => (
+              <div key={s.step} className={`p-6 ${i < arr.length - 1 ? 'border-r-[2px] border-white/10' : ''}`}
+                style={{ background: 'var(--brutal-bg-2)' }}>
+                <div className="font-[800] text-[32px] text-[var(--neon-cyan)] tracking-[-0.04em] mb-3 leading-none">{s.step}</div>
+                <div className="text-[13px] text-[var(--brutal-text-dim)] leading-[1.6]">{s.text}</div>
               </div>
             ))}
           </div>
-          <button style={{
-            background: 'rgba(100,200,255,0.15)', border: '1px solid rgba(100,200,255,0.35)',
-            borderRadius: 12, padding: '14px 36px', color: 'rgba(100,200,255,1)',
-            fontSize: 15, fontWeight: 800, cursor: 'pointer',
-            boxShadow: '0 0 32px rgba(100,200,255,0.12)',
-          }}>
-            Apply to Start a Chapter
-          </button>
+          <div className="text-center mt-2">
+            <button className="inline-flex items-center gap-2 px-8 py-4 font-[800] text-[14px] uppercase tracking-wider text-[var(--brutal-bg)] transition-all hover:-translate-y-[2px]"
+              style={{ background: 'var(--neon-cyan)', boxShadow: '0 4px 28px rgba(94,234,255,0.35)' }}>
+              Apply to Start a Chapter →
+            </button>
+          </div>
         </div>
       </div>
 
       {/* ── Beyond Earth ── */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '80px 32px', textAlign: 'center' }}>
-        <div style={{ maxWidth: 600, margin: '0 auto' }}>
-          <div style={{ fontSize: 36, marginBottom: 16 }}>🌌</div>
-          <h2 style={{ fontSize: 'clamp(22px,3.5vw,38px)', fontWeight: 800, margin: '0 0 14px', lineHeight: 1.1 }}>
+      <div className="py-[80px] px-8 text-center border-t-[2.5px] border-white/10" style={{ background: 'var(--brutal-bg-2)' }}>
+        <div className="max-w-[600px] mx-auto">
+          <div className="text-[40px] mb-5">🌌</div>
+          <h2 className="font-[800] text-[clamp(22px,3.5vw,38px)] text-white tracking-[-0.03em] uppercase leading-[1.08] mb-4">
             The Next Chapter is Yours to Build.
           </h2>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
+          <p className="text-[16px] text-[var(--brutal-text-dim)] leading-[1.7]">
             Before humanity builds cities on Mars, help us build financial literacy on Earth.
             Saturn, Jupiter, and the Moon are up there to remind us — our ambition has no ceiling.
           </p>
