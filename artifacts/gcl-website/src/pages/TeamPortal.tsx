@@ -1,8 +1,25 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAppAuth } from '../context/AuthContext';
-import { useListTeamAssignments, getListTeamAssignmentsQueryKey } from '@workspace/api-client-react';
-import { TeamAssignmentStatus } from '@workspace/api-client-react';
+
+type TeamAssignmentStatus = 'upcoming' | 'in_progress' | 'completed';
+
+interface TeamAssignment {
+  id: string;
+  title: string;
+  description: string;
+  status: TeamAssignmentStatus;
+  dueDate: string;
+}
+
+const MOCK_ASSIGNMENTS: TeamAssignment[] = [
+  { id: 'a1', title: 'Onboard New Chapter — Nairobi', description: 'Guide the Nairobi chapter through the standard onboarding checklist and submit completion report.', status: 'in_progress', dueDate: '2026-07-20T00:00:00Z' },
+  { id: 'a2', title: 'Review Q2 Chapter Health Reports', description: 'Assess and score the health reports submitted by your assigned regional chapters.', status: 'upcoming', dueDate: '2026-07-28T00:00:00Z' },
+  { id: 'a3', title: 'Volunteer Kickoff Call Facilitation', description: 'Co-facilitate the summer cohort onboarding call alongside the program director.', status: 'upcoming', dueDate: '2026-07-12T00:00:00Z' },
+  { id: 'a4', title: 'GCL Summit Logistics Support', description: 'Coordinate registration, room assignments, and volunteer schedules for the August summit.', status: 'upcoming', dueDate: '2026-08-10T00:00:00Z' },
+  { id: 'a5', title: 'Spring Chapter Recruitment Drive', description: 'Reached out to 14 universities and submitted outreach reports for all contacts.', status: 'completed', dueDate: '2026-06-01T00:00:00Z' },
+  { id: 'a6', title: 'Member Feedback Survey Analysis', description: 'Compiled and summarized member survey responses from Q1 into the standard template.', status: 'completed', dueDate: '2026-05-15T00:00:00Z' },
+];
 
 const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
   upcoming: { bg: '#eff6ff', color: '#2563eb', label: 'Upcoming' },
@@ -25,7 +42,6 @@ const RESOURCES = [
 export function TeamPortal() {
   const { isAuthenticated, isLoading, isTeam, user, logout, login } = useAppAuth();
   const [filter, setFilter] = useState<'all' | TeamAssignmentStatus>('all');
-  const { data, isLoading: assignmentsLoading } = useListTeamAssignments({ query: { enabled: isAuthenticated && isTeam, queryKey: getListTeamAssignmentsQueryKey() } });
 
   if (isLoading) {
     return <main className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-[var(--line)] border-t-[var(--violet)] rounded-full animate-spin" /></main>;
@@ -56,7 +72,7 @@ export function TeamPortal() {
     );
   }
 
-  const assignments = data?.assignments ?? [];
+  const assignments = MOCK_ASSIGNMENTS;
   const filtered = filter === 'all' ? assignments : assignments.filter(a => a.status === filter);
   const displayName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email || 'Team Member';
 
@@ -97,9 +113,7 @@ export function TeamPortal() {
               </div>
             </div>
 
-            {assignmentsLoading ? (
-              <div className="py-10 flex justify-center"><div className="w-6 h-6 border-2 border-[var(--line)] border-t-[var(--violet)] rounded-full animate-spin" /></div>
-            ) : filtered.length === 0 ? (
+            {filtered.length === 0 ? (
               <div className="text-center py-10">
                 <div className="text-4xl mb-3">📋</div>
                 <p className="text-[14px] text-[var(--ink-soft)]">No assignments {filter !== 'all' ? `in "${STATUS_STYLES[filter]?.label}"` : ''} right now.</p>

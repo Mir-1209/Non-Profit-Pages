@@ -3,7 +3,6 @@ import { Link, useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin, RegisteredUser } from '../context/AdminContext';
 import { useAppAuth } from '../context/AuthContext';
-import { useListAllUsers, useUpdateUserRole, UserRole } from '@workspace/api-client-react';
 import { Event } from '../data/events';
 import { Course } from '../data/courses';
 import { NewsPost } from '../data/news';
@@ -511,24 +510,19 @@ function UsersSection() {
 
 // ─── Roles Section ─────────────────────────────────────────────
 const ROLE_META: Record<string, { label: string; color: string; bg: string }> = {
-  member: { label: 'Member', color: 'var(--ink-soft)', bg: 'var(--paper-alt)' },
-  gcl_team: { label: 'GCL Team', color: '#0891b2', bg: '#ecfeff' },
-  admin: { label: 'Admin', color: '#7c3aed', bg: '#f5f3ff' },
+  member:   { label: 'Member',   color: 'var(--ink-soft)', bg: 'var(--paper-alt)' },
+  gcl_team: { label: 'GCL Team', color: '#0891b2',         bg: '#ecfeff'          },
+  admin:    { label: 'Admin',    color: '#7c3aed',         bg: '#f5f3ff'          },
 };
 
+type LocalRole = 'member' | 'gcl_team' | 'admin';
+
 function RolesSection() {
-  const { data, isLoading, refetch } = useListAllUsers();
-  const updateRole = useUpdateUserRole();
-  const [pendingId, setPendingId] = useState<string | null>(null);
+  const { users } = useAdmin();
+  const [roles, setRoles] = useState<Record<string, LocalRole>>({});
 
-  const users = data?.users ?? [];
-
-  const handleChange = (userId: string, role: UserRole) => {
-    setPendingId(userId);
-    updateRole.mutate({ userId, data: { role } }, {
-      onSettled: () => { setPendingId(null); refetch(); },
-    });
-  };
+  const getRole = (id: string): LocalRole => roles[id] ?? 'member';
+  const setRole = (id: string, role: LocalRole) => setRoles(prev => ({ ...prev, [id]: role }));
 
   return (
     <div>
@@ -539,47 +533,42 @@ function RolesSection() {
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="py-16 flex justify-center"><div className="w-6 h-6 border-2 border-[var(--line)] border-t-[var(--violet)] rounded-full animate-spin" /></div>
-      ) : (
-        <div className="bg-white rounded-[18px] border-[2px] border-[var(--line)] shadow-[4px_4px_0px_var(--ink)] overflow-hidden">
-          <div className="grid grid-cols-[2fr_2fr_1fr_1.3fr] gap-0 px-5 py-3 bg-[var(--paper-alt)] border-b border-[var(--line)] text-[12px] font-[800] uppercase tracking-wider text-[var(--ink-faint)]">
-            <div>Name</div>
-            <div>Email</div>
-            <div>Role</div>
-            <div>Change Role</div>
-          </div>
-          {users.map((u, i) => {
-            const meta = ROLE_META[u.role] ?? ROLE_META.member;
-            const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || '—';
-            return (
-              <motion.div
-                key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                className="grid grid-cols-[2fr_2fr_1fr_1.3fr] gap-0 px-5 py-3.5 border-b border-[var(--line)] last:border-0 items-center"
-              >
-                <div className="font-[700] text-[14px]">{name}</div>
-                <div className="text-[13px] text-[var(--ink-soft)] truncate">{u.email ?? '—'}</div>
-                <div>
-                  <span className="text-[11px] font-[800] px-2.5 py-1 rounded-full" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
-                </div>
-                <select
-                  value={u.role}
-                  disabled={pendingId === u.id}
-                  onChange={e => handleChange(u.id, e.target.value as UserRole)}
-                  className="text-[13px] font-[600] px-3 py-2 rounded-[8px] border-[1.5px] border-[var(--line)] bg-[var(--paper-alt)] disabled:opacity-50"
-                >
-                  <option value="member">Member</option>
-                  <option value="gcl_team">GCL Team</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </motion.div>
-            );
-          })}
-          {users.length === 0 && (
-            <div className="px-5 py-10 text-center text-[13px] text-[var(--ink-faint)]">No accounts have signed in yet.</div>
-          )}
+      <div className="bg-white rounded-[18px] border-[2px] border-[var(--line)] shadow-[4px_4px_0px_var(--ink)] overflow-hidden">
+        <div className="grid grid-cols-[2fr_2fr_1fr_1.3fr] gap-0 px-5 py-3 bg-[var(--paper-alt)] border-b border-[var(--line)] text-[12px] font-[800] uppercase tracking-wider text-[var(--ink-faint)]">
+          <div>Name</div>
+          <div>Email</div>
+          <div>Role</div>
+          <div>Change Role</div>
         </div>
-      )}
+        {users.map((u, i) => {
+          const currentRole = getRole(u.id);
+          const meta = ROLE_META[currentRole] ?? ROLE_META.member;
+          return (
+            <motion.div
+              key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+              className="grid grid-cols-[2fr_2fr_1fr_1.3fr] gap-0 px-5 py-3.5 border-b border-[var(--line)] last:border-0 items-center"
+            >
+              <div className="font-[700] text-[14px]">{u.name}</div>
+              <div className="text-[13px] text-[var(--ink-soft)] truncate">{u.email}</div>
+              <div>
+                <span className="text-[11px] font-[800] px-2.5 py-1 rounded-full" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
+              </div>
+              <select
+                value={currentRole}
+                onChange={e => setRole(u.id, e.target.value as LocalRole)}
+                className="text-[13px] font-[600] px-3 py-2 rounded-[8px] border-[1.5px] border-[var(--line)] bg-[var(--paper-alt)]"
+              >
+                <option value="member">Member</option>
+                <option value="gcl_team">GCL Team</option>
+                <option value="admin">Admin</option>
+              </select>
+            </motion.div>
+          );
+        })}
+        {users.length === 0 && (
+          <div className="px-5 py-10 text-center text-[13px] text-[var(--ink-faint)]">No members found.</div>
+        )}
+      </div>
     </div>
   );
 }

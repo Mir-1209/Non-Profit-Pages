@@ -1,12 +1,12 @@
-import React from 'react';
-import { Link } from 'wouter';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { useAppAuth } from '../context/AuthContext';
 
 const STATS = [
   { value: '120+', label: 'University Chapters' },
   { value: '15K+', label: 'Student Members' },
-  { value: '40+', label: 'Countries Represented' },
+  { value: '40+',  label: 'Countries Represented' },
 ];
 
 const BENEFITS = [
@@ -16,17 +16,58 @@ const BENEFITS = [
   { icon: '🏆', text: 'Compete in league rankings' },
 ];
 
+const ROLE_REDIRECT: Record<string, string> = {
+  admin:    '/admin',
+  gcl_team: '/portal',
+  member:   '/dashboard',
+};
+
+const ACCOUNT_ROLES: Record<string, string> = {
+  Mirzo12: 'admin',
+  Mirzo11: 'gcl_team',
+  Mirzo10: 'member',
+};
+
 export function SignIn() {
-  const { login, isAuthenticated, isLoading } = useAppAuth();
+  const { isAuthenticated, role, signInWithCredentials } = useAppAuth();
+  const [, navigate] = useLocation();
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(false);
+  const [showPass, setShowPass] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (!username.trim() || !password) {
+      setError('Please enter your username and password.');
+      return;
+    }
+    setLoading(true);
+    const result = signInWithCredentials(username.trim(), password);
+    setLoading(false);
+    if (!result.success) {
+      setError(result.error ?? 'Sign-in failed.');
+      return;
+    }
+    const accountRole = ACCOUNT_ROLES[username.trim()] ?? 'member';
+    navigate(ROLE_REDIRECT[accountRole] ?? '/dashboard');
+  };
+
+  const inputCls = [
+    'w-full px-4 py-3.5 rounded-[12px] border-[2px] text-[14.5px] font-[500] outline-none transition-all',
+    'bg-[var(--paper-alt)] border-[var(--line)] focus:border-[var(--violet)]',
+  ].join(' ');
 
   return (
     <main className="min-h-screen flex items-stretch relative overflow-hidden" style={{ background: 'var(--paper)' }}>
+
       {/* ── Left panel ── */}
       <div
         className="hidden lg:flex lg:w-[52%] flex-col justify-between p-12 relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, #0f0c29 0%, #1a1060 40%, #24243e 100%)',
-        }}
+        style={{ background: 'linear-gradient(135deg, #0f0c29 0%, #1a1060 40%, #24243e 100%)' }}
       >
         {/* Animated orbs */}
         <div className="absolute inset-0 pointer-events-none">
@@ -75,7 +116,6 @@ export function SignIn() {
             </p>
           </div>
 
-          {/* Benefits */}
           <ul className="flex flex-col gap-3">
             {BENEFITS.map(b => (
               <li key={b.text} className="flex items-center gap-3 text-[14px] text-white/70">
@@ -85,7 +125,6 @@ export function SignIn() {
             ))}
           </ul>
 
-          {/* Stats row */}
           <div className="flex gap-6 pt-2 border-t border-white/10">
             {STATS.map(s => (
               <div key={s.label}>
@@ -116,7 +155,7 @@ export function SignIn() {
 
       {/* ── Right panel ── */}
       <div className="flex-1 flex items-center justify-center px-6 py-16 relative">
-        {/* Mobile background orbs */}
+        {/* Background orbs */}
         <div className="absolute w-[400px] h-[400px] rounded-full blur-[100px] opacity-20 pointer-events-none top-[-100px] right-[-100px]"
           style={{ background: 'radial-gradient(circle, #a78bfa, transparent)' }} />
         <div className="absolute w-[300px] h-[300px] rounded-full blur-[80px] opacity-15 pointer-events-none bottom-[-80px] left-[-60px]"
@@ -126,7 +165,7 @@ export function SignIn() {
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full max-w-[420px] text-center"
+          className="relative w-full max-w-[420px]"
         >
           {/* Mobile logo */}
           <Link href="/" className="lg:hidden flex items-center gap-2.5 mb-8 w-fit mx-auto justify-center">
@@ -138,37 +177,89 @@ export function SignIn() {
             </span>
           </Link>
 
-          <div className="w-16 h-16 rounded-full flex items-center justify-center text-[28px] mb-6 mx-auto"
-            style={{ background: 'linear-gradient(135deg, #7c3aed22, #2563eb22)', border: '2px solid var(--violet)' }}>
-            👋
-          </div>
-
           {isAuthenticated ? (
-            <>
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center text-[28px] mb-6 mx-auto"
+                style={{ background: 'linear-gradient(135deg, #7c3aed22, #2563eb22)', border: '2px solid var(--violet)' }}>
+                ✅
+              </div>
               <h1 className="font-[800] text-[28px] tracking-[-0.025em] mb-2">You're already signed in</h1>
               <p className="text-[14px] text-[var(--ink-soft)] mb-8">Head back to your dashboard to keep exploring GCL.</p>
-              <Link href="/dashboard"
-                className="inline-block w-full py-3.5 rounded-[12px] text-white font-[700] text-[15px] transition-all hover:-translate-y-[1px]"
+              <Link href={ROLE_REDIRECT[role] ?? '/dashboard'}
+                className="inline-block w-full py-3.5 rounded-[12px] text-white font-[700] text-[15px] text-center transition-all hover:-translate-y-[1px]"
                 style={{ background: 'var(--grad-brand)', boxShadow: '0 4px 20px rgba(139,92,246,0.35)' }}>
                 Go to Dashboard
               </Link>
-            </>
+            </div>
           ) : (
             <>
-              <h1 className="font-[800] text-[28px] tracking-[-0.025em] mb-2">Welcome to GCL</h1>
-              <p className="text-[14px] text-[var(--ink-soft)] mb-8 max-w-[340px] mx-auto">
-                Sign in to access your courses, certificates, and program updates — or apply for a chapter membership.
-              </p>
-              <button
-                onClick={login}
-                disabled={isLoading}
-                className="w-full py-3.5 rounded-[12px] text-white font-[700] text-[15px] transition-all hover:-translate-y-[1px] active:translate-y-0 disabled:opacity-60"
-                style={{ background: 'var(--grad-brand)', boxShadow: '0 4px 20px rgba(139,92,246,0.35)' }}
-              >
-                Continue to Sign In
-              </button>
-              <p className="text-[12px] text-[var(--ink-faint)] mt-5 max-w-[340px] mx-auto leading-relaxed">
-                New here? Signing in will automatically create your GCL member account.
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center text-[28px] mb-6 mx-auto"
+                  style={{ background: 'linear-gradient(135deg, #7c3aed22, #2563eb22)', border: '2px solid var(--violet)' }}>
+                  👋
+                </div>
+                <h1 className="font-[800] text-[28px] tracking-[-0.025em] mb-2">Welcome to GCL</h1>
+                <p className="text-[14px] text-[var(--ink-soft)] max-w-[340px] mx-auto">
+                  Sign in to access your courses, portal, and program updates.
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-[13px] font-[700] text-[var(--ink)] mb-1.5">Username</label>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
+                    placeholder="Enter your username"
+                    autoComplete="username"
+                    className={inputCls}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[13px] font-[700] text-[var(--ink)] mb-1.5">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPass ? 'text' : 'password'}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      autoComplete="current-password"
+                      className={inputCls + ' pr-12'}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPass(v => !v)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--ink-faint)] hover:text-[var(--ink)] transition-colors text-[13px] font-[600]"
+                    >
+                      {showPass ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                </div>
+
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                    className="px-4 py-3 rounded-[10px] text-[13.5px] font-[600] text-red-600"
+                    style={{ background: '#fef2f2', border: '1.5px solid #fecaca' }}
+                  >
+                    {error}
+                  </motion.div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3.5 rounded-[12px] text-white font-[700] text-[15px] transition-all hover:-translate-y-[1px] active:translate-y-0 disabled:opacity-60 mt-1"
+                  style={{ background: 'var(--grad-brand)', boxShadow: '0 4px 20px rgba(139,92,246,0.35)' }}
+                >
+                  {loading ? 'Signing in…' : 'Sign In'}
+                </button>
+              </form>
+
+              <p className="text-[12px] text-[var(--ink-faint)] mt-6 text-center leading-relaxed">
+                Don't have an account? Contact your GCL chapter coordinator to get access.
               </p>
             </>
           )}
