@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'wouter';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import logoImg from '@assets/Untitled_design-9_1783003171841.png';
 
-/* ── Tiny confetti ── */
+/* ── Confetti ── */
 function ConfettiCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -15,15 +15,11 @@ function ConfettiCanvas() {
     canvas.height = window.innerHeight;
     const COLORS = ['#3358ff', '#8b5cf6', '#e93fc7', '#15132c', '#5eeaff', '#fbbf24'];
     const pieces = Array.from({ length: 90 }, () => ({
-      x: Math.random() * canvas.width,
-      y: -8 - Math.random() * 200,
-      w: 2.5 + Math.random() * 3.5,
-      h: 1.5 + Math.random() * 2,
+      x: Math.random() * canvas.width, y: -8 - Math.random() * 200,
+      w: 2.5 + Math.random() * 3.5, h: 1.5 + Math.random() * 2,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      angle: Math.random() * Math.PI * 2,
-      spin: (Math.random() - 0.5) * 0.1,
-      vx: (Math.random() - 0.5) * 1.4,
-      vy: 1 + Math.random() * 2,
+      angle: Math.random() * Math.PI * 2, spin: (Math.random() - 0.5) * 0.1,
+      vx: (Math.random() - 0.5) * 1.4, vy: 1 + Math.random() * 2,
       opacity: 0.35 + Math.random() * 0.5,
     }));
     let frame = 0; let raf: number;
@@ -54,15 +50,12 @@ const CHARS = HEADING.split('');
 
 function ScatterHeading() {
   const spanRefs = useRef<(HTMLSpanElement | null)[]>([]);
-
   useEffect(() => {
     const spans = spanRefs.current.filter(Boolean) as HTMLSpanElement[];
     spans.forEach(s => { s.style.display = 'inline-block'; s.style.transform = ''; });
-
     const originals: { x: number; y: number }[] = [];
     const state = spans.map(() => ({ ox: 0, oy: 0, vx: 0, vy: 0 }));
     const mouse = { x: -9999, y: -9999 };
-
     const measure = () => {
       spans.forEach(s => { s.style.transform = ''; });
       requestAnimationFrame(() => {
@@ -72,15 +65,12 @@ function ScatterHeading() {
         });
       });
     };
-
     const onMove = (e: MouseEvent) => { mouse.x = e.clientX; mouse.y = e.clientY; };
     const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseleave', onLeave);
-
     const RADIUS = 85; const FORCE = 22; const SPRING = 0.055; const DAMP = 0.80;
     let raf: number;
-
     function tick() {
       state.forEach((s, i) => {
         if (!originals[i]) return;
@@ -100,12 +90,7 @@ function ScatterHeading() {
       });
       raf = requestAnimationFrame(tick);
     }
-
-    const timer = setTimeout(() => {
-      measure();
-      setTimeout(() => { raf = requestAnimationFrame(tick); }, 80);
-    }, 120);
-
+    const timer = setTimeout(() => { measure(); setTimeout(() => { raf = requestAnimationFrame(tick); }, 80); }, 120);
     window.addEventListener('resize', measure);
     return () => {
       cancelAnimationFrame(raf); clearTimeout(timer);
@@ -114,21 +99,132 @@ function ScatterHeading() {
       window.removeEventListener('resize', measure);
     };
   }, []);
-
   return (
-    <div
-      className="select-none leading-[1.0] cursor-default"
-      style={{ fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 900 }}
-    >
+    <div className="select-none leading-[1.0] cursor-default"
+      style={{ fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 900 }}>
       {CHARS.map((ch, i) => (
-        <span
-          key={i}
-          ref={el => { spanRefs.current[i] = el; }}
-          className="inline-block will-change-transform"
-        >
+        <span key={i} ref={el => { spanRefs.current[i] = el; }}
+          className="inline-block will-change-transform">
           {ch === ' ' ? '\u00A0' : ch}
         </span>
       ))}
+    </div>
+  );
+}
+
+/* ── Marquee tape ── */
+const TAPE_TEXT = 'CONGRATULATIONS ★ YOU ARE IN ★ WELCOME TO GCL ★ ';
+function MarqueeTape() {
+  const repeated = TAPE_TEXT.repeat(10);
+  return (
+    <>
+      <style>{`
+        @keyframes gcl-marquee {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+        .gcl-marquee-track {
+          animation: gcl-marquee 18s linear infinite;
+          display: flex;
+          white-space: nowrap;
+          width: max-content;
+        }
+      `}</style>
+      <div className="overflow-hidden border-y-[2.5px] border-[var(--ink)] relative z-20"
+        style={{ background: 'var(--neon-cyan)' }}>
+        <div className="gcl-marquee-track py-3">
+          {[...Array(2)].map((_, di) => (
+            <span key={di} className="font-[800] uppercase tracking-[0.18em] text-[var(--ink)] text-[13px]">
+              {repeated}
+            </span>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ── Accept / Decline box ── */
+type RsvpState = 'pending' | 'accepted' | 'declined';
+
+function RsvpBox() {
+  const [state, setState] = useState<RsvpState>('pending');
+
+  return (
+    <div className="border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] bg-white">
+      {/* Header */}
+      <div className="px-6 py-5 border-b-[2.5px] border-[var(--ink)]" style={{ background: 'var(--brutal-bg)' }}>
+        <div className="text-[10px] font-[800] uppercase tracking-[0.16em] text-white/40 mb-1">Response Required</div>
+        <div className="font-[800] text-[17px] text-white leading-snug">Will you accept your spot?</div>
+      </div>
+
+      <div className="p-6">
+        <AnimatePresence mode="wait">
+          {state === 'pending' && (
+            <motion.div key="pending"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}>
+              <p className="text-[13.5px] font-[500] text-[var(--ink)] leading-relaxed mb-6">
+                Your place on the GCL Summer '26 Team is reserved for you. Please confirm your response — spots are limited and will be reassigned if no reply is received.
+              </p>
+              <div className="flex gap-3 flex-wrap">
+                <button
+                  onClick={() => setState('accepted')}
+                  className="flex-1 py-3 text-[13px] font-[800] uppercase tracking-wider text-white border-[2px] border-[var(--ink)] bg-[var(--ink)] shadow-[4px_4px_0px_var(--ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0px_var(--ink)] transition-all"
+                >
+                  Accept My Spot
+                </button>
+                <button
+                  onClick={() => setState('declined')}
+                  className="flex-1 py-3 text-[13px] font-[800] uppercase tracking-wider text-[var(--ink-soft)] border-[2px] border-[var(--line)] bg-white hover:border-[var(--ink)] hover:text-[var(--ink)] transition-all"
+                >
+                  Decline
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {state === 'accepted' && (
+            <motion.div key="accepted"
+              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}>
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 border-[2.5px] border-[#166534] bg-[#dcfce7] flex items-center justify-center shrink-0 text-[#166534] font-[800] text-[18px]">✓</div>
+                <div>
+                  <div className="font-[800] text-[15px] text-[var(--ink)] mb-1">Spot Confirmed</div>
+                  <p className="text-[13px] font-[500] text-[var(--ink-soft)] leading-relaxed">
+                    You have accepted your place on the GCL Summer '26 Team. Watch your inbox — onboarding details are on their way.
+                  </p>
+                  <Link href="/portal"
+                    className="inline-block mt-4 text-[12px] font-[800] uppercase tracking-wider text-[var(--ink)] border-b-2 border-[var(--ink)] hover:opacity-50 transition-opacity">
+                    Go to Team Portal →
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {state === 'declined' && (
+            <motion.div key="declined"
+              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}>
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 border-[2.5px] border-[var(--ink-faint)] bg-[var(--paper-alt)] flex items-center justify-center shrink-0 text-[var(--ink-faint)] font-[800] text-[18px]">—</div>
+                <div>
+                  <div className="font-[800] text-[15px] text-[var(--ink)] mb-1">Response Recorded</div>
+                  <p className="text-[13px] font-[500] text-[var(--ink-soft)] leading-relaxed">
+                    We're sorry you won't be joining us this cycle. Your spot will be offered to the next candidate. We hope to see you in a future cohort.
+                  </p>
+                  <button onClick={() => setState('pending')}
+                    className="inline-block mt-4 text-[12px] font-[600] text-[var(--ink-faint)] hover:text-[var(--ink)] transition-colors underline underline-offset-2">
+                    Changed your mind?
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
@@ -166,75 +262,40 @@ export function Congratulations() {
 
           {/* Top bar */}
           <div className="flex items-center justify-between pb-6 border-b border-white/10">
-            <Link href="/">
-              <img src={logoImg} alt="GCL" className="h-8 object-contain" />
-            </Link>
-            <button
-              onClick={toggleMute}
-              className="text-[12px] font-[700] uppercase tracking-wider text-white/40 hover:text-white/70 transition-colors"
-            >
+            <Link href="/"><img src={logoImg} alt="GCL" className="h-8 object-contain" /></Link>
+            <button onClick={toggleMute}
+              className="text-[12px] font-[700] uppercase tracking-wider text-white/40 hover:text-white/70 transition-colors">
               {muted ? 'Unmute' : 'Mute'}
             </button>
           </div>
 
-          {/* Eyebrow + scatter heading */}
-          <div className="py-10 border-b border-white/10">
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15, duration: 0.7 }}
-              className="text-[11px] font-[800] uppercase tracking-[0.18em] text-[var(--neon-cyan)] mb-5 flex items-center gap-2"
-            >
+          {/* Eyebrow + heading */}
+          <div className="py-10">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15, duration: 0.7 }}
+              className="text-[11px] font-[800] uppercase tracking-[0.18em] text-[var(--neon-cyan)] mb-5 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[var(--neon-cyan)]" />
               GCL Summer 2026 — Official Notice
             </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28, duration: 0.7 }}
-              className="text-[clamp(42px,7vw,88px)] text-white"
-            >
+            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28, duration: 0.7 }}
+              className="text-[clamp(42px,7vw,88px)] text-white">
               <ScatterHeading />
             </motion.div>
-          </div>
-
-          {/* Stats bar */}
-          <div className="grid grid-cols-3 divide-x divide-white/10 py-5">
-            {[
-              { n: '30', label: 'Spots Awarded' },
-              { n: '1,300+', label: 'Applications' },
-              { n: '14', label: 'Countries' },
-            ].map(s => (
-              <div key={s.label} className="px-6 first:pl-0">
-                <div className="font-[800] text-[clamp(24px,3vw,38px)] text-white tracking-[-0.02em] leading-none">{s.n}</div>
-                <div className="text-[11px] font-[600] uppercase tracking-wider text-white/40 mt-1">{s.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
 
+      {/* ── Marquee tape ── */}
+      <MarqueeTape />
+
       {/* ── White content ── */}
       <section className="bg-white py-12">
         <div className="max-w-[1160px] mx-auto px-8">
-
           <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-8">
 
             {/* Letter */}
             <div>
-              <div className="pb-5 border-b-[2.5px] border-[var(--ink)] mb-6">
-                <h2 className="font-[800] text-[14px] uppercase tracking-[0.14em] text-[var(--ink-soft)]">
-                  Acceptance Letter
-                </h2>
-              </div>
-
-              <div
-                className="space-y-5 mb-8"
-                style={{
-                  fontSize: '15px',
-                  lineHeight: '1.82',
-                  fontWeight: 500,
-                  color: 'var(--ink)',
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                }}
-              >
+              <div className="space-y-5 mb-8"
+                style={{ fontSize: '15px', lineHeight: '1.82', fontWeight: 500, color: 'var(--ink)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 <p>
                   Out of over 1,300 applications received from around the world, you have been selected as one of 30 members of the Global Capital League Summer 2026 Team. Your application stood out as exceptional.
                 </p>
@@ -245,23 +306,17 @@ export function Congratulations() {
                   Onboarding materials and your program schedule will be sent to your registered email shortly. Please review all correspondence carefully and complete any required forms within the specified deadlines.
                 </p>
                 <p style={{ color: 'var(--ink-soft)' }}>
-                  Welcome to the Global Capital League.<br />
-                  — The GCL Program Team
+                  Welcome to the Global Capital League.<br />— The GCL Program Team
                 </p>
               </div>
 
-              {/* CTAs */}
               <div className="flex flex-wrap gap-3">
-                <Link
-                  href="/portal"
-                  className="inline-flex items-center gap-2 px-6 py-3 text-[13px] font-[800] uppercase tracking-wider text-white border-[2px] border-[var(--ink)] bg-[var(--ink)] shadow-[4px_4px_0px_var(--ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0px_var(--ink)] transition-all"
-                >
+                <Link href="/portal"
+                  className="inline-flex items-center gap-2 px-6 py-3 text-[13px] font-[800] uppercase tracking-wider text-white border-[2px] border-[var(--ink)] bg-[var(--ink)] shadow-[4px_4px_0px_var(--ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0px_var(--ink)] transition-all">
                   Go to Team Portal →
                 </Link>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 px-6 py-3 text-[13px] font-[800] uppercase tracking-wider text-[var(--ink)] border-[2px] border-[var(--ink)] bg-white shadow-[4px_4px_0px_var(--ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0px_var(--ink)] transition-all"
-                >
+                <Link href="/"
+                  className="inline-flex items-center gap-2 px-6 py-3 text-[13px] font-[800] uppercase tracking-wider text-[var(--ink)] border-[2px] border-[var(--ink)] bg-white shadow-[4px_4px_0px_var(--ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0px_var(--ink)] transition-all">
                   Return Home
                 </Link>
               </div>
@@ -269,11 +324,14 @@ export function Congratulations() {
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Program details card */}
+              {/* Accept / Decline */}
+              <RsvpBox />
+
+              {/* Program card */}
               <div className="border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] bg-white">
-                <div className="p-6 border-b-[2.5px] border-[var(--ink)]" style={{ background: 'var(--brutal-bg)' }}>
+                <div className="p-5 border-b-[2.5px] border-[var(--ink)]" style={{ background: 'var(--brutal-bg)' }}>
                   <div className="text-[10px] font-[800] uppercase tracking-[0.15em] text-white/40 mb-1">Program</div>
-                  <div className="font-[800] text-[18px] text-white leading-tight">GCL Summer '26 Team</div>
+                  <div className="font-[800] text-[17px] text-white leading-tight">GCL Summer '26 Team</div>
                 </div>
                 <div className="divide-y divide-[var(--line)]">
                   {[
@@ -281,39 +339,14 @@ export function Congratulations() {
                     { label: 'Cohort Size', value: '30 members' },
                     { label: 'Duration', value: 'Summer 2026' },
                     { label: 'Regions', value: '14+ Countries' },
-                    { label: 'Status', value: 'Accepted' },
+                    { label: 'Status', value: 'Accepted', green: true },
                   ].map(row => (
                     <div key={row.label} className="px-5 py-3.5 flex items-center justify-between gap-4">
                       <span className="text-[12px] font-[600] uppercase tracking-wider text-[var(--ink-faint)]">{row.label}</span>
-                      <span
-                        className="text-[13px] font-[700] text-right"
-                        style={{ color: row.label === 'Status' ? '#166534' : 'var(--ink)' }}
-                      >
+                      <span className="text-[13px] font-[700] text-right"
+                        style={{ color: row.green ? '#166534' : 'var(--ink)' }}>
                         {row.value}
                       </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* What's next */}
-              <div className="border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] p-5 bg-white">
-                <div className="font-[800] text-[13px] uppercase tracking-[0.12em] text-[var(--ink)] mb-4">What's Next</div>
-                <div className="space-y-3">
-                  {[
-                    'Check your email for onboarding details',
-                    'Complete the new-member intake form',
-                    'Join the team orientation call',
-                    'Review the Volunteer Handbook',
-                  ].map((step, i) => (
-                    <div key={step} className="flex items-start gap-3">
-                      <span
-                        className="font-[800] text-[12px] w-5 h-5 border-[2px] border-[var(--ink)] flex items-center justify-center shrink-0 mt-0.5"
-                        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-                      >
-                        {i + 1}
-                      </span>
-                      <span className="text-[13.5px] font-[500] text-[var(--ink)]">{step}</span>
                     </div>
                   ))}
                 </div>
