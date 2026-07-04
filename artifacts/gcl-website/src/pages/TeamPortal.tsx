@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'wouter';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAppAuth } from '../context/AuthContext';
 import logoImg from '@assets/Untitled_design-9_1783003171841.png';
 
@@ -24,31 +24,33 @@ const MOCK_ASSIGNMENTS: TeamAssignment[] = [
 ];
 
 const IMPORTANT_DATES = [
-  { date: 'Jul 12, 2026', title: 'Volunteer Onboarding Call', desc: 'Mandatory kickoff session for the summer cohort.' },
-  { date: 'Jul 28, 2026', title: 'Regional Chapter Reviews', desc: 'Submit chapter health reports for your assigned region.' },
-  { date: 'Aug 15, 2026', title: 'GCL Global Summit', desc: 'All-hands event — team support roles will be assigned.' },
+  { date: 'Jul 12', title: 'Volunteer Onboarding Call', desc: 'Mandatory kickoff session for the summer cohort.' },
+  { date: 'Jul 28', title: 'Regional Chapter Reviews', desc: 'Submit chapter health reports for your assigned region.' },
+  { date: 'Aug 15', title: 'GCL Global Summit', desc: 'All-hands event — team support roles will be assigned.' },
 ];
 
 const RESOURCES = [
-  { icon: '📘', title: 'Volunteer Handbook', desc: 'Guidelines, expectations, and code of conduct.' },
-  { icon: '🎙️', title: 'Chapter Outreach Scripts', desc: 'Templates for recruiting new members.' },
-  { icon: '📊', title: 'Reporting Templates', desc: 'Standard formats for assignment write-ups.' },
+  { title: 'Volunteer Handbook', desc: 'Guidelines, expectations, and code of conduct.' },
+  { title: 'Chapter Outreach Scripts', desc: 'Templates for recruiting new members.' },
+  { title: 'Reporting Templates', desc: 'Standard formats for assignment write-ups.' },
 ];
 
 const STATUS_STYLES: Record<TeamAssignmentStatus, { bg: string; color: string; label: string; border: string }> = {
-  upcoming:    { bg: 'rgba(51,88,255,0.12)',  color: '#818cf8', label: 'Upcoming',    border: 'rgba(99,102,241,0.25)' },
-  in_progress: { bg: 'rgba(251,191,36,0.12)', color: '#fbbf24', label: 'In Progress', border: 'rgba(251,191,36,0.25)' },
-  completed:   { bg: 'rgba(74,222,128,0.12)', color: '#4ade80', label: 'Completed',   border: 'rgba(74,222,128,0.25)' },
+  upcoming:    { bg: '#eff6ff', color: '#1e40af', label: 'Upcoming',    border: '#93c5fd' },
+  in_progress: { bg: '#fefce8', color: '#713f12', label: 'In Progress', border: '#fcd34d' },
+  completed:   { bg: '#f0fdf4', color: '#166534', label: 'Completed',   border: '#86efac' },
 };
 
 const APPLIED_PROGRAMS = [
   {
     id: 'p1',
-    name: 'GCL Summer \'26 Team',
+    name: "GCL Summer '26 Team",
     type: 'Volunteer · Competitive',
     appliedDate: 'Jan 15, 2026',
     status: 'accepted' as const,
-    statusLabel: 'Accepted ✓',
+    statusLabel: 'Accepted',
+    hasUpdate: true,
+    updateDate: 'July 4, 2026',
   },
   {
     id: 'p2',
@@ -57,79 +59,91 @@ const APPLIED_PROGRAMS = [
     appliedDate: 'Apr 5, 2026',
     status: 'review' as const,
     statusLabel: 'Under Review',
+    hasUpdate: false,
+    updateDate: '',
   },
 ];
 
 const APP_STATUS_STYLES = {
-  accepted: { color: '#4ade80', bg: 'rgba(74,222,128,0.12)', border: 'rgba(74,222,128,0.25)' },
-  review:   { color: 'var(--neon-cyan)', bg: 'rgba(94,234,255,0.1)', border: 'rgba(94,234,255,0.2)' },
-  rejected: { color: '#f87171', bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.2)' },
+  accepted: { color: '#166534', bg: '#dcfce7', border: '#86efac' },
+  review:   { color: '#1e40af', bg: '#dbeafe', border: '#93c5fd' },
+  rejected: { color: '#991b1b', bg: '#fee2e2', border: '#fca5a5' },
 };
 
-function StatusUpdateCard() {
+const FILTERS = ['all', 'upcoming', 'in_progress', 'completed'] as const;
+type Filter = typeof FILTERS[number];
+
+function SecretStatusWidget({ programName, updateDate }: { programName: string; updateDate: string }) {
+  const [open, setOpen] = useState(false);
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1 }}
-      className="rounded-[20px] overflow-hidden mb-6"
-      style={{
-        background: '#0d0b1a',
-        border: '1.5px solid rgba(94,234,255,0.2)',
-        boxShadow: '0 0 40px rgba(94,234,255,0.06)',
-      }}
-    >
-      <div className="px-7 py-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div className="flex-1">
-            <div className="text-[11px] font-[800] tracking-[0.14em] uppercase mb-3" style={{ color: 'var(--neon-cyan)' }}>
-              THE GCL POST
+    <div className="mt-4">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 text-left w-full group"
+      >
+        <span
+          className="w-[6px] h-[6px] rounded-full shrink-0 mt-[1px]"
+          style={{ background: 'var(--ink)', opacity: open ? 1 : 0.35 }}
+        />
+        <span className="text-[11px] font-[600] tracking-[0.04em] transition-opacity"
+          style={{ color: 'var(--ink-faint)', opacity: open ? 1 : 0.6 }}>
+          {open ? 'Status Update' : '1 update'}
+        </span>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="mt-3 border-[2px] border-[var(--ink)] shadow-[4px_4px_0px_var(--ink)] bg-white p-5">
+              <div className="text-[10px] font-[800] uppercase tracking-[0.16em] text-[var(--ink-faint)] mb-2">
+                Status Update
+              </div>
+              <p className="text-[13.5px] font-[500] text-[var(--ink-soft)] leading-relaxed mb-4">
+                There has been a status update to{' '}
+                <span className="font-[700] text-[var(--ink)]">{programName}</span>{' '}
+                on {updateDate}.
+              </p>
+              <Link
+                href="/congratulations"
+                className="inline-flex items-center gap-1 text-[12.5px] font-[800] uppercase tracking-wider text-[var(--ink)] border-b-2 border-[var(--ink)] hover:opacity-60 transition-opacity"
+              >
+                View Update
+              </Link>
             </div>
-            <h3 className="font-[800] text-[20px] md:text-[22px] leading-[1.15] text-white mb-2">
-              YOU'VE BEEN ACCEPTED TO<br className="hidden md:block" /> GCL SUMMER '26. 🎉
-            </h3>
-            <p className="text-[13.5px] leading-relaxed" style={{ color: 'var(--brutal-text-dim)' }}>
-              Out of 1,300+ applicants, you're one of 30 selected for the team. Welcome to the League.
-            </p>
-          </div>
-          <div className="shrink-0">
-            <Link
-              href="/congratulations"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[10px] text-[13px] font-[800] text-[var(--ink)] transition-all hover:-translate-y-[1px] hover:shadow-[0_0_20px_rgba(94,234,255,0.5)]"
-              style={{ background: 'var(--neon-cyan)', boxShadow: '0 0 16px rgba(94,234,255,0.3)' }}
-            >
-              VIEW UPDATE →
-            </Link>
-          </div>
-        </div>
-      </div>
-    </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
 export function TeamPortal() {
   const { isAuthenticated, isLoading, isTeam, user, logout, login } = useAppAuth();
-  const [filter, setFilter] = useState<'all' | TeamAssignmentStatus>('all');
+  const [filter, setFilter] = useState<Filter>('all');
 
   if (isLoading) {
     return (
-      <main className="min-h-screen flex items-center justify-center" style={{ background: 'var(--brutal-bg)' }}>
-        <div className="w-8 h-8 border-2 border-[var(--brutal-line)] border-t-[var(--neon-cyan)] rounded-full animate-spin" />
+      <main className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-6 h-6 border-2 border-[var(--line)] border-t-[var(--ink)] rounded-full animate-spin" />
       </main>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--brutal-bg)' }}>
-        <div className="text-center max-w-[380px]">
-          <img src={logoImg} alt="GCL" className="h-10 object-contain mx-auto mb-6" />
-          <div className="text-5xl mb-4">🔒</div>
-          <h2 className="font-[800] text-[24px] mb-2 text-white">Sign in to view the Team Portal</h2>
-          <p className="mb-6 text-[14px]" style={{ color: 'var(--brutal-text-dim)' }}>This portal is reserved for GCL volunteers and staff.</p>
+      <main className="min-h-screen flex flex-col items-center justify-center px-8 bg-white">
+        <img src={logoImg} alt="GCL" className="h-9 object-contain mb-10" />
+        <div className="border-[2.5px] border-[var(--ink)] shadow-[8px_8px_0px_var(--ink)] bg-white p-10 max-w-[400px] w-full text-center">
+          <div className="font-[800] text-[22px] tracking-[-0.02em] uppercase mb-3">Sign In Required</div>
+          <p className="text-[14px] text-[var(--ink-soft)] mb-7">This portal is reserved for GCL volunteers and staff.</p>
           <button onClick={login}
-            className="px-6 py-3 rounded-full font-[800] text-[14px] text-[var(--ink)] transition-all hover:-translate-y-[1px]"
-            style={{ background: 'var(--neon-cyan)', boxShadow: '0 0 20px rgba(94,234,255,0.3)' }}>
+            className="w-full py-3 font-[800] text-[13px] uppercase tracking-wider text-white border-[2px] border-[var(--ink)] bg-[var(--ink)] hover:bg-transparent hover:text-[var(--ink)] transition-colors">
             Sign In
           </button>
         </div>
@@ -139,209 +153,205 @@ export function TeamPortal() {
 
   if (!isTeam) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--brutal-bg)' }}>
-        <div className="text-center max-w-[380px]">
-          <img src={logoImg} alt="GCL" className="h-10 object-contain mx-auto mb-6" />
-          <div className="text-5xl mb-4">🚫</div>
-          <h2 className="font-[800] text-[24px] mb-2 text-white">Team Access Only</h2>
-          <p className="text-[14px]" style={{ color: 'var(--brutal-text-dim)' }}>The Team Portal is only available to GCL Team members and admins. Contact an administrator if you believe this is a mistake.</p>
+      <main className="min-h-screen flex flex-col items-center justify-center px-8 bg-white">
+        <img src={logoImg} alt="GCL" className="h-9 object-contain mb-10" />
+        <div className="border-[2.5px] border-[var(--ink)] shadow-[8px_8px_0px_var(--ink)] bg-white p-10 max-w-[400px] w-full text-center">
+          <div className="font-[800] text-[22px] tracking-[-0.02em] uppercase mb-3">Access Restricted</div>
+          <p className="text-[14px] text-[var(--ink-soft)]">The Team Portal is reserved for GCL team members and administrators. Contact an admin if you believe this is an error.</p>
         </div>
       </main>
     );
   }
 
-  const assignments = MOCK_ASSIGNMENTS;
-  const filtered = filter === 'all' ? assignments : assignments.filter(a => a.status === filter);
   const displayName = user?.firstName || user?.email || 'Team Member';
+  const filtered = filter === 'all' ? MOCK_ASSIGNMENTS : MOCK_ASSIGNMENTS.filter(a => a.status === filter);
+
+  const counts = {
+    upcoming:    MOCK_ASSIGNMENTS.filter(a => a.status === 'upcoming').length,
+    in_progress: MOCK_ASSIGNMENTS.filter(a => a.status === 'in_progress').length,
+    completed:   MOCK_ASSIGNMENTS.filter(a => a.status === 'completed').length,
+  };
 
   return (
-    <main className="min-h-screen pb-16" style={{ background: 'var(--brutal-bg)' }}>
-      {/* Background orbs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute w-[600px] h-[600px] rounded-full opacity-[0.06] top-[-200px] right-[-100px]"
-          style={{ background: 'radial-gradient(circle, var(--violet), transparent 70%)', filter: 'blur(80px)' }} />
-        <div className="absolute w-[400px] h-[400px] rounded-full opacity-[0.05] bottom-[-100px] left-[-80px]"
-          style={{ background: 'radial-gradient(circle, var(--neon-cyan), transparent 70%)', filter: 'blur(70px)' }} />
-      </div>
+    <main className="min-h-screen pb-24">
 
-      <div className="relative z-10 max-w-[1100px] mx-auto px-5 md:px-10 pt-10 md:pt-14">
+      {/* ── Dark Hero Header ── */}
+      <section className="pt-[80px] pb-0" style={{ background: 'var(--brutal-bg)' }}>
+        <div className="max-w-[1160px] mx-auto px-8">
 
-        {/* ── Header ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10"
-        >
-          <div className="flex items-center gap-5">
+          {/* Top bar */}
+          <div className="flex items-center justify-between pb-6 border-b border-white/10">
             <Link href="/">
-              <img src={logoImg} alt="GCL" className="h-9 object-contain" />
+              <img src={logoImg} alt="GCL" className="h-8 object-contain" />
             </Link>
-            <div className="w-px h-8 opacity-20" style={{ background: 'var(--brutal-text)' }} />
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-[800] tracking-[0.1em] uppercase mb-1"
-                style={{ background: 'rgba(94,234,255,0.1)', color: 'var(--neon-cyan)', border: '1px solid rgba(94,234,255,0.2)' }}>
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-cyan)] animate-pulse" />
-                GCL Team Portal
-              </div>
-              <h1 className="font-[800] text-[20px] tracking-[-0.02em] text-white">
-                Welcome, {displayName} 👋
-              </h1>
-              <p className="text-[12.5px]" style={{ color: 'var(--brutal-text-dim)' }}>View your assignments, key dates, and volunteer resources.</p>
-            </div>
+            <button onClick={logout}
+              className="text-[12px] font-[700] uppercase tracking-wider text-white/50 hover:text-white transition-colors">
+              Sign Out
+            </button>
           </div>
-          <button onClick={logout}
-            className="px-4 py-2 rounded-full font-[700] text-[13px] text-red-400 self-start md:self-auto transition-colors"
-            style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)' }}>
-            Sign Out
-          </button>
-        </motion.div>
 
-        {/* ── Status Update Card ── */}
-        <StatusUpdateCard />
-
-        <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-6 mb-8">
-          {/* ── Assignments ── */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}
-            className="rounded-[20px] p-6"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '2px solid rgba(255,255,255,0.08)', boxShadow: '6px 6px 0px rgba(255,255,255,0.05)' }}>
-            <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-              <h2 className="font-[800] text-[18px] text-white">My Assignments</h2>
-              <div className="flex gap-1.5">
-                {(['all', 'upcoming', 'in_progress', 'completed'] as const).map(f => (
-                  <button key={f} onClick={() => setFilter(f)}
-                    className="px-3 py-1.5 rounded-[8px] text-[12px] font-[700] transition-all"
-                    style={filter === f
-                      ? { background: 'var(--neon-cyan)', color: 'var(--ink)' }
-                      : { background: 'rgba(255,255,255,0.06)', color: 'var(--brutal-text-dim)' }}>
-                    {f === 'all' ? 'All' : STATUS_STYLES[f].label}
-                  </button>
-                ))}
-              </div>
+          {/* Heading */}
+          <div className="py-8 border-b border-white/10">
+            <div className="text-[11px] font-[800] uppercase tracking-[0.16em] text-[var(--neon-cyan)] mb-3">
+              GCL Team Portal
             </div>
+            <h1 className="font-[800] text-[clamp(40px,6vw,72px)] leading-[0.9] tracking-[-0.04em] text-white uppercase">
+              {displayName}.
+            </h1>
+            <p className="text-[14px] text-white/40 font-[500] mt-3">View assignments, key dates, and volunteer resources.</p>
+          </div>
 
-            {filtered.length === 0 ? (
-              <div className="text-center py-10">
-                <div className="text-4xl mb-3">📋</div>
-                <p className="text-[14px]" style={{ color: 'var(--brutal-text-dim)' }}>
-                  No assignments {filter !== 'all' ? `with status "${STATUS_STYLES[filter]?.label}"` : ''} right now.
-                </p>
+          {/* Stats bar */}
+          <div className="grid grid-cols-3 divide-x divide-white/10 py-5">
+            {[
+              { n: counts.upcoming,    label: 'Upcoming' },
+              { n: counts.in_progress, label: 'In Progress' },
+              { n: counts.completed,   label: 'Completed' },
+            ].map(s => (
+              <div key={s.label} className="px-6 first:pl-0">
+                <div className="font-[800] text-[clamp(28px,3.5vw,44px)] text-white tracking-[-0.02em] leading-none">{s.n}</div>
+                <div className="text-[11px] font-[600] uppercase tracking-wider text-white/40 mt-1">{s.label}</div>
               </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {filtered.map((a, i) => {
-                  const s = STATUS_STYLES[a.status];
-                  return (
-                    <motion.div key={a.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                      className="p-4 rounded-[14px]"
-                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                      <div className="flex items-start justify-between gap-3 mb-1.5">
-                        <div className="font-[700] text-[14px] text-white">{a.title}</div>
-                        <span className="text-[10.5px] font-[800] px-2.5 py-1 rounded-full shrink-0"
-                          style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
-                          {s.label}
-                        </span>
-                      </div>
-                      <p className="text-[12.5px] leading-relaxed mb-2" style={{ color: 'var(--brutal-text-dim)' }}>{a.description}</p>
-                      <div className="text-[11px] font-[600]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                        Due {new Date(a.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
-          </motion.div>
-
-          {/* ── Sidebar ── */}
-          <div className="flex flex-col gap-5">
-            {/* Important Dates */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}
-              className="rounded-[20px] p-5"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)' }}>
-              <h2 className="font-[800] text-[15px] text-white mb-4">📅 Important Dates</h2>
-              <div className="flex flex-col gap-4">
-                {IMPORTANT_DATES.map(d => (
-                  <div key={d.title} className="flex gap-3">
-                    <div className="w-11 h-11 rounded-[10px] flex flex-col items-center justify-center shrink-0"
-                      style={{ background: 'rgba(94,234,255,0.1)', border: '1px solid rgba(94,234,255,0.2)' }}>
-                      <div className="font-[800] text-[13px] leading-none" style={{ color: 'var(--neon-cyan)' }}>
-                        {d.date.split(' ')[1].replace(',', '')}
-                      </div>
-                      <div className="text-[8px] font-[700] uppercase" style={{ color: 'var(--neon-cyan)', opacity: 0.7 }}>
-                        {d.date.split(' ')[0]}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-[700] text-[13px] text-white leading-snug">{d.title}</div>
-                      <div className="text-[11px] leading-snug mt-0.5" style={{ color: 'var(--brutal-text-dim)' }}>{d.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Resources */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
-              className="rounded-[20px] p-5"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)' }}>
-              <h2 className="font-[800] text-[15px] text-white mb-4">📎 Resources</h2>
-              <div className="flex flex-col gap-2.5">
-                {RESOURCES.map(r => (
-                  <div key={r.title} className="flex items-center gap-3 p-3 rounded-[10px]"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <span className="text-lg shrink-0">{r.icon}</span>
-                    <div className="min-w-0">
-                      <div className="font-[700] text-[13px] text-white truncate">{r.title}</div>
-                      <div className="text-[11px]" style={{ color: 'var(--brutal-text-dim)' }}>{r.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Info note */}
-            <div className="rounded-[14px] p-4 text-[12px] leading-relaxed"
-              style={{ background: 'rgba(94,234,255,0.06)', border: '1px solid rgba(94,234,255,0.15)', color: 'var(--brutal-text-dim)' }}>
-              You have view-only access to this portal. Reach out to a GCL admin if you need to update assignment details.
-            </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* ── Applied Programs ── */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}
-          className="rounded-[20px] p-6"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '2px solid rgba(255,255,255,0.08)', boxShadow: '6px 6px 0px rgba(255,255,255,0.05)' }}>
-          <div className="mb-5">
-            <h2 className="font-[800] text-[18px] text-white">Applied Programs</h2>
-            <p className="text-[13px] mt-0.5" style={{ color: 'var(--brutal-text-dim)' }}>Programs you've applied for — status and updates.</p>
-          </div>
-          <div className="flex flex-col gap-3">
-            {APPLIED_PROGRAMS.map((p, i) => {
-              const st = APP_STATUS_STYLES[p.status];
-              return (
-                <motion.div key={p.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.06 }}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-[14px]"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.07)' }}>
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-[10px] flex items-center justify-center text-[18px] shrink-0"
-                      style={{ background: 'rgba(94,234,255,0.1)', border: '1px solid rgba(94,234,255,0.2)' }}>
-                      🌍
-                    </div>
-                    <div>
-                      <div className="font-[700] text-[14.5px] text-white">{p.name}</div>
-                      <div className="text-[12px]" style={{ color: 'var(--brutal-text-dim)' }}>{p.type} · Applied {p.appliedDate}</div>
-                    </div>
-                  </div>
-                  <span className="text-[11.5px] font-[800] px-3 py-1.5 rounded-full self-start sm:self-auto"
-                    style={{ color: st.color, background: st.bg, border: `1px solid ${st.border}` }}>
-                    {p.statusLabel}
-                  </span>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
+      {/* ── Content ── */}
+      <section className="bg-white py-12">
+        <div className="max-w-[1160px] mx-auto px-8">
 
-      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-8 mb-8">
+
+            {/* ── Assignments ── */}
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b-[2.5px] border-[var(--ink)] mb-6 flex-wrap gap-3">
+                <h2 className="font-[800] text-[20px] uppercase tracking-[-0.02em]">Assignments</h2>
+                <div className="flex gap-1.5">
+                  {FILTERS.map(f => (
+                    <button key={f} onClick={() => setFilter(f)}
+                      className="px-3 py-1.5 text-[11px] font-[800] uppercase tracking-wider transition-all border-[2px] rounded-none"
+                      style={filter === f
+                        ? { background: 'var(--ink)', color: '#fff', borderColor: 'var(--ink)' }
+                        : { background: 'transparent', color: 'var(--ink-soft)', borderColor: 'var(--line)' }}>
+                      {f === 'all' ? 'All' : STATUS_STYLES[f].label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {filtered.length === 0 ? (
+                <div className="border-[2.5px] border-[var(--line)] py-12 text-center">
+                  <p className="text-[14px] text-[var(--ink-soft)] font-[600] uppercase tracking-wider">No assignments in this category.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filtered.map((a, i) => {
+                    const s = STATUS_STYLES[a.status];
+                    return (
+                      <motion.div key={a.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+                        className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] bg-white hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_var(--ink)] transition-all">
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-0">
+                          <div className="p-5">
+                            <div className="font-[800] text-[15px] tracking-[-0.01em] mb-1.5">{a.title}</div>
+                            <p className="text-[12.5px] text-[var(--ink-soft)] leading-[1.6] mb-3">{a.description}</p>
+                            <div className="text-[11px] text-[var(--ink-faint)] font-[600] uppercase tracking-wider">
+                              Due {new Date(a.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-center px-6 py-5 border-t-[2.5px] md:border-t-0 md:border-l-[2.5px] border-[var(--ink)] min-w-[130px]"
+                            style={{ background: 'var(--paper-alt)' }}>
+                            <span className="text-[10.5px] font-[800] uppercase tracking-wider px-3 py-1.5 border-[1.5px]"
+                              style={{ color: s.color, background: s.bg, borderColor: s.border }}>
+                              {s.label}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* ── Sidebar ── */}
+            <div className="space-y-8">
+              {/* Important Dates */}
+              <div>
+                <div className="pb-4 border-b-[2.5px] border-[var(--ink)] mb-5">
+                  <h2 className="font-[800] text-[16px] uppercase tracking-[-0.01em]">Key Dates</h2>
+                </div>
+                <div className="divide-y divide-[var(--line)]">
+                  {IMPORTANT_DATES.map(d => (
+                    <div key={d.title} className="py-4 grid grid-cols-[64px_1fr] gap-4">
+                      <div className="border-[2px] border-[var(--ink)] flex items-center justify-center h-[48px] shrink-0"
+                        style={{ background: 'var(--brutal-bg)' }}>
+                        <span className="font-[800] text-[11px] text-white uppercase tracking-wider text-center leading-tight px-1">{d.date}</span>
+                      </div>
+                      <div>
+                        <div className="font-[700] text-[13.5px] leading-snug">{d.title}</div>
+                        <div className="text-[12px] text-[var(--ink-soft)] mt-0.5 leading-snug">{d.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Resources */}
+              <div>
+                <div className="pb-4 border-b-[2.5px] border-[var(--ink)] mb-5">
+                  <h2 className="font-[800] text-[16px] uppercase tracking-[-0.01em]">Resources</h2>
+                </div>
+                <div className="space-y-2">
+                  {RESOURCES.map(r => (
+                    <div key={r.title} className="border-[2px] border-[var(--line)] p-4 hover:border-[var(--ink)] transition-colors">
+                      <div className="font-[700] text-[13.5px]">{r.title}</div>
+                      <div className="text-[11.5px] text-[var(--ink-soft)] mt-0.5">{r.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Applied Programs ── */}
+          <div>
+            <div className="pb-4 border-b-[2.5px] border-[var(--ink)] mb-6">
+              <h2 className="font-[800] text-[20px] uppercase tracking-[-0.02em]">Applied Programs</h2>
+              <p className="text-[13px] text-[var(--ink-soft)] mt-1 font-[500]">Programs you've applied for — status and updates.</p>
+            </div>
+
+            <div className="space-y-3">
+              {APPLIED_PROGRAMS.map((p, i) => {
+                const st = APP_STATUS_STYLES[p.status];
+                return (
+                  <motion.div key={p.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
+                    <div className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] bg-white hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_var(--ink)] transition-all">
+                      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-0">
+                        <div className="p-6">
+                          <div className="font-[800] text-[16px] tracking-[-0.01em] mb-1">{p.name}</div>
+                          <div className="text-[12px] text-[var(--ink-soft)] uppercase tracking-wider font-[600]">{p.type} · Applied {p.appliedDate}</div>
+                          {p.hasUpdate && (
+                            <SecretStatusWidget programName={p.name} updateDate={p.updateDate} />
+                          )}
+                        </div>
+                        <div className="flex items-center justify-center px-7 py-6 border-t-[2.5px] md:border-t-0 md:border-l-[2.5px] border-[var(--ink)] min-w-[140px]"
+                          style={{ background: 'var(--paper-alt)' }}>
+                          <span className="text-[11px] font-[800] uppercase tracking-wider px-3 py-1.5 border-[1.5px]"
+                            style={{ color: st.color, background: st.bg, borderColor: st.border }}>
+                            {p.statusLabel}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+      </section>
     </main>
   );
 }
