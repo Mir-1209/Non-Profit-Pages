@@ -3,21 +3,24 @@ import { Link } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin, GCL_TEAM_MEMBERS, Assignment, AssignmentSubmission, Program, ProgramApplicant } from '../context/AdminContext';
 import { useAppAuth } from '../context/AuthContext';
+import { useCertificates, generateToken, generateCertId, Certificate, CongratPage } from '../context/CertificateContext';
 import { Event } from '../data/events';
 import { Course } from '../data/courses';
 import { NewsPost } from '../data/news';
 import logoImg from '@assets/Untitled_design-9_1783003171841.png';
 
-type Section = 'overview' | 'assignments' | 'programs' | 'events' | 'courses' | 'news' | 'members';
+type Section = 'overview' | 'assignments' | 'programs' | 'events' | 'courses' | 'news' | 'members' | 'certificates' | 'congrats';
 
 const NAV: { id: Section; label: string; icon: string }[] = [
-  { id: 'overview',    label: 'Overview',     icon: '◈' },
-  { id: 'assignments', label: 'Assignments',  icon: '◧' },
-  { id: 'programs',    label: 'Programs',     icon: '◉' },
-  { id: 'events',      label: 'Events',       icon: '◻' },
-  { id: 'courses',     label: 'Courses',      icon: '◫' },
-  { id: 'news',        label: 'News',         icon: '◨' },
-  { id: 'members',     label: 'Members',      icon: '◎' },
+  { id: 'overview',      label: 'Overview',       icon: '◈' },
+  { id: 'assignments',   label: 'Assignments',    icon: '◧' },
+  { id: 'programs',      label: 'Programs',       icon: '◉' },
+  { id: 'certificates',  label: 'Certificates',   icon: '◆' },
+  { id: 'congrats',      label: 'Congrats Pages', icon: '★' },
+  { id: 'events',        label: 'Events',         icon: '◻' },
+  { id: 'courses',       label: 'Courses',        icon: '◫' },
+  { id: 'news',          label: 'News',           icon: '◨' },
+  { id: 'members',       label: 'Members',        icon: '◎' },
 ];
 
 const SITE_LINKS: { label: string; href: string }[] = [
@@ -866,6 +869,289 @@ function MembersSection() {
   );
 }
 
+// ── Certificates ──────────────────────────────────────────────────────────────
+
+const BASE_URL = import.meta.env.BASE_URL?.replace(/\/$/, '') ?? '';
+
+const GCL_MEMBERS_ALL = ['Mirzo10', 'Mirzo11', ...GCL_TEAM_MEMBERS.map(m => m.id)];
+
+const BLANK_CERT = (): Omit<Certificate, 'id' | 'token' | 'createdAt' | 'createdBy' | 'viewCount' | 'viewLog'> => ({
+  memberId: '',
+  recipientName: '',
+  programName: '',
+  issueDate: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+  visibility: 'link',
+  revoked: false,
+});
+
+function CertificatesSection() {
+  const { user } = useAppAuth();
+  const { certificates, addCertificate, updateCertificate, deleteCertificate, revokeCertificate, regenerateCertToken } = useCertificates();
+  const [modal, setModal] = useState<'create' | 'edit' | 'logs' | null>(null);
+  const [editing, setEditing] = useState<Certificate | null>(null);
+  const [form, setForm] = useState(BLANK_CERT());
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const openCreate = () => { setForm(BLANK_CERT()); setEditing(null); setModal('create'); };
+  const openEdit = (c: Certificate) => { setForm({ memberId: c.memberId, recipientName: c.recipientName, programName: c.programName, issueDate: c.issueDate, visibility: c.visibility, revoked: c.revoked }); setEditing(c); setModal('edit'); };
+  const openLogs = (c: Certificate) => { setEditing(c); setModal('logs'); };
+
+  const save = () => {
+    if (!form.recipientName || !form.programName || !form.memberId) return;
+    if (editing) {
+      updateCertificate({ ...editing, ...form });
+    } else {
+      addCertificate({
+        id: generateCertId(),
+        token: generateToken(),
+        ...form,
+        viewCount: 0,
+        viewLog: [],
+        createdAt: new Date().toISOString().slice(0, 10),
+        createdBy: user?.id ?? 'admin',
+      });
+    }
+    setModal(null);
+  };
+
+  const copyLink = async (token: string) => {
+    await navigator.clipboard.writeText(`${window.location.origin}${BASE_URL}/certificate/${token}`);
+    setCopied(token);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  const doRegenToken = (id: string) => { if (confirm('Regenerate share link? The old link will stop working.')) regenerateCertToken(id); };
+
+  return (
+    <div>
+      <SectionHeader title="Certificates" action={<button onClick={openCreate} className={btnPrimary}>+ New Certificate</button>} />
+
+      {certificates.length === 0 ? (
+        <p className="text-[13px] text-[var(--ink-soft)] py-8 text-center">No certificates yet. Create one to get started.</p>
+      ) : (
+        <div className="space-y-3">
+          {certificates.map(c => (
+            <div key={c.id} className={`border-[2px] border-[var(--ink)] shadow-[4px_4px_0px_var(--ink)] bg-white ${c.revoked ? 'opacity-50' : ''}`}>
+              <div className="grid grid-cols-[1fr_auto] gap-0">
+                <div className="p-5">
+                  <div className="flex items-center gap-3 flex-wrap mb-2">
+                    <span className="font-[800] font-mono text-[13px] tracking-wider">{c.id}</span>
+                    {c.revoked
+                      ? <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-0.5 border border-red-300 text-red-600 bg-red-50">Revoked</span>
+                      : c.visibility === 'link'
+                      ? <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-0.5 border border-blue-200 text-blue-600 bg-blue-50">🔗 Shareable</span>
+                      : <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-0.5 border border-[var(--line)] text-[var(--ink-soft)]">🔒 Private</span>
+                    }
+                  </div>
+                  <div className="font-[700] text-[15px] mb-0.5">{c.recipientName}</div>
+                  <div className="text-[12px] text-[var(--ink-soft)]">{c.programName} · Issued {c.issueDate}</div>
+                  <div className="text-[11.5px] text-[var(--ink-faint)] mt-1">Member: {c.memberId} · Viewed {c.viewCount}×</div>
+                </div>
+                <div className="flex flex-col gap-1.5 justify-center p-4 border-l-[2px] border-[var(--ink)] bg-[var(--paper-alt)] min-w-[160px]">
+                  <button onClick={() => openEdit(c)} className={btnEdit}>Edit</button>
+                  <button onClick={() => copyLink(c.token)} className={`${btnEdit} ${copied === c.token ? 'border-green-300 text-green-600' : ''}`}>
+                    {copied === c.token ? '✓ Copied' : 'Copy Link'}
+                  </button>
+                  <button onClick={() => openLogs(c)} className={btnEdit}>View Logs</button>
+                  {!c.revoked && <button onClick={() => doRegenToken(c.id)} className={btnEdit}>Regen Link</button>}
+                  {!c.revoked
+                    ? <button onClick={() => { if (confirm('Revoke this certificate?')) revokeCertificate(c.id); }} className={btnDanger}>Revoke</button>
+                    : <button onClick={() => { if (confirm('Delete this certificate permanently?')) deleteCertificate(c.id); }} className={btnDanger}>Delete</button>
+                  }
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {(modal === 'create' || modal === 'edit') && (
+          <Modal title={modal === 'create' ? 'New Certificate' : 'Edit Certificate'} onClose={() => setModal(null)}>
+            <Field label="Member ID (account username)">
+              <input className={inputCls} value={form.memberId} onChange={e => setForm(f => ({ ...f, memberId: e.target.value }))} placeholder="e.g. Mirzo10" />
+            </Field>
+            <Field label="Recipient Name">
+              <input className={inputCls} value={form.recipientName} onChange={e => setForm(f => ({ ...f, recipientName: e.target.value }))} placeholder="Full name on certificate" />
+            </Field>
+            <Field label="Program Name">
+              <input className={inputCls} value={form.programName} onChange={e => setForm(f => ({ ...f, programName: e.target.value }))} placeholder="e.g. GCL Summer '26 Team" />
+            </Field>
+            <Field label="Issue Date">
+              <input className={inputCls} value={form.issueDate} onChange={e => setForm(f => ({ ...f, issueDate: e.target.value }))} placeholder="e.g. July 4, 2026" />
+            </Field>
+            <Field label="Visibility">
+              <select className={selectCls} value={form.visibility} onChange={e => setForm(f => ({ ...f, visibility: e.target.value as any }))}>
+                <option value="link">Shareable via link (anyone with URL can view)</option>
+                <option value="private">Private (only recipient can view when signed in)</option>
+              </select>
+            </Field>
+            <div className="flex gap-3 mt-6">
+              <button onClick={save} className={btnPrimary}>{modal === 'create' ? 'Create Certificate' : 'Save Changes'}</button>
+              <button onClick={() => setModal(null)} className={btnSecondary}>Cancel</button>
+            </div>
+          </Modal>
+        )}
+        {modal === 'logs' && editing && (
+          <Modal title={`Access Logs — ${editing.id}`} onClose={() => setModal(null)}>
+            <div className="mb-3 text-[12px] text-[var(--ink-soft)]">Total views: <strong>{editing.viewCount}</strong></div>
+            {editing.viewLog.length === 0 ? (
+              <p className="text-[13px] text-[var(--ink-faint)] text-center py-6">No views recorded yet.</p>
+            ) : (
+              <div className="space-y-2 max-h-[340px] overflow-y-auto">
+                {editing.viewLog.map((entry, i) => (
+                  <div key={i} className="flex items-center justify-between px-4 py-3 border-[2px] border-[var(--line)] bg-[var(--paper-alt)]">
+                    <span className="text-[12px] font-[600] text-[var(--ink)]">{entry.timestamp}</span>
+                    {entry.viewer && <span className="text-[11px] font-[700] text-[var(--ink-faint)]">{entry.viewer}</span>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </Modal>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Congrats Pages ────────────────────────────────────────────────────────────
+
+const BLANK_CONGRAT = (): Omit<CongratPage, 'id' | 'token' | 'createdAt' | 'createdBy' | 'viewCount' | 'viewLog'> => ({
+  memberId: '',
+  recipientName: '',
+  programName: '',
+  message: '',
+  accessMode: 'link',
+  revoked: false,
+  expiresAt: '',
+  certificateId: '',
+});
+
+function CongratPagesSection() {
+  const { user } = useAppAuth();
+  const { congratPages, addCongratPage, updateCongratPage, deleteCongratPage, revokeCongratPage, regenerateCongratToken } = useCertificates();
+  const [modal, setModal] = useState<'create' | 'edit' | 'logs' | null>(null);
+  const [editing, setEditing] = useState<CongratPage | null>(null);
+  const [form, setForm] = useState(BLANK_CONGRAT());
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const openCreate = () => { setForm(BLANK_CONGRAT()); setEditing(null); setModal('create'); };
+  const openEdit = (p: CongratPage) => {
+    setForm({ memberId: p.memberId, recipientName: p.recipientName, programName: p.programName, message: p.message, accessMode: p.accessMode, revoked: p.revoked, expiresAt: p.expiresAt ?? '', certificateId: p.certificateId ?? '' });
+    setEditing(p); setModal('edit');
+  };
+
+  const save = () => {
+    if (!form.recipientName || !form.programName || !form.memberId || !form.message) return;
+    const payload = { ...form, expiresAt: form.expiresAt || undefined, certificateId: form.certificateId || undefined };
+    if (editing) {
+      updateCongratPage({ ...editing, ...payload });
+    } else {
+      addCongratPage({
+        id: `cg_${generateToken(8)}`,
+        token: generateToken(),
+        ...payload,
+        viewCount: 0,
+        viewLog: [],
+        createdAt: new Date().toISOString().slice(0, 10),
+        createdBy: user?.id ?? 'admin',
+      });
+    }
+    setModal(null);
+  };
+
+  const copyLink = async (token: string) => {
+    await navigator.clipboard.writeText(`${window.location.origin}${BASE_URL}/congratulations/${token}`);
+    setCopied(token);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  return (
+    <div>
+      <SectionHeader title="Congratulations Pages" action={<button onClick={openCreate} className={btnPrimary}>+ New Page</button>} />
+
+      {congratPages.length === 0 ? (
+        <p className="text-[13px] text-[var(--ink-soft)] py-8 text-center">No congratulations pages yet.</p>
+      ) : (
+        <div className="space-y-3">
+          {congratPages.map(p => (
+            <div key={p.id} className={`border-[2px] border-[var(--ink)] shadow-[4px_4px_0px_var(--ink)] bg-white ${p.revoked ? 'opacity-50' : ''}`}>
+              <div className="grid grid-cols-[1fr_auto] gap-0">
+                <div className="p-5">
+                  <div className="flex items-center gap-3 flex-wrap mb-2">
+                    <span className="font-[800] text-[13px]">{p.recipientName}</span>
+                    {p.revoked
+                      ? <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-0.5 border border-red-300 text-red-600 bg-red-50">Revoked</span>
+                      : p.accessMode === 'link'
+                      ? <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-0.5 border border-blue-200 text-blue-600 bg-blue-50">🔗 Link Access</span>
+                      : <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-0.5 border border-purple-200 text-purple-600 bg-purple-50">🔐 Login Required</span>
+                    }
+                    {p.expiresAt && <span className="text-[10px] font-[600] text-[var(--ink-faint)]">Expires {new Date(p.expiresAt).toLocaleDateString()}</span>}
+                  </div>
+                  <div className="text-[12px] text-[var(--ink-soft)]">{p.programName} · Member: {p.memberId}</div>
+                  <div className="text-[12px] text-[var(--ink-faint)] mt-1 line-clamp-1">{p.message}</div>
+                  <div className="text-[11px] text-[var(--ink-faint)] mt-1">Viewed {p.viewCount}×</div>
+                </div>
+                <div className="flex flex-col gap-1.5 justify-center p-4 border-l-[2px] border-[var(--ink)] bg-[var(--paper-alt)] min-w-[160px]">
+                  <button onClick={() => openEdit(p)} className={btnEdit}>Edit</button>
+                  <button onClick={() => copyLink(p.token)} className={`${btnEdit} ${copied === p.token ? 'border-green-300 text-green-600' : ''}`}>
+                    {copied === p.token ? '✓ Copied' : 'Copy Link'}
+                  </button>
+                  <a href={`${BASE_URL}/congratulations/${p.token}`} target="_blank" rel="noreferrer" className={`${btnEdit} text-center`}>Preview ↗</a>
+                  {!p.revoked && <button onClick={() => { if (confirm('Regenerate link? Old link will break.')) regenerateCongratToken(p.id); }} className={btnEdit}>Regen Link</button>}
+                  {!p.revoked
+                    ? <button onClick={() => { if (confirm('Revoke this page?')) revokeCongratPage(p.id); }} className={btnDanger}>Revoke</button>
+                    : <button onClick={() => { if (confirm('Delete this page?')) deleteCongratPage(p.id); }} className={btnDanger}>Delete</button>
+                  }
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {(modal === 'create' || modal === 'edit') && (
+          <Modal title={modal === 'create' ? 'New Congratulations Page' : 'Edit Page'} onClose={() => setModal(null)} wide>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Member ID">
+                <input className={inputCls} value={form.memberId} onChange={e => setForm(f => ({ ...f, memberId: e.target.value }))} placeholder="e.g. Mirzo10" />
+              </Field>
+              <Field label="Recipient Name">
+                <input className={inputCls} value={form.recipientName} onChange={e => setForm(f => ({ ...f, recipientName: e.target.value }))} placeholder="Full name" />
+              </Field>
+            </div>
+            <Field label="Program Name">
+              <input className={inputCls} value={form.programName} onChange={e => setForm(f => ({ ...f, programName: e.target.value }))} placeholder="Program name" />
+            </Field>
+            <Field label="Personalized Message">
+              <textarea className={`${inputCls} min-h-[120px] resize-y`} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} placeholder="Write a personal congratulations message..." />
+            </Field>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Access Mode">
+                <select className={selectCls} value={form.accessMode} onChange={e => setForm(f => ({ ...f, accessMode: e.target.value as any }))}>
+                  <option value="link">Anyone with secure link</option>
+                  <option value="login">Recipient must be signed in</option>
+                </select>
+              </Field>
+              <Field label="Expiry Date (optional)">
+                <input type="date" className={inputCls} value={form.expiresAt} onChange={e => setForm(f => ({ ...f, expiresAt: e.target.value }))} />
+              </Field>
+            </div>
+            <Field label="Linked Certificate ID (optional)">
+              <input className={inputCls} value={form.certificateId} onChange={e => setForm(f => ({ ...f, certificateId: e.target.value }))} placeholder="e.g. GCL-2026-4821" />
+            </Field>
+            <div className="flex gap-3 mt-6">
+              <button onClick={save} className={btnPrimary}>{modal === 'create' ? 'Create Page' : 'Save Changes'}</button>
+              <button onClick={() => setModal(null)} className={btnSecondary}>Cancel</button>
+            </div>
+          </Modal>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 // ── Root ──────────────────────────────────────────────────────────────────────
 
 export function AdminDashboard() {
@@ -985,13 +1271,15 @@ export function AdminDashboard() {
           <div className="flex-1 min-w-0 bg-white border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] p-8">
             <AnimatePresence mode="wait">
               <motion.div key={section} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-                {section === 'overview'    && <OverviewSection />}
-                {section === 'assignments' && <AssignmentsSection />}
-                {section === 'programs'    && <ProgramsSection />}
-                {section === 'events'      && <EventsSection />}
-                {section === 'courses'     && <CoursesSection />}
-                {section === 'news'        && <NewsSection />}
-                {section === 'members'     && <MembersSection />}
+                {section === 'overview'      && <OverviewSection />}
+                {section === 'assignments'   && <AssignmentsSection />}
+                {section === 'programs'      && <ProgramsSection />}
+                {section === 'certificates'  && <CertificatesSection />}
+                {section === 'congrats'      && <CongratPagesSection />}
+                {section === 'events'        && <EventsSection />}
+                {section === 'courses'       && <CoursesSection />}
+                {section === 'news'          && <NewsSection />}
+                {section === 'members'       && <MembersSection />}
               </motion.div>
             </AnimatePresence>
           </div>

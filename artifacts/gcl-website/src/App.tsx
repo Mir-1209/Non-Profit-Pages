@@ -11,6 +11,7 @@ function ScrollToTop() {
 
 import { AdminProvider } from './context/AdminContext';
 import { AuthProvider } from './context/AuthContext';
+import { CertificateProvider } from './context/CertificateContext';
 import { Nav } from './components/Nav';
 import { Footer } from './components/Footer';
 
@@ -28,6 +29,9 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { MemberDashboard } from './pages/MemberDashboard';
 import { TeamPortal } from './pages/TeamPortal';
 import { Congratulations } from './pages/Congratulations';
+import { CertificatePage } from './pages/Certificate';
+import { VerifyPage } from './pages/Verify';
+import { CertCongratulations } from './pages/CertCongratulations';
 import { Privacy, Terms } from './pages/Legal';
 import { ChapterDetail } from './pages/ChapterDetail';
 import NotFound from './pages/not-found';
@@ -58,7 +62,10 @@ function SiteLayout() {
             <Route path="/signin" component={SignIn} />
             <Route path="/dashboard" component={MemberDashboard} />
             <Route path="/portal" component={TeamPortal} />
+            <Route path="/congratulations/:token" component={CertCongratulations} />
             <Route path="/congratulations" component={Congratulations} />
+            <Route path="/certificate/:token" component={CertificatePage} />
+            <Route path="/verify" component={VerifyPage} />
             <Route path="/privacy" component={Privacy} />
             <Route path="/terms" component={Terms} />
             <Route component={NotFound} />
@@ -86,7 +93,9 @@ function App() {
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
         <AuthProvider>
           <AdminProvider>
-            <Router />
+            <CertificateProvider>
+              <Router />
+            </CertificateProvider>
           </AdminProvider>
         </AuthProvider>
       </WouterRouter>

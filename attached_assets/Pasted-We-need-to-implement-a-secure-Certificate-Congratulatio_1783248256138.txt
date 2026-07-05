@@ -1,0 +1,127 @@
+We need to implement a secure Certificate & Congratulations Page system for our platform.
+
+Overview
+Our website already includes a CRM, Admin Dashboard, Team Portal, user accounts, and other internal systems. We now want to add a secure system for:
+1. Digital Certificates
+2. Personalized Congratulations Pages
+These pages should be professional, secure, and privacy-focused.
+
+Certificate System
+Certificate Generation
+* Each certificate should have a unique Certificate ID.
+* Each certificate should be tied to a specific user in our CRM.
+* Certificates should be generated dynamically from a template.
+* Include:
+    * Recipient name
+    * Program name
+    * Issue date
+    * Certificate ID
+    * QR code
+    * Verification status
+    * Organization branding
+
+Secure Sharing
+Every certificate should have a unique share link.
+Example:
+/certificate/8hF29KsLmQ
+Do not use sequential IDs.
+Instead, generate long cryptographically secure random tokens (UUID or 128+ bit random IDs).
+
+Privacy Controls
+The certificate owner should be able to choose one of the following visibility options:
+Private
+* Only the logged-in certificate owner can view it.
+Anyone with the secure link
+* Anyone possessing the unique link can view it.
+* The URL should be impossible to guess.
+only if the user allows their certificate being shown can share it through a specifkal copied link.   IN the admin dahsboard, admin can create this certiicates, and tie accounts to them.
+
+Additional Security
+Implement the following protections:
+* Unpredictable random URLs
+* Rate limiting
+* Bot protection
+* Disable directory listing
+* Prevent certificate enumeration
+* Prevent search engine indexing (noindex + robots headers)
+* HTTPS only
+* Secure session validation
+* Audit logs showing:
+    * Who viewed
+    * When viewed
+    * IP/device information (if permitted by privacy policy)   
+
+Certificate Verification
+Provide a public verification page.
+Example:
+ourdomain.org/verify
+Users enter a Certificate ID or scan a QR code.
+The page should display only verification information such as:
+* Valid / Invalid
+* Recipient name
+* Program
+* Issue date
+Do not expose private account information.
+
+Congratulations Pages
+Students admitted into our nonprofit programs receive personalized Congratulations Pages.
+Example:
+ourdomain.org/congratulations/f9Gh28LmPx
+These pages should not be publicly accessible.
+
+Access Options
+Support multiple access methods:
+Option 1 — Logged-in User Only (Preferred)
+* Only the intended recipient can access after signing in.
+Option 2 — Secure Magic Link
+* A long random token grants access.
+* Token can expire after a configurable number of days.
+* Owner/admin can revoke it at any time.
+Option 3 — Password Protected
+* Require a password before displaying the page.
+
+Security Requirements
+Congratulations pages should:
+* Use long random IDs
+* Never expose sequential database IDs
+* Return 404 for invalid links
+* Expire links if configured
+* Allow admins to regenerate or revoke links
+* Prevent indexing by search engines
+* Prevent unauthorized access
+* Validate permissions on every request
+
+Admin Dashboard Features
+Administrators should be able to:
+* Create certificates
+* Edit certificates
+* Revoke certificates
+* Regenerate share links
+* Change privacy settings
+* View access logs
+* Create congratulations pages
+* Set expiration dates
+* Disable or delete pages
+* Monitor page views
+
+User Portal Features
+Users should be able to:
+* View their certificates
+* Download PDF versions
+* Share certificates
+* Copy secure links
+* Change privacy settings
+* Enable or disable password protection
+* See view history (optional)
+* Revoke old links and generate new ones
+
+Technical Requirements
+* Store tokens securely.
+* Never expose database IDs in URLs.
+* Use UUIDs or cryptographically secure random tokens.
+* Validate authorization on every request.
+* Encrypt sensitive information where appropriate.
+* Follow OWASP security best practices.
+* Build the system so it can scale to thousands of certificates and users.
+The goal is to create a secure, professional digital credential system that protects user privacy while allowing recipients to safely share certificates and congratulations pages when they choose.
+
