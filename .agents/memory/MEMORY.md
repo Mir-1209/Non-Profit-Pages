@@ -1,0 +1,1 @@
+- [Admin data architecture](admin-data-architecture.md) — AdminContext is the single source of truth for assignments, programs, submissions, and applicant decisions; member/team portals read from it live.

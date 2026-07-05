@@ -1,36 +1,48 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'wouter';
+import React, { useState, useRef } from 'react';
+import { Link } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAdmin, RegisteredUser } from '../context/AdminContext';
+import { useAdmin, GCL_TEAM_MEMBERS, Assignment, AssignmentSubmission, Program, ProgramApplicant } from '../context/AdminContext';
 import { useAppAuth } from '../context/AuthContext';
 import { Event } from '../data/events';
 import { Course } from '../data/courses';
 import { NewsPost } from '../data/news';
+import logoImg from '@assets/Untitled_design-9_1783003171841.png';
 
-type Section = 'overview' | 'events' | 'courses' | 'news' | 'users' | 'roles';
+type Section = 'overview' | 'assignments' | 'programs' | 'events' | 'courses' | 'news' | 'members';
 
-const NAV_ITEMS: { id: Section; label: string; icon: string }[] = [
-  { id: 'overview', label: 'Overview', icon: '📊' },
-  { id: 'events', label: 'Events', icon: '🗓️' },
-  { id: 'courses', label: 'Courses', icon: '📚' },
-  { id: 'news', label: 'News Posts', icon: '📰' },
-  { id: 'users', label: 'Members', icon: '👥' },
-  { id: 'roles', label: 'Team & Roles', icon: '🛡️' },
+const NAV: { id: Section; label: string; icon: string }[] = [
+  { id: 'overview',    label: 'Overview',     icon: '◈' },
+  { id: 'assignments', label: 'Assignments',  icon: '◧' },
+  { id: 'programs',    label: 'Programs',     icon: '◉' },
+  { id: 'events',      label: 'Events',       icon: '◻' },
+  { id: 'courses',     label: 'Courses',      icon: '◫' },
+  { id: 'news',        label: 'News',         icon: '◨' },
+  { id: 'members',     label: 'Members',      icon: '◎' },
 ];
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+const SITE_LINKS: { label: string; href: string }[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Events', href: '/events' },
+  { label: 'Courses', href: '/courses' },
+  { label: 'Chapters', href: '/chapters' },
+  { label: 'News', href: '/news' },
+];
+
+// ── Shared primitives ────────────────────────────────────────────────────────
+
+function Modal({ title, onClose, children, wide }: { title: string; onClose: () => void; children: React.ReactNode; wide?: boolean }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 bg-black/60 backdrop-blur-sm overflow-y-auto" onClick={onClose}>
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-[24px] border-[2.5px] border-[var(--ink)] shadow-[10px_10px_0px_var(--ink)] w-full max-w-[560px] max-h-[90vh] overflow-y-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 10 }}
+        className={`bg-white border-[2.5px] border-[var(--ink)] shadow-[10px_10px_0px_var(--ink)] w-full ${wide ? 'max-w-[720px]' : 'max-w-[560px]'} mb-8`}
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-7 py-5 border-b border-[var(--line)]">
-          <h3 className="font-[800] text-[18px] tracking-[-0.01em]">{title}</h3>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-[var(--paper-alt)] flex items-center justify-center text-[var(--ink-soft)] hover:bg-[var(--line)] transition-colors text-[18px]">×</button>
+        <div className="flex items-center justify-between px-7 py-5 border-b-[2px] border-[var(--ink)] bg-[var(--ink)]">
+          <h3 className="font-[800] text-[15px] tracking-[0.06em] uppercase text-white">{title}</h3>
+          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center text-white/60 hover:text-white font-[700] text-[18px] transition-colors">×</button>
         </div>
         <div className="p-7">{children}</div>
       </motion.div>
@@ -41,73 +53,87 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mb-4">
-      <label className="block text-[13px] font-[700] text-[var(--ink)] mb-1.5">{label}</label>
+      <label className="block text-[11px] font-[800] uppercase tracking-[0.1em] text-[var(--ink)] mb-1.5">{label}</label>
       {children}
     </div>
   );
 }
 
-const inputCls = "w-full px-4 py-3 rounded-[10px] border-[2px] border-[var(--line)] text-[14px] font-[500] outline-none transition-all focus:border-[var(--violet)] bg-[var(--paper-alt)]";
+const inputCls = "w-full px-4 py-3 border-[2px] border-[var(--line)] text-[14px] font-[500] outline-none transition-all focus:border-[var(--ink)] bg-white";
 const selectCls = `${inputCls} cursor-pointer`;
+const btnPrimary = "px-5 py-3 border-[2px] border-[var(--ink)] bg-[var(--ink)] text-white font-[800] text-[11px] uppercase tracking-wider hover:bg-transparent hover:text-[var(--ink)] transition-colors";
+const btnSecondary = "px-5 py-3 border-[2px] border-[var(--line)] text-[var(--ink)] font-[800] text-[11px] uppercase tracking-wider hover:border-[var(--ink)] transition-colors";
+const btnDanger = "px-3 py-1.5 border-[2px] border-red-200 text-red-500 font-[800] text-[10px] uppercase tracking-wider hover:bg-red-50 transition-colors";
+const btnEdit = "px-3 py-1.5 border-[2px] border-[var(--line)] text-[var(--ink-soft)] font-[800] text-[10px] uppercase tracking-wider hover:border-[var(--ink)] hover:text-[var(--ink)] transition-colors";
 
-// ─── Overview Section ──────────────────────────────────────────
+function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between pb-5 border-b-[3px] border-[var(--ink)] mb-6">
+      <h2 className="font-[800] text-[22px] uppercase tracking-[-0.01em]">{title}</h2>
+      {action}
+    </div>
+  );
+}
+
+// ── Overview ─────────────────────────────────────────────────────────────────
+
 function OverviewSection() {
-  const { events, courses, news, users } = useAdmin();
+  const { events, courses, news, users, assignments, programs } = useAdmin();
+  const totalApplicants = programs.reduce((s, p) => s + p.applicants.length, 0);
+  const pendingDecisions = programs.reduce((s, p) => s + p.applicants.filter(a => a.decision === 'pending').length, 0);
+
   const stats = [
-    { label: 'Total Members', value: users.length, icon: '👥', color: 'var(--blue)' },
-    { label: 'Courses Published', value: courses.length, icon: '📚', color: 'var(--violet)' },
-    { label: 'Events Scheduled', value: events.length, icon: '🗓️', color: 'var(--magenta)' },
-    { label: 'News Posts', value: news.filter(n => n.published).length, icon: '📰', color: '#28c840' },
+    { label: 'Members', value: users.length, accent: '#3358ff' },
+    { label: 'Events', value: events.length, accent: '#e93fc7' },
+    { label: 'Courses', value: courses.length, accent: '#8b5cf6' },
+    { label: 'News Posts', value: news.filter(n => n.published).length, accent: '#16a34a' },
+    { label: 'Assignments', value: assignments.length, accent: '#d97706' },
+    { label: 'Programs', value: programs.length, accent: '#0891b2' },
+    { label: 'Applicants', value: totalApplicants, accent: '#dc2626' },
+    { label: 'Pending Decisions', value: pendingDecisions, accent: pendingDecisions > 0 ? '#dc2626' : '#16a34a' },
   ];
-  const completions = users.reduce((sum, u) => sum + u.completedCourses.length, 0);
-  const registrations = users.reduce((sum, u) => sum + u.registeredEvents.length, 0);
 
   return (
     <div>
-      <h2 className="font-[800] text-[26px] tracking-[-0.02em] mb-6">Dashboard Overview</h2>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <SectionHeader title="Overview" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         {stats.map((s, i) => (
-          <motion.div key={s.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
-            className="bg-white rounded-[18px] border-[2px] border-[var(--line)] shadow-[4px_4px_0px_var(--ink)] p-5">
-            <div className="text-2xl mb-3">{s.icon}</div>
-            <div className="font-[800] text-[32px] tracking-[-0.02em]" style={{ color: s.color }}>{s.value}</div>
-            <div className="text-[13px] text-[var(--ink-soft)] font-[600] mt-1">{s.label}</div>
+          <motion.div key={s.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+            className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] bg-white p-5">
+            <div className="font-[800] text-[36px] tracking-[-0.03em] leading-none" style={{ color: s.accent }}>{s.value}</div>
+            <div className="text-[11px] font-[700] uppercase tracking-wider text-[var(--ink-soft)] mt-2">{s.label}</div>
           </motion.div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-[18px] border-[2px] border-[var(--line)] shadow-[4px_4px_0px_var(--ink)] p-6">
-          <h3 className="font-[800] text-[16px] mb-4">Engagement</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[14px] text-[var(--ink-soft)]">Course completions</span>
-              <span className="font-[800] text-[18px]">{completions}</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] bg-white p-6">
+          <h3 className="font-[800] text-[13px] uppercase tracking-wider mb-4 border-b-[2px] border-[var(--ink)] pb-3">Recent Programs — Pending Decisions</h3>
+          {pendingDecisions === 0 ? (
+            <p className="text-[13px] text-[var(--ink-soft)]">All applicants have received decisions.</p>
+          ) : (
+            <div className="space-y-3">
+              {programs.flatMap(p => p.applicants.filter(a => a.decision === 'pending').map(a => (
+                <div key={a.id} className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="font-[700] text-[13px]">{a.name}</div>
+                    <div className="text-[11px] text-[var(--ink-faint)]">{p.name}</div>
+                  </div>
+                  <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-1 border-[1.5px] border-amber-300 text-amber-700 bg-amber-50">Pending</span>
+                </div>
+              )))}
             </div>
-            <div className="w-full bg-[var(--paper-alt)] rounded-full h-2">
-              <div className="h-2 rounded-full" style={{ width: `${Math.min((completions / (users.length * courses.length)) * 100, 100)}%`, background: 'var(--grad-brand)' }} />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[14px] text-[var(--ink-soft)]">Event registrations</span>
-              <span className="font-[800] text-[18px]">{registrations}</span>
-            </div>
-            <div className="w-full bg-[var(--paper-alt)] rounded-full h-2">
-              <div className="h-2 rounded-full" style={{ width: `${Math.min((registrations / (users.length * events.length)) * 100, 100)}%`, background: 'linear-gradient(90deg, var(--magenta), var(--violet))' }} />
-            </div>
-          </div>
+          )}
         </div>
 
-        <div className="bg-white rounded-[18px] border-[2px] border-[var(--line)] shadow-[4px_4px_0px_var(--ink)] p-6">
-          <h3 className="font-[800] text-[16px] mb-4">Recent Members</h3>
-          <div className="space-y-3">
-            {users.slice(0, 5).map(u => (
-              <div key={u.id} className="flex items-center justify-between">
-                <div>
-                  <div className="font-[700] text-[14px]">{u.name}</div>
-                  <div className="text-[12px] text-[var(--ink-faint)]">{u.joinedDate}</div>
-                </div>
-                <div className="text-[12px] font-[600] text-[var(--violet)]">{u.completedCourses.length} courses</div>
-              </div>
+        <div className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] bg-white p-6">
+          <h3 className="font-[800] text-[13px] uppercase tracking-wider mb-4 border-b-[2px] border-[var(--ink)] pb-3">Quick Links — Live Site</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {[...SITE_LINKS, { label: 'Team Portal', href: '/portal' }, { label: 'Member Dashboard', href: '/dashboard' }].map(l => (
+              <Link key={l.href} href={l.href}
+                className="flex items-center gap-2 px-3 py-2.5 border-[2px] border-[var(--line)] font-[700] text-[12px] hover:border-[var(--ink)] hover:bg-[var(--paper-alt)] transition-all">
+                ↗ {l.label}
+              </Link>
             ))}
           </div>
         </div>
@@ -116,85 +142,195 @@ function OverviewSection() {
   );
 }
 
-// ─── Events Section ────────────────────────────────────────────
-function EventsSection() {
-  const { events, addEvent, updateEvent, deleteEvent } = useAdmin();
-  const [modal, setModal] = useState<null | 'add' | Event>(null);
-  const [form, setForm] = useState<Partial<Event>>({});
+// ── Assignments ───────────────────────────────────────────────────────────────
 
-  const openAdd = () => { setForm({ id: `e${Date.now()}`, date: { day: '', month: '', year: '', full: '' }, title: '', speaker: '', format: 'Online', type: 'Free' }); setModal('add'); };
-  const openEdit = (e: Event) => { setForm({ ...e }); setModal(e); };
+function getMemberName(id: string) {
+  return GCL_TEAM_MEMBERS.find(m => m.id === id)?.name ?? id;
+}
+
+function AssignmentsSection() {
+  const { assignments, addAssignment, updateAssignment, deleteAssignment, submissions } = useAdmin();
+  const [modal, setModal] = useState<null | 'add' | Assignment>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [form, setForm] = useState<Partial<Assignment & { assignedAll: boolean; assignedIds: string[] }>>({});
+
+  const openAdd = () => {
+    setForm({ id: `a${Date.now()}`, title: '', description: '', dueDate: '', category: 'General', assignedTo: 'all', assignedAll: true, assignedIds: [], createdAt: new Date().toISOString().split('T')[0] });
+    setModal('add');
+  };
+  const openEdit = (a: Assignment) => {
+    setForm({ ...a, assignedAll: a.assignedTo === 'all', assignedIds: Array.isArray(a.assignedTo) ? a.assignedTo : [] });
+    setModal(a);
+  };
   const close = () => setModal(null);
 
   const save = () => {
-    if (!form.title || !form.speaker) return;
-    const ev = form as Event;
-    if (modal === 'add') addEvent(ev); else updateEvent(ev);
+    if (!form.title || !form.dueDate) return;
+    const a: Assignment = {
+      id: form.id!,
+      title: form.title!,
+      description: form.description ?? '',
+      dueDate: form.dueDate!,
+      category: form.category ?? 'General',
+      assignedTo: form.assignedAll ? 'all' : (form.assignedIds ?? []),
+      createdAt: form.createdAt ?? new Date().toISOString().split('T')[0],
+    };
+    if (modal === 'add') addAssignment(a); else updateAssignment(a);
     close();
+  };
+
+  const toggleMember = (id: string) => {
+    setForm(p => {
+      const ids = p.assignedIds ?? [];
+      return { ...p, assignedIds: ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id] };
+    });
+  };
+
+  const getSubmissionsFor = (assignmentId: string) => submissions.filter(s => s.assignmentId === assignmentId);
+
+  const getAssignedMembers = (a: Assignment): { id: string; name: string }[] => {
+    if (a.assignedTo === 'all') return GCL_TEAM_MEMBERS;
+    return a.assignedTo.map(id => ({ id, name: getMemberName(id) }));
   };
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-[800] text-[26px] tracking-[-0.02em]">Events</h2>
-        <button onClick={openAdd} className="px-5 py-2.5 rounded-full text-white font-[700] text-[14px] transition-all hover:-translate-y-[1px]" style={{ background: 'var(--grad-brand)', boxShadow: '0 4px 14px rgba(139,92,246,0.25)' }}>+ New Event</button>
-      </div>
+      <SectionHeader title="Assignments" action={
+        <button onClick={openAdd} className={btnPrimary}>+ New Assignment</button>
+      } />
 
-      <div className="space-y-3">
-        {events.map((ev, i) => (
-          <motion.div key={ev.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-            className="bg-white rounded-[14px] border-[2px] border-[var(--line)] shadow-[3px_3px_0px_var(--ink)] p-4 flex items-center gap-4">
-            <div className="shrink-0 w-[54px] h-[54px] rounded-[12px] bg-[var(--pill-bg)] flex flex-col items-center justify-center">
-              <div className="font-[800] text-[18px] text-[var(--pill-ink)] leading-none">{ev.date.day}</div>
-              <div className="text-[9px] font-[700] tracking-wider uppercase text-[var(--pill-ink)] opacity-70">{ev.date.month}</div>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-[700] text-[15px] truncate">{ev.title}</div>
-              <div className="text-[12.5px] text-[var(--ink-soft)]">{ev.speaker} · {ev.format} · {ev.type}</div>
-            </div>
-            <div className="flex gap-2 shrink-0">
-              <button onClick={() => openEdit(ev)} className="px-3 py-1.5 rounded-[8px] text-[12.5px] font-[700] bg-[var(--paper-alt)] hover:bg-[var(--line)] transition-colors">Edit</button>
-              <button onClick={() => deleteEvent(ev.id)} className="px-3 py-1.5 rounded-[8px] text-[12.5px] font-[700] bg-red-50 text-red-500 hover:bg-red-100 transition-colors">Delete</button>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      {assignments.length === 0 ? (
+        <div className="border-[2.5px] border-[var(--line)] py-16 text-center">
+          <p className="text-[14px] font-[700] uppercase tracking-wider text-[var(--ink-soft)]">No assignments yet.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {assignments.map((a, i) => {
+            const subs = getSubmissionsFor(a.id);
+            const members = getAssignedMembers(a);
+            const doneCount = subs.filter(s => s.done).length;
+            const isOpen = expanded === a.id;
+
+            return (
+              <motion.div key={a.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] bg-white">
+                {/* Header row */}
+                <div className="flex items-start gap-4 p-5 cursor-pointer" onClick={() => setExpanded(isOpen ? null : a.id)}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 flex-wrap mb-1">
+                      <span className="font-[800] text-[14px] tracking-[-0.01em]">{a.title}</span>
+                      <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-0.5 bg-[var(--paper-alt)] border-[1.5px] border-[var(--line)] text-[var(--ink-soft)]">{a.category}</span>
+                      {a.assignedTo === 'all' && (
+                        <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-0.5 border-[1.5px] border-blue-200 text-blue-600 bg-blue-50">All Team</span>
+                      )}
+                    </div>
+                    <p className="text-[12.5px] text-[var(--ink-soft)] leading-[1.5] mb-2">{a.description}</p>
+                    <div className="flex items-center gap-4 text-[11px] text-[var(--ink-faint)] font-[600] uppercase tracking-wider">
+                      <span>Due {new Date(a.dueDate + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      <span>·</span>
+                      <span style={{ color: doneCount === members.length && members.length > 0 ? '#16a34a' : 'var(--ink-faint)' }}>
+                        {doneCount}/{members.length} Done
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button onClick={e => { e.stopPropagation(); openEdit(a); }} className={btnEdit}>Edit</button>
+                    <button onClick={e => { e.stopPropagation(); deleteAssignment(a.id); }} className={btnDanger}>Delete</button>
+                    <span className="text-[var(--ink-soft)] font-[700] ml-1">{isOpen ? '▲' : '▼'}</span>
+                  </div>
+                </div>
+
+                {/* Submission tracker */}
+                <AnimatePresence>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden border-t-[2px] border-[var(--line)]"
+                    >
+                      <div className="p-5">
+                        <div className="text-[10px] font-[800] uppercase tracking-[0.12em] text-[var(--ink-faint)] mb-3">Submission Tracker</div>
+                        <div className="space-y-2">
+                          {members.map(m => {
+                            const sub = subs.find(s => s.memberId === m.id);
+                            return (
+                              <div key={m.id} className="flex items-center gap-3 px-4 py-3 border-[1.5px] border-[var(--line)] bg-[var(--paper-alt)]">
+                                <div className="w-2 h-2 border-[1.5px] border-[var(--ink)] shrink-0"
+                                  style={{ background: sub?.done ? 'var(--ink)' : 'transparent' }} />
+                                <div className="flex-1 min-w-0">
+                                  <span className="font-[700] text-[13px]">{m.name}</span>
+                                  {sub?.fileName && (
+                                    <span className="ml-2 text-[11px] text-[var(--ink-soft)]">📎 {sub.fileName} ({sub.fileSize})</span>
+                                  )}
+                                  {sub?.submittedAt && (
+                                    <span className="ml-2 text-[11px] text-[var(--ink-faint)]">· {sub.submittedAt}</span>
+                                  )}
+                                </div>
+                                <span className={`text-[10px] font-[800] uppercase tracking-wider px-2 py-1 border-[1.5px] ${sub?.done ? 'border-green-300 text-green-700 bg-green-50' : 'border-[var(--line)] text-[var(--ink-faint)] bg-white'}`}>
+                                  {sub?.done ? '✓ Done' : 'Pending'}
+                                </span>
+                              </div>
+                            );
+                          })}
+                          {members.length === 0 && (
+                            <p className="text-[12px] text-[var(--ink-soft)]">No members assigned.</p>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
 
       <AnimatePresence>
         {modal && (
-          <Modal title={modal === 'add' ? 'New Event' : 'Edit Event'} onClose={close}>
-            <Field label="Event Title">
-              <input className={inputCls} value={form.title ?? ''} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Youth Money Summit" />
+          <Modal title={modal === 'add' ? 'New Assignment' : 'Edit Assignment'} onClose={close} wide>
+            <Field label="Title">
+              <input className={inputCls} value={form.title ?? ''} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Onboard New Chapter — Nairobi" />
             </Field>
-            <Field label="Speaker / Host">
-              <input className={inputCls} value={form.speaker ?? ''} onChange={e => setForm(p => ({ ...p, speaker: e.target.value }))} placeholder="e.g. Dr. Elena Rostova" />
+            <Field label="Description">
+              <textarea className={`${inputCls} resize-y`} rows={3} value={form.description ?? ''} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Describe the assignment in detail." />
             </Field>
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Day">
-                <input className={inputCls} value={form.date?.day ?? ''} onChange={e => setForm(p => ({ ...p, date: { ...p.date!, day: e.target.value } }))} placeholder="14" />
+              <Field label="Category">
+                <input className={inputCls} value={form.category ?? ''} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} placeholder="e.g. Chapter Operations" />
               </Field>
-              <Field label="Month (3-letter)">
-                <input className={inputCls} value={form.date?.month ?? ''} onChange={e => setForm(p => ({ ...p, date: { ...p.date!, month: e.target.value.toUpperCase() } }))} placeholder="AUG" maxLength={3} />
-              </Field>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Format">
-                <select className={selectCls} value={form.format ?? 'Online'} onChange={e => setForm(p => ({ ...p, format: e.target.value as any }))}>
-                  <option>Online</option>
-                  <option>In-Person</option>
-                </select>
-              </Field>
-              <Field label="Type">
-                <select className={selectCls} value={form.type ?? 'Free'} onChange={e => setForm(p => ({ ...p, type: e.target.value as any }))}>
-                  <option>Free</option>
-                  <option>Ticketed</option>
-                  <option>Invite-Only</option>
-                </select>
+              <Field label="Due Date">
+                <input type="date" className={inputCls} value={form.dueDate ?? ''} onChange={e => setForm(p => ({ ...p, dueDate: e.target.value }))} />
               </Field>
             </div>
+            <Field label="Assign To">
+              <div className="space-y-2">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <div className="w-4 h-4 border-[2px] border-[var(--ink)] flex items-center justify-center shrink-0"
+                    onClick={() => setForm(p => ({ ...p, assignedAll: !p.assignedAll }))}>
+                    {form.assignedAll && <div className="w-2 h-2 bg-[var(--ink)]" />}
+                  </div>
+                  <span className="text-[13px] font-[700]">All Team Members</span>
+                </label>
+                {!form.assignedAll && (
+                  <div className="ml-6 mt-2 space-y-1.5 border-l-[2px] border-[var(--line)] pl-4">
+                    {GCL_TEAM_MEMBERS.map(m => (
+                      <label key={m.id} className="flex items-center gap-2.5 cursor-pointer select-none">
+                        <div className="w-4 h-4 border-[2px] border-[var(--ink)] flex items-center justify-center shrink-0" onClick={() => toggleMember(m.id)}>
+                          {(form.assignedIds ?? []).includes(m.id) && <div className="w-2 h-2 bg-[var(--ink)]" />}
+                        </div>
+                        <span className="text-[13px] font-[600]">{m.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Field>
             <div className="flex gap-3 mt-2">
-              <button onClick={close} className="flex-1 py-3 rounded-[10px] border-[2px] border-[var(--line)] font-[700] text-[14px] hover:bg-[var(--paper-alt)] transition-colors">Cancel</button>
-              <button onClick={save} className="flex-1 py-3 rounded-[10px] text-white font-[700] text-[14px]" style={{ background: 'var(--grad-brand)' }}>Save Event</button>
+              <button onClick={close} className={btnSecondary}>Cancel</button>
+              <button onClick={save} className={btnPrimary}>Save Assignment</button>
             </div>
           </Modal>
         )}
@@ -203,22 +339,318 @@ function EventsSection() {
   );
 }
 
-// ─── Courses Section ───────────────────────────────────────────
+// ── Programs ──────────────────────────────────────────────────────────────────
+
+const DECISION_STYLES: Record<string, { label: string; color: string; bg: string; border: string }> = {
+  pending:    { label: 'Pending',    color: '#92400e', bg: '#fffbeb', border: '#fcd34d' },
+  accepted:   { label: 'Accepted',   color: '#166534', bg: '#dcfce7', border: '#86efac' },
+  waitlisted: { label: 'Waitlisted', color: '#1e40af', bg: '#dbeafe', border: '#93c5fd' },
+  rejected:   { label: 'Rejected',   color: '#991b1b', bg: '#fee2e2', border: '#fca5a5' },
+};
+
+function ProgramsSection() {
+  const { programs, addProgram, updateProgram, deleteProgram, updateApplicantDecision, addApplicant, deleteApplicant } = useAdmin();
+  const [modal, setModal] = useState<null | 'add' | Program>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [addApplicantModal, setAddApplicantModal] = useState<string | null>(null);
+  const [applicantForm, setApplicantForm] = useState<Partial<ProgramApplicant>>({});
+  const [form, setForm] = useState<Partial<Program>>({});
+
+  const openAdd = () => {
+    setForm({ id: `prog${Date.now()}`, name: '', type: '', description: '', deadline: '', active: true, applicants: [] });
+    setModal('add');
+  };
+  const openEdit = (p: Program) => { setForm({ ...p }); setModal(p); };
+  const close = () => setModal(null);
+
+  const save = () => {
+    if (!form.name) return;
+    const p: Program = {
+      id: form.id!,
+      name: form.name!,
+      type: form.type ?? '',
+      description: form.description ?? '',
+      deadline: form.deadline,
+      active: form.active ?? true,
+      formUrl: form.formUrl,
+      applicants: form.applicants ?? [],
+    };
+    if (modal === 'add') addProgram(p); else updateProgram(p);
+    close();
+  };
+
+  const saveApplicant = (programId: string) => {
+    if (!applicantForm.name || !applicantForm.email) return;
+    const a: ProgramApplicant = {
+      id: `ap${Date.now()}`,
+      memberId: applicantForm.memberId ?? applicantForm.email ?? `m${Date.now()}`,
+      name: applicantForm.name!,
+      email: applicantForm.email!,
+      appliedDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      decision: 'pending',
+    };
+    addApplicant(programId, a);
+    setAddApplicantModal(null);
+    setApplicantForm({});
+  };
+
+  return (
+    <div>
+      <SectionHeader title="Programs" action={
+        <button onClick={openAdd} className={btnPrimary}>+ New Program</button>
+      } />
+
+      {programs.length === 0 ? (
+        <div className="border-[2.5px] border-[var(--line)] py-16 text-center">
+          <p className="text-[14px] font-[700] uppercase tracking-wider text-[var(--ink-soft)]">No programs yet.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {programs.map((p, i) => {
+            const isOpen = expanded === p.id;
+            const pending = p.applicants.filter(a => a.decision === 'pending').length;
+
+            return (
+              <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] bg-white">
+                {/* Program header */}
+                <div className="flex items-start gap-4 p-5 cursor-pointer" onClick={() => setExpanded(isOpen ? null : p.id)}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 flex-wrap mb-1">
+                      <span className="font-[800] text-[15px]">{p.name}</span>
+                      <span className={`text-[10px] font-[800] uppercase tracking-wider px-2 py-0.5 border-[1.5px] ${p.active ? 'border-green-300 text-green-700 bg-green-50' : 'border-[var(--line)] text-[var(--ink-faint)] bg-[var(--paper-alt)]'}`}>
+                        {p.active ? 'Active' : 'Closed'}
+                      </span>
+                      {pending > 0 && (
+                        <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-0.5 border-[1.5px] border-amber-300 text-amber-700 bg-amber-50">{pending} Pending</span>
+                      )}
+                    </div>
+                    <div className="text-[12px] text-[var(--ink-soft)] uppercase tracking-wider font-[600] mb-1">{p.type}</div>
+                    <p className="text-[12.5px] text-[var(--ink-soft)]">{p.description}</p>
+                    {p.deadline && <div className="text-[11px] text-[var(--ink-faint)] font-[600] uppercase tracking-wider mt-2">Deadline: {p.deadline}</div>}
+                    {p.formUrl && <div className="text-[11px] text-[var(--ink-faint)] mt-1">Form: <span className="text-blue-600">{p.formUrl}</span></div>}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button onClick={e => { e.stopPropagation(); openEdit(p); }} className={btnEdit}>Edit</button>
+                    <button onClick={e => { e.stopPropagation(); deleteProgram(p.id); }} className={btnDanger}>Delete</button>
+                    <span className="text-[var(--ink-soft)] font-[700] ml-1">{isOpen ? '▲' : '▼'}</span>
+                  </div>
+                </div>
+
+                {/* Applicants */}
+                <AnimatePresence>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden border-t-[2px] border-[var(--line)]"
+                    >
+                      <div className="p-5">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="text-[10px] font-[800] uppercase tracking-[0.12em] text-[var(--ink-faint)]">
+                            Applicants ({p.applicants.length})
+                          </div>
+                          <button
+                            onClick={() => { setAddApplicantModal(p.id); setApplicantForm({}); }}
+                            className="text-[10px] font-[800] uppercase tracking-wider px-3 py-1.5 border-[2px] border-[var(--ink)] hover:bg-[var(--ink)] hover:text-white transition-colors">
+                            + Add Applicant
+                          </button>
+                        </div>
+
+                        {p.applicants.length === 0 ? (
+                          <p className="text-[12px] text-[var(--ink-soft)]">No applicants yet.</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {p.applicants.map(a => {
+                              const ds = DECISION_STYLES[a.decision];
+                              return (
+                                <div key={a.id} className="border-[1.5px] border-[var(--line)] bg-[var(--paper-alt)] p-4">
+                                  <div className="flex items-start gap-3 flex-wrap">
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-[700] text-[13px]">{a.name}</div>
+                                      <div className="text-[11.5px] text-[var(--ink-soft)]">{a.email} · Applied {a.appliedDate}</div>
+                                      {a.decisionDate && <div className="text-[11px] text-[var(--ink-faint)] mt-0.5">Decision: {a.decisionDate}</div>}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 flex-wrap shrink-0">
+                                      {/* Current status pill */}
+                                      <span className="text-[10px] font-[800] uppercase tracking-wider px-2 py-1 border-[1.5px]"
+                                        style={{ color: ds.color, background: ds.bg, borderColor: ds.border }}>
+                                        {ds.label}
+                                      </span>
+                                      {/* Decision buttons */}
+                                      {(['accepted', 'waitlisted', 'rejected', 'pending'] as const).filter(d => d !== a.decision).map(d => (
+                                        <button key={d}
+                                          onClick={() => updateApplicantDecision(p.id, a.id, d)}
+                                          className="text-[9px] font-[800] uppercase tracking-wider px-2 py-1 border-[1.5px] border-[var(--line)] text-[var(--ink-soft)] hover:border-[var(--ink)] hover:text-[var(--ink)] transition-colors">
+                                          → {DECISION_STYLES[d].label}
+                                        </button>
+                                      ))}
+                                      <button onClick={() => deleteApplicant(p.id, a.id)} className={btnDanger}>Remove</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Add Applicant Modal */}
+      <AnimatePresence>
+        {addApplicantModal && (
+          <Modal title="Add Applicant" onClose={() => setAddApplicantModal(null)}>
+            <Field label="Full Name">
+              <input className={inputCls} value={applicantForm.name ?? ''} onChange={e => setApplicantForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. Amara Diallo" />
+            </Field>
+            <Field label="Email">
+              <input className={inputCls} value={applicantForm.email ?? ''} onChange={e => setApplicantForm(p => ({ ...p, email: e.target.value }))} placeholder="amara@example.com" />
+            </Field>
+            <Field label="Member ID (optional — for portal link)">
+              <select className={selectCls} value={applicantForm.memberId ?? ''} onChange={e => setApplicantForm(p => ({ ...p, memberId: e.target.value }))}>
+                <option value="">— No linked account —</option>
+                <option value="Mirzo10">Mirzo10 (Member)</option>
+                <option value="Mirzo11">Mirzo11 (GCL Team)</option>
+              </select>
+            </Field>
+            <div className="flex gap-3 mt-2">
+              <button onClick={() => setAddApplicantModal(null)} className={btnSecondary}>Cancel</button>
+              <button onClick={() => saveApplicant(addApplicantModal!)} className={btnPrimary}>Add Applicant</button>
+            </div>
+          </Modal>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Program Modal */}
+      <AnimatePresence>
+        {modal && (
+          <Modal title={modal === 'add' ? 'New Program' : 'Edit Program'} onClose={close}>
+            <Field label="Program Name">
+              <input className={inputCls} value={form.name ?? ''} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. GCL Summer '26 Team" />
+            </Field>
+            <Field label="Type / Category">
+              <input className={inputCls} value={form.type ?? ''} onChange={e => setForm(p => ({ ...p, type: e.target.value }))} placeholder="e.g. Volunteer · Competitive" />
+            </Field>
+            <Field label="Description">
+              <textarea className={`${inputCls} resize-y`} rows={3} value={form.description ?? ''} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Describe this program." />
+            </Field>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Deadline">
+                <input className={inputCls} value={form.deadline ?? ''} onChange={e => setForm(p => ({ ...p, deadline: e.target.value }))} placeholder="e.g. 2026-07-31" />
+              </Field>
+              <Field label="Status">
+                <select className={selectCls} value={form.active ? 'active' : 'closed'} onChange={e => setForm(p => ({ ...p, active: e.target.value === 'active' }))}>
+                  <option value="active">Active (open)</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </Field>
+            </div>
+            <Field label="Application Form URL (optional)">
+              <input className={inputCls} value={form.formUrl ?? ''} onChange={e => setForm(p => ({ ...p, formUrl: e.target.value }))} placeholder="https://forms.gle/..." />
+            </Field>
+            <div className="flex gap-3 mt-2">
+              <button onClick={close} className={btnSecondary}>Cancel</button>
+              <button onClick={save} className={btnPrimary}>Save Program</button>
+            </div>
+          </Modal>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+
+function EventsSection() {
+  const { events, addEvent, updateEvent, deleteEvent } = useAdmin();
+  const [modal, setModal] = useState<null | 'add' | Event>(null);
+  const [form, setForm] = useState<Partial<Event>>({});
+
+  const openAdd = () => { setForm({ id: `e${Date.now()}`, date: { day: '', month: '', year: '', full: '' }, title: '', speaker: '', format: 'Online', type: 'Free' }); setModal('add'); };
+  const openEdit = (e: Event) => { setForm({ ...e }); setModal(e); };
+  const close = () => setModal(null);
+  const save = () => {
+    if (!form.title || !form.speaker) return;
+    if (modal === 'add') addEvent(form as Event); else updateEvent(form as Event);
+    close();
+  };
+
+  return (
+    <div>
+      <SectionHeader title="Events" action={<button onClick={openAdd} className={btnPrimary}>+ New Event</button>} />
+      <div className="space-y-3">
+        {events.map((ev, i) => (
+          <motion.div key={ev.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+            className="border-[2.5px] border-[var(--ink)] shadow-[4px_4px_0px_var(--ink)] bg-white p-4 flex items-center gap-4">
+            <div className="shrink-0 w-[52px] h-[52px] border-[2px] border-[var(--ink)] bg-[var(--brutal-bg)] flex flex-col items-center justify-center">
+              <div className="font-[800] text-[18px] text-white leading-none">{ev.date.day}</div>
+              <div className="text-[8px] font-[800] tracking-wider uppercase text-white/60">{ev.date.month}</div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-[700] text-[14px] truncate">{ev.title}</div>
+              <div className="text-[12px] text-[var(--ink-soft)]">{ev.speaker} · {ev.format} · {ev.type}</div>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <button onClick={() => openEdit(ev)} className={btnEdit}>Edit</button>
+              <button onClick={() => deleteEvent(ev.id)} className={btnDanger}>Delete</button>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+      <AnimatePresence>
+        {modal && (
+          <Modal title={modal === 'add' ? 'New Event' : 'Edit Event'} onClose={close}>
+            <Field label="Event Title"><input className={inputCls} value={form.title ?? ''} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Youth Money Summit" /></Field>
+            <Field label="Speaker / Host"><input className={inputCls} value={form.speaker ?? ''} onChange={e => setForm(p => ({ ...p, speaker: e.target.value }))} placeholder="Dr. Elena Rostova" /></Field>
+            <div className="grid grid-cols-3 gap-4">
+              <Field label="Day"><input className={inputCls} value={form.date?.day ?? ''} onChange={e => setForm(p => ({ ...p, date: { ...p.date!, day: e.target.value } }))} placeholder="14" /></Field>
+              <Field label="Month"><input className={inputCls} value={form.date?.month ?? ''} onChange={e => setForm(p => ({ ...p, date: { ...p.date!, month: e.target.value.toUpperCase() } }))} placeholder="AUG" maxLength={3} /></Field>
+              <Field label="Year"><input className={inputCls} value={form.date?.year ?? ''} onChange={e => setForm(p => ({ ...p, date: { ...p.date!, year: e.target.value } }))} placeholder="2026" /></Field>
+            </div>
+            <Field label="Full Date"><input className={inputCls} value={form.date?.full ?? ''} onChange={e => setForm(p => ({ ...p, date: { ...p.date!, full: e.target.value } }))} placeholder="August 14, 2026" /></Field>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Format">
+                <select className={selectCls} value={form.format ?? 'Online'} onChange={e => setForm(p => ({ ...p, format: e.target.value as any }))}>
+                  <option>Online</option><option>In-Person</option>
+                </select>
+              </Field>
+              <Field label="Type">
+                <select className={selectCls} value={form.type ?? 'Free'} onChange={e => setForm(p => ({ ...p, type: e.target.value as any }))}>
+                  <option>Free</option><option>Ticketed</option><option>Invite-Only</option>
+                </select>
+              </Field>
+            </div>
+            <Field label="Registration Link"><input className={inputCls} value={form.registrationLink ?? ''} onChange={e => setForm(p => ({ ...p, registrationLink: e.target.value }))} placeholder="https://..." /></Field>
+            <div className="flex gap-3 mt-2">
+              <button onClick={close} className={btnSecondary}>Cancel</button>
+              <button onClick={save} className={btnPrimary}>Save Event</button>
+            </div>
+          </Modal>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Courses ───────────────────────────────────────────────────────────────────
+
 function CoursesSection() {
   const { courses, addCourse, updateCourse, deleteCourse } = useAdmin();
   const [modal, setModal] = useState<null | 'add' | Course>(null);
   const [form, setForm] = useState<Partial<Course & { moduleText: string }>>({});
 
-  const openAdd = () => {
-    setForm({ slug: '', title: '', tag: '', level: 'Beginner', duration: '', color: 't1', modules: [], instructors: [], moduleText: '' });
-    setModal('add');
-  };
-  const openEdit = (c: Course) => {
-    setForm({ ...c, moduleText: c.modules.map(m => `${m.title}: ${m.description}`).join('\n') });
-    setModal(c);
-  };
+  const openAdd = () => { setForm({ slug: '', title: '', tag: '', level: 'Beginner', duration: '', color: 't1', modules: [], instructors: [], moduleText: '' }); setModal('add'); };
+  const openEdit = (c: Course) => { setForm({ ...c, moduleText: c.modules.map(m => `${m.title}: ${m.description}`).join('\n') }); setModal(c); };
   const close = () => setModal(null);
-
   const save = () => {
     if (!form.title || !form.slug) return;
     const modules = (form.moduleText ?? '').split('\n').filter(Boolean).map((line, i) => {
@@ -241,76 +673,52 @@ function CoursesSection() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-[800] text-[26px] tracking-[-0.02em]">Courses</h2>
-        <button onClick={openAdd} className="px-5 py-2.5 rounded-full text-white font-[700] text-[14px] transition-all hover:-translate-y-[1px]" style={{ background: 'var(--grad-brand)', boxShadow: '0 4px 14px rgba(139,92,246,0.25)' }}>+ New Course</button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <SectionHeader title="Courses" action={<button onClick={openAdd} className={btnPrimary}>+ New Course</button>} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {courses.map((c, i) => (
-          <motion.div key={c.slug} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-            className="bg-white rounded-[14px] border-[2px] border-[var(--line)] shadow-[3px_3px_0px_var(--ink)] p-5">
-            <div className="flex items-start justify-between gap-3 mb-3">
+          <motion.div key={c.slug} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+            className="border-[2.5px] border-[var(--ink)] shadow-[4px_4px_0px_var(--ink)] bg-white p-5">
+            <div className="flex items-start justify-between gap-3 mb-2">
               <div>
-                <div className="font-[800] text-[15px] leading-tight">{c.title}</div>
-                <div className="text-[12.5px] text-[var(--ink-soft)] mt-1">{c.level} · {c.duration} · {c.tag}</div>
+                <div className="font-[800] text-[14px] leading-tight">{c.title}</div>
+                <div className="text-[12px] text-[var(--ink-soft)] mt-0.5">{c.level} · {c.duration} · {c.tag}</div>
               </div>
               <div className="flex gap-2 shrink-0">
-                <button onClick={() => openEdit(c)} className="px-3 py-1.5 rounded-[8px] text-[12px] font-[700] bg-[var(--paper-alt)] hover:bg-[var(--line)] transition-colors">Edit</button>
-                <button onClick={() => deleteCourse(c.slug)} className="px-3 py-1.5 rounded-[8px] text-[12px] font-[700] bg-red-50 text-red-500 hover:bg-red-100 transition-colors">Delete</button>
+                <button onClick={() => openEdit(c)} className={btnEdit}>Edit</button>
+                <button onClick={() => deleteCourse(c.slug)} className={btnDanger}>Delete</button>
               </div>
             </div>
-            <div className="text-[12px] text-[var(--ink-faint)]">{c.modules.length} modules · {c.instructors.map(i => i.name).join(', ')}</div>
+            <div className="text-[11.5px] text-[var(--ink-faint)]">{c.modules.length} modules</div>
           </motion.div>
         ))}
       </div>
-
       <AnimatePresence>
         {modal && (
-          <Modal title={modal === 'add' ? 'New Course' : 'Edit Course'} onClose={close}>
-            <Field label="Course Title">
-              <input className={inputCls} value={form.title ?? ''} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Psychology of Money" />
-            </Field>
-            <Field label="Slug (URL)">
-              <input className={inputCls} value={form.slug ?? ''} onChange={e => setForm(p => ({ ...p, slug: e.target.value }))} placeholder="e.g. psychology-of-money" />
-            </Field>
+          <Modal title={modal === 'add' ? 'New Course' : 'Edit Course'} onClose={close} wide>
+            <Field label="Course Title"><input className={inputCls} value={form.title ?? ''} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Psychology of Money" /></Field>
+            <Field label="Slug (URL)"><input className={inputCls} value={form.slug ?? ''} onChange={e => setForm(p => ({ ...p, slug: e.target.value }))} placeholder="psychology-of-money" /></Field>
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Tag">
-                <input className={inputCls} value={form.tag ?? ''} onChange={e => setForm(p => ({ ...p, tag: e.target.value }))} placeholder="Foundations" />
-              </Field>
+              <Field label="Tag"><input className={inputCls} value={form.tag ?? ''} onChange={e => setForm(p => ({ ...p, tag: e.target.value }))} placeholder="Foundations" /></Field>
               <Field label="Level">
                 <select className={selectCls} value={form.level ?? 'Beginner'} onChange={e => setForm(p => ({ ...p, level: e.target.value }))}>
-                  <option>Beginner</option>
-                  <option>Intermediate</option>
-                  <option>Advanced</option>
-                  <option>All Levels</option>
+                  <option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>All Levels</option>
                 </select>
               </Field>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Duration (e.g. 6 Modules)">
-                <input className={inputCls} value={form.duration ?? ''} onChange={e => setForm(p => ({ ...p, duration: e.target.value }))} placeholder="6 Modules" />
-              </Field>
+              <Field label="Duration"><input className={inputCls} value={form.duration ?? ''} onChange={e => setForm(p => ({ ...p, duration: e.target.value }))} placeholder="6 Modules" /></Field>
               <Field label="Color Theme">
                 <select className={selectCls} value={form.color ?? 't1'} onChange={e => setForm(p => ({ ...p, color: e.target.value as any }))}>
-                  <option value="t1">Blue/Violet</option>
-                  <option value="t2">Magenta/Pink</option>
-                  <option value="t3">Cyan/Blue</option>
+                  <option value="t1">Blue/Violet</option><option value="t2">Magenta/Pink</option><option value="t3">Cyan/Blue</option>
                 </select>
               </Field>
             </div>
             <Field label="Modules (one per line: Title: Description)">
-              <textarea
-                className={`${inputCls} resize-y`}
-                rows={5}
-                value={form.moduleText ?? ''}
-                onChange={e => setForm(p => ({ ...p, moduleText: e.target.value }))}
-                placeholder={"Module 1: Intro to behavioral finance\nModule 2: Common cognitive biases"}
-              />
+              <textarea className={`${inputCls} resize-y`} rows={5} value={form.moduleText ?? ''} onChange={e => setForm(p => ({ ...p, moduleText: e.target.value }))} placeholder={'Module 1: Intro to behavioral finance\nModule 2: Cognitive biases'} />
             </Field>
             <div className="flex gap-3 mt-2">
-              <button onClick={close} className="flex-1 py-3 rounded-[10px] border-[2px] border-[var(--line)] font-[700] text-[14px] hover:bg-[var(--paper-alt)] transition-colors">Cancel</button>
-              <button onClick={save} className="flex-1 py-3 rounded-[10px] text-white font-[700] text-[14px]" style={{ background: 'var(--grad-brand)' }}>Save Course</button>
+              <button onClick={close} className={btnSecondary}>Cancel</button>
+              <button onClick={save} className={btnPrimary}>Save Course</button>
             </div>
           </Modal>
         )}
@@ -319,7 +727,8 @@ function CoursesSection() {
   );
 }
 
-// ─── News Section ──────────────────────────────────────────────
+// ── News ──────────────────────────────────────────────────────────────────────
+
 function NewsSection() {
   const { news, addNews, updateNews, deleteNews } = useAdmin();
   const [modal, setModal] = useState<null | 'add' | NewsPost>(null);
@@ -328,82 +737,61 @@ function NewsSection() {
   const openAdd = () => { setForm({ id: `n${Date.now()}`, title: '', excerpt: '', content: '', author: '', date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), category: 'Announcement', published: true }); setModal('add'); };
   const openEdit = (p: NewsPost) => { setForm({ ...p }); setModal(p); };
   const close = () => setModal(null);
-
   const save = () => {
     if (!form.title || !form.content) return;
-    const post = form as NewsPost;
-    if (modal === 'add') addNews(post); else updateNews(post);
+    if (modal === 'add') addNews(form as NewsPost); else updateNews(form as NewsPost);
     close();
   };
 
-  const catColor: Record<string, string> = { Research: '#3358ff', Update: '#8b5cf6', Story: '#e93fc7', Announcement: '#28c840' };
+  const catColor: Record<string, string> = { Research: '#3358ff', Update: '#8b5cf6', Story: '#e93fc7', Announcement: '#16a34a' };
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-[800] text-[26px] tracking-[-0.02em]">News Posts</h2>
-        <button onClick={openAdd} className="px-5 py-2.5 rounded-full text-white font-[700] text-[14px] transition-all hover:-translate-y-[1px]" style={{ background: 'var(--grad-brand)', boxShadow: '0 4px 14px rgba(139,92,246,0.25)' }}>+ New Post</button>
-      </div>
-
+      <SectionHeader title="News Posts" action={<button onClick={openAdd} className={btnPrimary}>+ New Post</button>} />
       <div className="space-y-3">
         {news.map((p, i) => (
-          <motion.div key={p.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-            className="bg-white rounded-[14px] border-[2px] border-[var(--line)] shadow-[3px_3px_0px_var(--ink)] p-4 flex items-start gap-4">
-            <div className="w-[5px] self-stretch rounded-full shrink-0" style={{ background: catColor[p.category] ?? '#888' }} />
+          <motion.div key={p.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+            className="border-[2.5px] border-[var(--ink)] shadow-[4px_4px_0px_var(--ink)] bg-white p-4 flex items-start gap-4">
+            <div className="w-[4px] self-stretch shrink-0" style={{ background: catColor[p.category] ?? '#888' }} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="text-[11px] font-[800] uppercase tracking-wide" style={{ color: catColor[p.category] }}>{p.category}</span>
-                <span className="text-[12px] text-[var(--ink-faint)]">· {p.date}</span>
-                <span className={`text-[11px] font-[700] px-2 py-0.5 rounded-full ${p.published ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>{p.published ? 'Published' : 'Draft'}</span>
+                <span className="text-[10px] font-[800] uppercase tracking-wider" style={{ color: catColor[p.category] }}>{p.category}</span>
+                <span className="text-[11px] text-[var(--ink-faint)]">· {p.date}</span>
+                <span className={`text-[10px] font-[800] px-2 py-0.5 border-[1.5px] ${p.published ? 'border-green-300 text-green-700 bg-green-50' : 'border-red-200 text-red-500 bg-red-50'}`}>{p.published ? 'Live' : 'Draft'}</span>
               </div>
-              <div className="font-[700] text-[15px] truncate">{p.title}</div>
-              <div className="text-[12.5px] text-[var(--ink-soft)] truncate">{p.excerpt}</div>
+              <div className="font-[700] text-[14px] truncate">{p.title}</div>
+              <div className="text-[12px] text-[var(--ink-soft)] truncate">{p.excerpt}</div>
             </div>
             <div className="flex gap-2 shrink-0">
-              <button onClick={() => openEdit(p)} className="px-3 py-1.5 rounded-[8px] text-[12px] font-[700] bg-[var(--paper-alt)] hover:bg-[var(--line)] transition-colors">Edit</button>
-              <button onClick={() => deleteNews(p.id)} className="px-3 py-1.5 rounded-[8px] text-[12px] font-[700] bg-red-50 text-red-500 hover:bg-red-100 transition-colors">Delete</button>
+              <button onClick={() => openEdit(p)} className={btnEdit}>Edit</button>
+              <button onClick={() => deleteNews(p.id)} className={btnDanger}>Delete</button>
             </div>
           </motion.div>
         ))}
       </div>
-
       <AnimatePresence>
         {modal && (
-          <Modal title={modal === 'add' ? 'New Post' : 'Edit Post'} onClose={close}>
-            <Field label="Title">
-              <input className={inputCls} value={form.title ?? ''} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Article headline" />
-            </Field>
-            <Field label="Excerpt (short summary)">
-              <textarea className={`${inputCls} resize-y`} rows={2} value={form.excerpt ?? ''} onChange={e => setForm(p => ({ ...p, excerpt: e.target.value }))} placeholder="A brief summary shown in the news feed." />
-            </Field>
-            <Field label="Full Content">
-              <textarea className={`${inputCls} resize-y`} rows={5} value={form.content ?? ''} onChange={e => setForm(p => ({ ...p, content: e.target.value }))} placeholder="Write the full article content here." />
-            </Field>
+          <Modal title={modal === 'add' ? 'New Post' : 'Edit Post'} onClose={close} wide>
+            <Field label="Title"><input className={inputCls} value={form.title ?? ''} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Article headline" /></Field>
+            <Field label="Excerpt"><textarea className={`${inputCls} resize-y`} rows={2} value={form.excerpt ?? ''} onChange={e => setForm(p => ({ ...p, excerpt: e.target.value }))} placeholder="Brief summary shown in feed." /></Field>
+            <Field label="Content"><textarea className={`${inputCls} resize-y`} rows={5} value={form.content ?? ''} onChange={e => setForm(p => ({ ...p, content: e.target.value }))} placeholder="Full article body." /></Field>
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Author">
-                <input className={inputCls} value={form.author ?? ''} onChange={e => setForm(p => ({ ...p, author: e.target.value }))} placeholder="Dr. Elena Rostova" />
-              </Field>
+              <Field label="Author"><input className={inputCls} value={form.author ?? ''} onChange={e => setForm(p => ({ ...p, author: e.target.value }))} placeholder="Dr. Elena Rostova" /></Field>
               <Field label="Category">
                 <select className={selectCls} value={form.category ?? 'Announcement'} onChange={e => setForm(p => ({ ...p, category: e.target.value as any }))}>
-                  <option>Research</option>
-                  <option>Update</option>
-                  <option>Story</option>
-                  <option>Announcement</option>
+                  <option>Research</option><option>Update</option><option>Story</option><option>Announcement</option>
                 </select>
               </Field>
             </div>
-            <Field label="Date">
-              <input className={inputCls} value={form.date ?? ''} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} placeholder="June 28, 2026" />
-            </Field>
-            <Field label="Status">
+            <Field label="Date"><input className={inputCls} value={form.date ?? ''} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} placeholder="July 5, 2026" /></Field>
+            <Field label="Visibility">
               <select className={selectCls} value={form.published ? 'published' : 'draft'} onChange={e => setForm(p => ({ ...p, published: e.target.value === 'published' }))}>
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
+                <option value="published">Published</option><option value="draft">Draft</option>
               </select>
             </Field>
             <div className="flex gap-3 mt-2">
-              <button onClick={close} className="flex-1 py-3 rounded-[10px] border-[2px] border-[var(--line)] font-[700] text-[14px] hover:bg-[var(--paper-alt)] transition-colors">Cancel</button>
-              <button onClick={save} className="flex-1 py-3 rounded-[10px] text-white font-[700] text-[14px]" style={{ background: 'var(--grad-brand)' }}>Publish</button>
+              <button onClick={close} className={btnSecondary}>Cancel</button>
+              <button onClick={save} className={btnPrimary}>Publish</button>
             </div>
           </Modal>
         )}
@@ -412,267 +800,204 @@ function NewsSection() {
   );
 }
 
-// ─── Users Section ─────────────────────────────────────────────
-function UsersSection() {
-  const { users, courses, events } = useAdmin();
-  const [selected, setSelected] = useState<RegisteredUser | null>(null);
+// ── Members ───────────────────────────────────────────────────────────────────
 
-  const getCourse = (slug: string) => courses.find(c => c.slug === slug);
-  const getEvent = (id: string) => events.find(e => e.id === id);
+function MembersSection() {
+  const { users, courses, events } = useAdmin();
+  const [selected, setSelected] = useState<string | null>(null);
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-[800] text-[26px] tracking-[-0.02em]">Members ({users.length})</h2>
-        <div className="text-[13px] text-[var(--ink-soft)] font-[600]">Click a member to view details</div>
-      </div>
-
-      <div className="bg-white rounded-[18px] border-[2px] border-[var(--line)] shadow-[4px_4px_0px_var(--ink)] overflow-hidden mb-6">
-        <div className="grid grid-cols-[2fr_2fr_1fr_1fr_1fr] gap-0 px-5 py-3 bg-[var(--paper-alt)] border-b border-[var(--line)] text-[12px] font-[800] uppercase tracking-wider text-[var(--ink-faint)]">
-          <div>Name</div>
-          <div>Email</div>
-          <div>Joined</div>
-          <div>Courses</div>
-          <div>Events</div>
+      <SectionHeader title="Members" />
+      <div className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] bg-white overflow-hidden mb-4">
+        <div className="grid grid-cols-[2fr_2fr_1fr_60px_60px] px-5 py-3 bg-[var(--brutal-bg)] text-[10px] font-[800] uppercase tracking-[0.1em] text-white/60">
+          <div>Name</div><div>Email</div><div>Joined</div><div>Courses</div><div>Events</div>
         </div>
         {users.map((u, i) => (
-          <motion.div
-            key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}
-            className={`grid grid-cols-[2fr_2fr_1fr_1fr_1fr] gap-0 px-5 py-3.5 border-b border-[var(--line)] last:border-0 cursor-pointer hover:bg-[var(--paper-alt)] transition-colors ${selected?.id === u.id ? 'bg-[var(--pill-bg)]' : ''}`}
-            onClick={() => setSelected(selected?.id === u.id ? null : u)}
-          >
-            <div className="font-[700] text-[14px]">{u.name}</div>
-            <div className="text-[13px] text-[var(--ink-soft)] truncate">{u.email}</div>
-            <div className="text-[13px] text-[var(--ink-soft)]">{u.joinedDate}</div>
-            <div className="text-[13px] font-[700] text-[var(--violet)]">{u.completedCourses.length}</div>
-            <div className="text-[13px] font-[700] text-[var(--magenta)]">{u.registeredEvents.length}</div>
+          <motion.div key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+            className={`grid grid-cols-[2fr_2fr_1fr_60px_60px] px-5 py-3.5 border-t-[1.5px] border-[var(--line)] cursor-pointer transition-colors ${selected === u.id ? 'bg-[var(--paper-alt)]' : 'hover:bg-[var(--paper-alt)]'}`}
+            onClick={() => setSelected(selected === u.id ? null : u.id)}>
+            <div className="font-[700] text-[13px]">{u.name}</div>
+            <div className="text-[12.5px] text-[var(--ink-soft)] truncate">{u.email}</div>
+            <div className="text-[12.5px] text-[var(--ink-soft)]">{u.joinedDate}</div>
+            <div className="text-[13px] font-[800]" style={{ color: '#8b5cf6' }}>{u.completedCourses.length}</div>
+            <div className="text-[13px] font-[800]" style={{ color: '#e93fc7' }}>{u.registeredEvents.length}</div>
           </motion.div>
         ))}
       </div>
-
       <AnimatePresence>
-        {selected && (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}
-            className="bg-white rounded-[18px] border-[2px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] p-6">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h3 className="font-[800] text-[20px]">{selected.name}</h3>
-                <div className="text-[13px] text-[var(--ink-soft)]">{selected.email} · Joined {selected.joinedDate}</div>
+        {selected && (() => {
+          const u = users.find(x => x.id === selected)!;
+          return (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className="border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] bg-white p-6">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <div className="font-[800] text-[20px]">{u.name}</div>
+                  <div className="text-[13px] text-[var(--ink-soft)]">{u.email} · Joined {u.joinedDate}</div>
+                </div>
+                <button onClick={() => setSelected(null)} className="font-[700] text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors">✕ Close</button>
               </div>
-              <button onClick={() => setSelected(null)} className="text-[var(--ink-soft)] hover:text-[var(--ink)] font-[700]">Close ×</button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <div className="font-[800] text-[13px] uppercase tracking-wider text-[var(--ink-faint)] mb-3">Completed Courses ({selected.completedCourses.length})</div>
-                {selected.completedCourses.length === 0
-                  ? <div className="text-[13px] text-[var(--ink-faint)]">No completed courses yet.</div>
-                  : selected.completedCourses.map(slug => {
-                    const c = getCourse(slug);
-                    return c ? (
-                      <div key={slug} className="flex items-center gap-3 mb-2 p-3 rounded-[10px] bg-[var(--paper-alt)]">
-                        <span className="text-lg">📚</span>
-                        <div>
-                          <div className="font-[700] text-[13.5px]">{c.title}</div>
-                          <div className="text-[11.5px] text-[var(--ink-faint)]">{c.level} · {c.duration}</div>
-                        </div>
-                        <span className="ml-auto text-[11px] font-[800] text-green-600 bg-green-50 px-2 py-0.5 rounded-full">✓ Done</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <div className="text-[10px] font-[800] uppercase tracking-[0.1em] text-[var(--ink-faint)] mb-3">Completed Courses ({u.completedCourses.length})</div>
+                  {u.completedCourses.length === 0 ? <p className="text-[12.5px] text-[var(--ink-soft)]">None yet.</p> :
+                    u.completedCourses.map(slug => (
+                      <div key={slug} className="flex items-center gap-3 mb-2 px-3 py-2.5 border-[1.5px] border-[var(--line)] text-[12.5px] font-[600]">
+                        ✓ {slug}
                       </div>
-                    ) : null;
-                  })}
-              </div>
-              <div>
-                <div className="font-[800] text-[13px] uppercase tracking-wider text-[var(--ink-faint)] mb-3">Registered Events ({selected.registeredEvents.length})</div>
-                {selected.registeredEvents.length === 0
-                  ? <div className="text-[13px] text-[var(--ink-faint)]">No event registrations yet.</div>
-                  : selected.registeredEvents.map(id => {
-                    const ev = getEvent(id);
-                    return ev ? (
-                      <div key={id} className="flex items-center gap-3 mb-2 p-3 rounded-[10px] bg-[var(--paper-alt)]">
-                        <div className="w-9 h-9 rounded-[8px] bg-[var(--pill-bg)] flex flex-col items-center justify-center shrink-0">
-                          <div className="font-[800] text-[12px] text-[var(--pill-ink)] leading-none">{ev.date.day}</div>
-                          <div className="text-[8px] font-[700] text-[var(--pill-ink)] opacity-70">{ev.date.month}</div>
-                        </div>
-                        <div>
-                          <div className="font-[700] text-[13.5px]">{ev.title}</div>
-                          <div className="text-[11.5px] text-[var(--ink-faint)]">{ev.format} · {ev.type}</div>
-                        </div>
+                    ))}
+                </div>
+                <div>
+                  <div className="text-[10px] font-[800] uppercase tracking-[0.1em] text-[var(--ink-faint)] mb-3">Registered Events ({u.registeredEvents.length})</div>
+                  {u.registeredEvents.length === 0 ? <p className="text-[12.5px] text-[var(--ink-soft)]">None yet.</p> :
+                    u.registeredEvents.map(id => (
+                      <div key={id} className="flex items-center gap-3 mb-2 px-3 py-2.5 border-[1.5px] border-[var(--line)] text-[12.5px] font-[600]">
+                        ◻ Event {id}
                       </div>
-                    ) : null;
-                  })}
+                    ))}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          );
+        })()}
       </AnimatePresence>
     </div>
   );
 }
 
-// ─── Roles Section ─────────────────────────────────────────────
-const ROLE_META: Record<string, { label: string; color: string; bg: string }> = {
-  member:   { label: 'Member',   color: 'var(--ink-soft)', bg: 'var(--paper-alt)' },
-  gcl_team: { label: 'GCL Team', color: '#0891b2',         bg: '#ecfeff'          },
-  admin:    { label: 'Admin',    color: '#7c3aed',         bg: '#f5f3ff'          },
-};
+// ── Root ──────────────────────────────────────────────────────────────────────
 
-type LocalRole = 'member' | 'gcl_team' | 'admin';
-
-function RolesSection() {
-  const { users } = useAdmin();
-  const [roles, setRoles] = useState<Record<string, LocalRole>>({});
-
-  const getRole = (id: string): LocalRole => roles[id] ?? 'member';
-  const setRole = (id: string, role: LocalRole) => setRoles(prev => ({ ...prev, [id]: role }));
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="font-[800] text-[26px] tracking-[-0.02em]">Team & Roles</h2>
-          <p className="text-[13px] text-[var(--ink-soft)] mt-1">Promote members to GCL Team or Admin, or revoke access.</p>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-[18px] border-[2px] border-[var(--line)] shadow-[4px_4px_0px_var(--ink)] overflow-hidden">
-        <div className="grid grid-cols-[2fr_2fr_1fr_1.3fr] gap-0 px-5 py-3 bg-[var(--paper-alt)] border-b border-[var(--line)] text-[12px] font-[800] uppercase tracking-wider text-[var(--ink-faint)]">
-          <div>Name</div>
-          <div>Email</div>
-          <div>Role</div>
-          <div>Change Role</div>
-        </div>
-        {users.map((u, i) => {
-          const currentRole = getRole(u.id);
-          const meta = ROLE_META[currentRole] ?? ROLE_META.member;
-          return (
-            <motion.div
-              key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-              className="grid grid-cols-[2fr_2fr_1fr_1.3fr] gap-0 px-5 py-3.5 border-b border-[var(--line)] last:border-0 items-center"
-            >
-              <div className="font-[700] text-[14px]">{u.name}</div>
-              <div className="text-[13px] text-[var(--ink-soft)] truncate">{u.email}</div>
-              <div>
-                <span className="text-[11px] font-[800] px-2.5 py-1 rounded-full" style={{ color: meta.color, background: meta.bg }}>{meta.label}</span>
-              </div>
-              <select
-                value={currentRole}
-                onChange={e => setRole(u.id, e.target.value as LocalRole)}
-                className="text-[13px] font-[600] px-3 py-2 rounded-[8px] border-[1.5px] border-[var(--line)] bg-[var(--paper-alt)]"
-              >
-                <option value="member">Member</option>
-                <option value="gcl_team">GCL Team</option>
-                <option value="admin">Admin</option>
-              </select>
-            </motion.div>
-          );
-        })}
-        {users.length === 0 && (
-          <div className="px-5 py-10 text-center text-[13px] text-[var(--ink-faint)]">No members found.</div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─── Main Dashboard ────────────────────────────────────────────
 export function AdminDashboard() {
-  const { isAuthenticated, isLoading, isAdmin, user, logout } = useAppAuth();
-  const [, setLocation] = useLocation();
+  const { isAuthenticated, isAdmin, user, logout, login } = useAppAuth();
+  const { assignments, programs, users, events } = useAdmin();
   const [section, setSection] = useState<Section>('overview');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (isLoading) {
-    return <main className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-[var(--line)] border-t-[var(--violet)] rounded-full animate-spin" /></main>;
-  }
-
-  if (!isAuthenticated || !isAdmin) {
+  if (!isAuthenticated) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="text-5xl mb-4">🔒</div>
-          <h2 className="font-[800] text-[24px] mb-2">Access Denied</h2>
-          <p className="text-[var(--ink-soft)] mb-6">You need to be logged in as an admin to view this page.</p>
-          <Link href="/signin" className="btn btn-dark">Go to Sign In</Link>
+      <main className="min-h-screen flex flex-col items-center justify-center px-8 bg-white">
+        <img src={logoImg} alt="GCL" className="h-9 object-contain mb-10" />
+        <div className="border-[2.5px] border-[var(--ink)] shadow-[8px_8px_0px_var(--ink)] bg-white p-10 max-w-[400px] w-full text-center">
+          <div className="font-[800] text-[22px] tracking-[-0.02em] uppercase mb-3">Admin Access</div>
+          <p className="text-[14px] text-[var(--ink-soft)] mb-7">Sign in with your admin account to continue.</p>
+          <button onClick={login} className="w-full py-3 font-[800] text-[13px] uppercase tracking-wider text-white bg-[var(--ink)] border-[2px] border-[var(--ink)] hover:bg-transparent hover:text-[var(--ink)] transition-colors">Sign In</button>
         </div>
       </main>
     );
   }
 
-  const handleLogout = () => { logout(); setLocation('/'); };
+  if (!isAdmin) {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center px-8 bg-white">
+        <img src={logoImg} alt="GCL" className="h-9 object-contain mb-10" />
+        <div className="border-[2.5px] border-[var(--ink)] shadow-[8px_8px_0px_var(--ink)] bg-white p-10 max-w-[400px] w-full text-center">
+          <div className="font-[800] text-[22px] tracking-[-0.02em] uppercase mb-3">Access Denied</div>
+          <p className="text-[14px] text-[var(--ink-soft)]">This area requires admin privileges.</p>
+        </div>
+      </main>
+    );
+  }
+
+  const displayName = user?.firstName || user?.email || 'Admin';
+  const pendingCount = programs.reduce((s, p) => s + p.applicants.filter(a => a.decision === 'pending').length, 0);
 
   return (
-    <div className="min-h-screen bg-[var(--paper-alt)] flex">
-      {/* Sidebar */}
-      <aside className="w-[240px] shrink-0 bg-[var(--brutal-bg)] flex flex-col sticky top-0 h-screen overflow-y-auto hidden md:flex">
-        <div className="p-6 border-b border-[rgba(246,244,255,0.08)]">
-          <Link href="/" className="flex items-center gap-2 mb-1">
-            <div className="w-[22px] h-[22px] rounded-full" style={{ background: 'conic-gradient(from 200deg, var(--blue), var(--violet), var(--magenta), #33c7e8, var(--blue))' }} />
-            <span className="font-[800] text-[15px]" style={{ background: 'var(--grad-brand)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>GCL Admin</span>
-          </Link>
-          <div className="text-[11px] text-[var(--brutal-text-dim)] font-[600]">Control Panel</div>
-        </div>
+    <main className="min-h-screen bg-[var(--paper-alt)]">
 
-        <nav className="flex-1 p-4 space-y-1">
-          {NAV_ITEMS.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setSection(item.id)}
-              className="w-full text-left flex items-center gap-3 px-4 py-2.5 rounded-[10px] text-[14px] font-[600] transition-all"
-              style={section === item.id
-                ? { background: 'rgba(255,255,255,0.1)', color: 'var(--neon-cyan)' }
-                : { color: 'var(--brutal-text-dim)' }}
-            >
-              <span className="text-[16px]">{item.icon}</span>
-              {item.label}
+      {/* ── Dark Hero Header ── */}
+      <section style={{ background: 'var(--brutal-bg)' }}>
+        <div className="max-w-[1280px] mx-auto px-6">
+
+          {/* Top bar */}
+          <div className="flex items-center gap-6 py-4 border-b border-white/10 flex-wrap">
+            <Link href="/">
+              <img src={logoImg} alt="GCL" className="h-7 object-contain shrink-0" />
+            </Link>
+            <div className="w-[1px] h-5 bg-white/20 shrink-0" />
+            <div className="flex items-center gap-1 flex-wrap flex-1">
+              {SITE_LINKS.map(l => (
+                <Link key={l.href} href={l.href}
+                  className="text-[11px] font-[700] uppercase tracking-wider text-white/50 hover:text-white transition-colors px-2 py-1">
+                  {l.label}
+                </Link>
+              ))}
+              <Link href="/portal" className="text-[11px] font-[700] uppercase tracking-wider text-white/50 hover:text-white transition-colors px-2 py-1">Portal</Link>
+            </div>
+            <button onClick={logout} className="text-[11px] font-[700] uppercase tracking-wider text-white/40 hover:text-white transition-colors shrink-0">
+              Sign Out
             </button>
-          ))}
-        </nav>
+          </div>
 
-        <div className="p-4 border-t border-[rgba(246,244,255,0.08)]">
-          <Link href="/" className="block w-full text-left px-4 py-2.5 rounded-[10px] text-[13px] font-[600] text-[var(--brutal-text-dim)] hover:text-white transition-colors mb-1">← Back to site</Link>
-          <button onClick={handleLogout} className="w-full text-left px-4 py-2.5 rounded-[10px] text-[13px] font-[600] text-red-400 hover:bg-red-900/20 transition-colors">Sign Out</button>
+          {/* Hero */}
+          <div className="py-8 border-b border-white/10">
+            <div className="text-[10px] font-[800] uppercase tracking-[0.18em] text-[var(--neon-cyan)] mb-3">GCL Admin Dashboard</div>
+            <h1 className="font-[800] text-[clamp(36px,5vw,64px)] leading-[0.9] tracking-[-0.04em] text-white uppercase">
+              {displayName}.
+            </h1>
+            <p className="text-[13px] text-white/40 font-[500] mt-3">Full control over all site content, assignments, and programs.</p>
+          </div>
+
+          {/* Stats bar */}
+          <div className="grid grid-cols-4 divide-x divide-white/10 py-5">
+            {[
+              { n: events.length, label: 'Events' },
+              { n: assignments.length, label: 'Assignments' },
+              { n: programs.length, label: 'Programs' },
+              { n: pendingCount, label: 'Pending Decisions' },
+            ].map(s => (
+              <div key={s.label} className="px-6 first:pl-0">
+                <div className="font-[800] text-[clamp(24px,3vw,40px)] text-white tracking-[-0.02em] leading-none"
+                  style={{ color: s.label === 'Pending Decisions' && s.n > 0 ? '#fbbf24' : undefined }}>
+                  {s.n}
+                </div>
+                <div className="text-[10px] font-[600] uppercase tracking-wider text-white/40 mt-1">{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
-      </aside>
+      </section>
 
-      {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[var(--brutal-bg)] px-4 py-3 flex items-center justify-between border-b border-[rgba(246,244,255,0.1)]">
-        <span className="font-[800] text-white text-[15px]">GCL Admin</span>
-        <button onClick={() => setSidebarOpen(v => !v)} className="text-white text-xl">☰</button>
-      </div>
+      {/* ── Body ── */}
+      <div className="max-w-[1280px] mx-auto px-6 py-8">
+        <div className="flex gap-6 items-start">
 
-      {/* Main content */}
-      <main className="flex-1 p-6 md:p-10 mt-[52px] md:mt-0 min-w-0">
-        <AnimatePresence mode="wait">
-          <motion.div key={section} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
-            {section === 'overview' && <OverviewSection />}
-            {section === 'events' && <EventsSection />}
-            {section === 'courses' && <CoursesSection />}
-            {section === 'news' && <NewsSection />}
-            {section === 'users' && <UsersSection />}
-            {section === 'roles' && <RolesSection />}
-          </motion.div>
-        </AnimatePresence>
-      </main>
-
-      {/* Mobile Sidebar Overlay */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="md:hidden fixed inset-0 z-50 bg-[var(--brutal-bg)] flex flex-col p-6 pt-16">
-            <button onClick={() => setSidebarOpen(false)} className="absolute top-4 right-4 text-white text-2xl">×</button>
-            <nav className="space-y-2">
-              {NAV_ITEMS.map(item => (
-                <button key={item.id} onClick={() => { setSection(item.id); setSidebarOpen(false); }}
-                  className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-[10px] text-[16px] font-[700]"
-                  style={section === item.id ? { color: 'var(--neon-cyan)' } : { color: 'var(--brutal-text-dim)' }}>
-                  <span>{item.icon}</span>{item.label}
+          {/* Sidebar */}
+          <div className="w-[200px] shrink-0 sticky top-6">
+            <nav className="space-y-1">
+              {NAV.map(item => (
+                <button key={item.id} onClick={() => setSection(item.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 border-[2px] font-[800] text-[11px] uppercase tracking-wider text-left transition-all ${
+                    section === item.id
+                      ? 'border-[var(--ink)] bg-[var(--ink)] text-white shadow-[4px_4px_0px_var(--ink-soft)]'
+                      : 'border-[var(--line)] bg-white text-[var(--ink-soft)] hover:border-[var(--ink)] hover:text-[var(--ink)]'
+                  }`}>
+                  <span className="text-[14px] opacity-60">{item.icon}</span>
+                  <span>{item.label}</span>
+                  {item.id === 'programs' && pendingCount > 0 && (
+                    <span className="ml-auto w-4 h-4 rounded-full bg-amber-400 text-[9px] font-[800] text-white flex items-center justify-center shrink-0">{pendingCount}</span>
+                  )}
                 </button>
               ))}
             </nav>
-            <div className="mt-auto">
-              <button onClick={handleLogout} className="text-red-400 font-[700] text-[15px] mt-4">Sign Out</button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0 bg-white border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] p-8">
+            <AnimatePresence mode="wait">
+              <motion.div key={section} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+                {section === 'overview'    && <OverviewSection />}
+                {section === 'assignments' && <AssignmentsSection />}
+                {section === 'programs'    && <ProgramsSection />}
+                {section === 'events'      && <EventsSection />}
+                {section === 'courses'     && <CoursesSection />}
+                {section === 'news'        && <NewsSection />}
+                {section === 'members'     && <MembersSection />}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+        </div>
+      </div>
+    </main>
   );
 }
