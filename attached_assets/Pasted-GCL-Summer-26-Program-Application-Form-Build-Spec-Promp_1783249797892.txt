@@ -1,0 +1,72 @@
+GCL Summer '26 Program — Application Form Build Spec
+Prompt/spec to hand to Replit (or any AI app builder) to generate the application system
+
+Program Description (to display at top of the form)
+Global Capital League — Summer '26 Program July 20 – August 20, 2026
+This summer, step into a role that goes beyond a typical internship. As a member of the GCL Summer '26 Team, you'll teach financial literacy to youth in communities that have never had access to it — breaking down the psychology of money, the systems behind scarcity, and the mindset shifts that create lasting change.
+This isn't about reciting budgeting tips. It's about empowering the next generation to understand why they make the financial decisions they do, and giving them the tools to rewrite that story.
+Over one month, you'll run workshops, build curriculum, and become part of a global network of changemakers spanning 14+ countries. You'll walk away having taught, mentored, and genuinely changed how young people see money — and grown just as much yourself in the process.
+If you're ready to teach, inspire, and leave a mark — apply below.
+
+Form Structure — Sections & Questions
+Section 1: Personal Information
+* Full Name (text, required)
+* Email Address (email, required)
+* Phone Number (text, required)
+* Country of Residence (dropdown, required)
+* Age (number, required)
+* Current Education Level (dropdown: High School / Undergraduate / Graduate / Other, required)
+* Preferred Language for Teaching (text/dropdown, required)
+Section 2: Motivation
+* Why do you want to join GCL as a financial literacy educator this summer? (long text, 150–300 words, required)
+* What does "financial empowerment" mean to you? (long text, 100–200 words, required)
+* Describe a moment when you saw someone's mindset about money shift. (long text, optional)
+Section 3: Skills & Experience
+* Do you have any teaching, mentoring, or public speaking experience? (long text, required)
+* Do you have any background in finance, economics, or psychology? (long text, optional)
+* List any relevant skills (multi-select or tags: Teaching, Curriculum Design, Public Speaking, Content Creation, Video/Photography, Web Development, Translation, Community Organizing, Other)
+* Have you worked with youth or community organizations before? (yes/no + short text explanation)
+Section 4: Availability & Commitment
+* Confirm you are available July 20 – August 20, 2026 (checkbox, required)
+* Estimated hours per week you can commit (dropdown: 10–15 / 15–20 / 20+, required)
+* Will you need travel support or is this a remote/local commitment? (dropdown, required)
+* Any dates within the program window you are unavailable? (text, optional)
+Section 5: Supporting Materials
+* Resume/CV upload (file upload, optional but recommended)
+* Portfolio / relevant work links (text field for URLs, optional — e.g. videos, websites, writing samples)
+* Anything else you'd like us to know? (long text, optional)
+Section 6: Legal & Consent
+* I confirm the information provided is accurate and complete. (checkbox, required)
+* I have read and agree to the GCL Code of Conduct and Program Terms & Conditions. (checkbox, required, link to terms doc)
+* I consent to GCL using my name, photo, and video from program activities for promotional purposes. (checkbox, required)
+* If under 18: Parent/Guardian consent (checkbox + guardian name + guardian email, conditionally required if age < 18)
+* Electronic signature (typed full name acting as signature, required)
+* Date (auto-filled, read-only)
+Section 7: Review & Submit
+* Summary view of all entered information for final review
+* "Save as Draft" button
+* "Submit Application" button
+
+Functional Requirements (for Replit to implement)
+1. User Accounts
+* Simple sign-up/login (email + password, or magic link) so applicants can return to their application.
+2. Save & Resume
+* Applicants can save the form at any point without submitting.
+* Saved-but-unsubmitted forms appear in the applicant's dashboard under "My Programs" with status: Draft.
+3. Applicant Dashboard
+* A dashboard page listing all programs the user has applied to, each with a status badge:
+    * Draft — started but not submitted
+    * Pending — submitted, awaiting review
+    * Accepted / Rejected — once GCL updates status (admin-side)
+* Clicking an application shows the full submitted form (read-only once submitted).
+4. Submission Flow
+* On clicking "Submit," validate all required fields (including conditional guardian consent if under 18).
+* Once submitted, lock the form from editing and change status to Pending.
+* Timestamp the submission and store the e-signature + consent checkboxes with timestamps for legal record-keeping.
+5. Print Functionality
+* After submission, applicant can click "Print / Download PDF" to get a clean, formatted copy of their submitted application (no buttons/nav in the printout — just the Q&A content, program name, and submission date).
+6. Admin Side ——— very important!!!
+* A simple admin view listing all submitted applications, with the ability to change status to Accepted/Rejected (this updates what the applicant sees on their dashboard).
+* and wehn admins start a new program they set a name and edit questions nad the form and publish them. it should all be admin editable central system. and make sur ethis form is fully ediatbale ion thad,on dahsboard, and overall all the other ones. so we can control rejection, accpetances, and see people’s responses. and it should be very well protected.
+7. Data Storage
+* Store all responses in a database (e.g. Replit DB, or SQLite/Postgres) tied to user ID and program ID, so the system can support multiple programs/cohorts in the future, not just Summer '26.

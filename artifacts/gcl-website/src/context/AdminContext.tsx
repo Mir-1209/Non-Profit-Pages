@@ -2,6 +2,9 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { courses as initialCourses, Course } from '../data/courses';
 import { events as initialEvents, Event } from '../data/events';
 import { newsPosts as initialNews, NewsPost } from '../data/news';
+import { FormSection, SUMMER26_FORM_SCHEMA } from '../data/applicationForm';
+
+export type { FormSection, FormField, FieldType } from '../data/applicationForm';
 
 export interface RegisteredUser {
   id: string;
@@ -39,8 +42,10 @@ export interface ProgramApplicant {
   name: string;
   email: string;
   appliedDate: string;
-  decision: 'pending' | 'accepted' | 'waitlisted' | 'rejected';
+  decision: 'draft' | 'pending' | 'accepted' | 'waitlisted' | 'rejected';
   decisionDate?: string;
+  responses?: Record<string, any>;
+  submittedAt?: string;
 }
 
 export interface Program {
@@ -52,6 +57,8 @@ export interface Program {
   active: boolean;
   formUrl?: string;
   applicants: ProgramApplicant[];
+  formSchema?: FormSection[];
+  slug?: string;
 }
 
 export const GCL_TEAM_MEMBERS: { id: string; name: string }[] = [
@@ -80,11 +87,13 @@ const INITIAL_SUBMISSIONS: AssignmentSubmission[] = [
 const INITIAL_PROGRAMS: Program[] = [
   {
     id: 'prog1',
+    slug: 'summer-26',
     name: "GCL Summer '26 Team",
     type: 'Volunteer · Competitive',
-    description: 'Competitive summer volunteer program for financial literacy educators. Participants lead chapter activities and events.',
-    deadline: '2026-01-31',
-    active: false,
+    description: 'Teach financial literacy to youth around the world. July 20 – August 20, 2026.',
+    deadline: '2026-07-10',
+    active: true,
+    formSchema: SUMMER26_FORM_SCHEMA,
     applicants: [
       { id: 'ap1', memberId: 'Mirzo10', name: 'Mirzo (Member)', email: 'mirzo10@gcl.org', appliedDate: 'Jan 15, 2026', decision: 'accepted', decisionDate: 'July 4, 2026' },
       { id: 'ap2', memberId: 'Mirzo11', name: 'Mirzo (Team)', email: 'mirzo11@gcl.org', appliedDate: 'Jan 15, 2026', decision: 'accepted', decisionDate: 'July 4, 2026' },
@@ -156,6 +165,8 @@ interface AdminContextType {
   deleteApplicant: (programId: string, applicantId: string) => void;
   getMyPrograms: (memberId: string) => { program: Program; applicant: ProgramApplicant }[];
   getMyAssignments: (memberId: string) => Assignment[];
+  getApplication: (programId: string, memberId: string) => ProgramApplicant | undefined;
+  saveApplication: (programId: string, memberId: string, data: { name: string; email: string; responses: Record<string, any> }, submit: boolean) => { success: boolean; error?: string };
 }
 
 const AdminContext = createContext<AdminContextType | null>(null);
@@ -260,6 +271,60 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const getApplication = (programId: string, memberId: string) => {
+    const p = programs.find(x => x.id === programId);
+    return p?.applicants.find(a => a.memberId === memberId);
+  };
+
+  const saveApplication = (
+    programId: string,
+    memberId: string,
+    data: { name: string; email: string; responses: Record<string, any> },
+    submit: boolean
+  ): { success: boolean; error?: string } => {
+    const program = programs.find(p => p.id === programId);
+    if (!program) return { success: false, error: 'Program not found.' };
+
+    const existing = program.applicants.find(a => a.memberId === memberId);
+    if (existing && existing.decision !== 'draft') {
+      return { success: false, error: 'This application has already been submitted and cannot be edited.' };
+    }
+
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    setPrograms(prev => prev.map(p => {
+      if (p.id !== programId) return p;
+      const idx = p.applicants.findIndex(a => a.memberId === memberId);
+      if (idx >= 0) {
+        const applicants = [...p.applicants];
+        applicants[idx] = {
+          ...applicants[idx],
+          name: data.name,
+          email: data.email,
+          responses: data.responses,
+          decision: submit ? 'pending' : 'draft',
+          appliedDate: submit ? formattedDate : applicants[idx].appliedDate,
+          submittedAt: submit ? now.toISOString() : applicants[idx].submittedAt,
+        };
+        return { ...p, applicants };
+      }
+      const applicant: ProgramApplicant = {
+        id: `ap${Date.now()}`,
+        memberId,
+        name: data.name,
+        email: data.email,
+        appliedDate: formattedDate,
+        decision: submit ? 'pending' : 'draft',
+        responses: data.responses,
+        submittedAt: submit ? now.toISOString() : undefined,
+      };
+      return { ...p, applicants: [...p.applicants, applicant] };
+    }));
+
+    return { success: true };
+  };
+
   return (
     <AdminContext.Provider value={{
       events, addEvent, updateEvent, deleteEvent,
@@ -271,6 +336,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       programs, addProgram, updateProgram, deleteProgram,
       updateApplicantDecision, addApplicant, deleteApplicant,
       getMyPrograms, getMyAssignments,
+      getApplication, saveApplication,
     }}>
       {children}
     </AdminContext.Provider>

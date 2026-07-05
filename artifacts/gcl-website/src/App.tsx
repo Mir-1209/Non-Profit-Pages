@@ -34,6 +34,7 @@ import { VerifyPage } from './pages/Verify';
 import { CertCongratulations } from './pages/CertCongratulations';
 import { Privacy, Terms } from './pages/Legal';
 import { ChapterDetail } from './pages/ChapterDetail';
+import { ApplyProgram } from './pages/ApplyProgram';
 import NotFound from './pages/not-found';
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ function SiteLayout() {
             <Route path="/news" component={News} />
             <Route path="/news/:id" component={NewsDetail} />
             <Route path="/signin" component={SignIn} />
+            <Route path="/apply/:programId" component={ApplyProgram} />
             <Route path="/dashboard" component={MemberDashboard} />
             <Route path="/portal" component={TeamPortal} />
             <Route path="/congratulations/:token" component={CertCongratulations} />

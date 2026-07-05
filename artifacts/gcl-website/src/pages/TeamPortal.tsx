@@ -23,7 +23,8 @@ const STATUS_STYLES = {
   completed:   { bg: '#f0fdf4', color: '#166534', label: 'Completed',   border: '#86efac' },
 };
 
-const APP_STATUS_STYLES = {
+const APP_STATUS_STYLES: Record<string, { color: string; bg: string; border: string; label: string }> = {
+  draft:      { color: '#5c5876', bg: '#f7f6fd', border: '#ecebf7', label: 'Draft' },
   accepted:   { color: '#166534', bg: '#dcfce7', border: '#86efac', label: 'Accepted' },
   waitlisted: { color: '#1e40af', bg: '#dbeafe', border: '#93c5fd', label: 'Waitlisted' },
   rejected:   { color: '#991b1b', bg: '#fee2e2', border: '#fca5a5', label: 'Rejected' },

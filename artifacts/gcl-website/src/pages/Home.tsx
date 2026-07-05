@@ -444,6 +444,32 @@ export function Home() {
         </div>
       </section>
 
+      {/* ─── SUMMER '26 APPLY CTA ─── */}
+      <section className="py-[100px] overflow-hidden relative" style={{ background: 'var(--brutal-bg)' }}>
+        <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'repeating-linear-gradient(90deg,white 0px,white 1px,transparent 1px,transparent 80px),repeating-linear-gradient(0deg,white 0px,white 1px,transparent 1px,transparent 80px)' }} />
+        <div className="max-w-[1240px] mx-auto px-8 relative z-10">
+          <Reveal>
+            <div className="border-[2.5px] border-white/15 rounded-[24px] p-8 md:p-14 grid grid-cols-1 md:grid-cols-[1.3fr_auto] gap-10 items-center" style={{ background: 'rgba(255,255,255,0.02)' }}>
+              <div>
+                <div className="inline-flex items-center gap-2 text-[11px] font-[800] uppercase tracking-[0.18em] text-[var(--neon-cyan)] mb-5">
+                  <span className="w-2 h-2 rounded-full bg-[#28c840]" />
+                  Applications Open · July 20 – Aug 20, 2026
+                </div>
+                <h2 className="font-[800] text-[clamp(28px,4.5vw,48px)] leading-[1.05] tracking-[-0.03em] text-white uppercase mb-5">
+                  GCL Team<br />Summer '26.
+                </h2>
+                <p className="text-[15.5px] text-white/60 leading-[1.7] max-w-[540px]">
+                  Teach financial literacy to youth across 14+ countries. Run workshops, build curriculum, and join a global network of changemakers — all in one month. Applications are open now.
+                </p>
+              </div>
+              <Link href="/apply/summer-26" className="shrink-0 inline-flex items-center justify-center px-8 py-5 rounded-full bg-white text-[var(--ink)] font-[800] text-[14px] uppercase tracking-wider hover:bg-[var(--neon-cyan)] transition-colors whitespace-nowrap">
+                Apply Now →
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* ─── STATS (dark) ─── */}
       <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)]">
         <div className="max-w-[1240px] mx-auto px-8">

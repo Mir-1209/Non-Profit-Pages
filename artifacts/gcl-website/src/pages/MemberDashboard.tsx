@@ -16,11 +16,12 @@ function ProgressBar({ progress }: { progress: number }) {
   );
 }
 
-const STATUS_STYLES = {
+const STATUS_STYLES: Record<string, { color: string; bg: string; border: string; label: string }> = {
   accepted:   { color: '#166534', bg: '#dcfce7', border: '#86efac', label: 'Accepted' },
   waitlisted: { color: '#1e40af', bg: '#dbeafe', border: '#93c5fd', label: 'Waitlisted' },
   rejected:   { color: '#991b1b', bg: '#fee2e2', border: '#fca5a5', label: 'Rejected' },
   pending:    { color: '#92400e', bg: '#fffbeb', border: '#fcd34d', label: 'Under Review' },
+  draft:      { color: '#5c5876', bg: '#f7f6fd', border: '#ecebf7', label: 'Draft' },
 };
 
 const UPDATES = [
@@ -340,7 +341,8 @@ export function MemberDashboard() {
               <div className="space-y-3">
                 {myPrograms.map(({ program: p, applicant: ap }, i) => {
                   const st = STATUS_STYLES[ap.decision];
-                  const hasUpdate = ap.decision !== 'pending';
+                  const hasUpdate = ap.decision !== 'pending' && ap.decision !== 'draft';
+                  const linkTarget = `${BASE}/apply/${p.slug ?? p.id}`;
 
                   return (
                     <motion.div key={p.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
@@ -350,7 +352,9 @@ export function MemberDashboard() {
                             <div className="flex items-start gap-4">
                               <div className="flex-1">
                                 <div className="font-[800] text-[16px] tracking-[-0.01em] mb-1">{p.name}</div>
-                                <div className="text-[12px] text-[var(--ink-soft)] uppercase tracking-wider font-[600]">{p.type} · Applied {ap.appliedDate}</div>
+                                <div className="text-[12px] text-[var(--ink-soft)] uppercase tracking-wider font-[600]">
+                                  {p.type} · {ap.decision === 'draft' ? 'Started' : 'Applied'} {ap.appliedDate}
+                                </div>
                               </div>
                             </div>
                             {hasUpdate && (
@@ -358,6 +362,17 @@ export function MemberDashboard() {
                                 <SecretStatusWidget programName={p.name} updateDate={ap.decisionDate ?? ''} />
                               </div>
                             )}
+                            <div className="mt-4">
+                              {ap.decision === 'draft' ? (
+                                <Link href={linkTarget} className="inline-flex items-center gap-1.5 text-[12px] font-[800] uppercase tracking-wider text-[var(--ink)] underline underline-offset-2 hover:opacity-70 transition-opacity">
+                                  Continue Draft →
+                                </Link>
+                              ) : (
+                                <Link href={linkTarget} className="inline-flex items-center gap-1.5 text-[12px] font-[800] uppercase tracking-wider text-[var(--ink-soft)] underline underline-offset-2 hover:text-[var(--ink)] transition-colors">
+                                  View Application →
+                                </Link>
+                              )}
+                            </div>
                           </div>
                           <div className="flex items-center justify-center px-7 py-6 border-t-[2.5px] md:border-t-0 md:border-l-[2.5px] border-[var(--ink)] min-w-[140px]"
                             style={{ background: 'var(--paper-alt)' }}>

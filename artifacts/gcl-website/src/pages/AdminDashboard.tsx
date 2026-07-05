@@ -345,11 +345,55 @@ function AssignmentsSection() {
 // ── Programs ──────────────────────────────────────────────────────────────────
 
 const DECISION_STYLES: Record<string, { label: string; color: string; bg: string; border: string }> = {
+  draft:      { label: 'Draft',      color: '#5c5876', bg: '#f7f6fd', border: '#ecebf7' },
   pending:    { label: 'Pending',    color: '#92400e', bg: '#fffbeb', border: '#fcd34d' },
   accepted:   { label: 'Accepted',   color: '#166534', bg: '#dcfce7', border: '#86efac' },
   waitlisted: { label: 'Waitlisted', color: '#1e40af', bg: '#dbeafe', border: '#93c5fd' },
   rejected:   { label: 'Rejected',   color: '#991b1b', bg: '#fee2e2', border: '#fca5a5' },
 };
+
+function ApplicantResponses({ applicant, program }: { applicant: ProgramApplicant; program: Program }) {
+  const [open, setOpen] = useState(false);
+  const responses = applicant.responses;
+  const schema = program.formSchema;
+  if (!responses || !schema) return null;
+
+  return (
+    <div className="mt-3">
+      <button onClick={() => setOpen(o => !o)} className="text-[10px] font-[800] uppercase tracking-wider px-2.5 py-1 border-[1.5px] border-[var(--ink)] hover:bg-[var(--ink)] hover:text-white transition-colors">
+        {open ? 'Hide Responses ▲' : 'View Full Application ▼'}
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <div className="mt-3 border-[1.5px] border-[var(--line)] bg-white p-4 space-y-4">
+              {schema.map(section => (
+                <div key={section.id}>
+                  <div className="text-[10px] font-[800] uppercase tracking-wider text-[var(--ink-faint)] mb-2 pb-1.5 border-b border-[var(--line)]">{section.title}</div>
+                  <div className="space-y-2">
+                    {section.fields.map(f => {
+                      const v = responses[f.id];
+                      const display = f.type === 'checkbox' ? (v ? 'Yes' : 'No')
+                        : f.type === 'multiselect' ? (Array.isArray(v) && v.length ? v.join(', ') : '—')
+                        : f.type === 'file' ? (v?.name ?? '—')
+                        : (v !== undefined && v !== null && v !== '' ? String(v) : '—');
+                      return (
+                        <div key={f.id} className="text-[12px]">
+                          <div className="font-[700] text-[var(--ink-soft)] uppercase tracking-wide text-[10.5px] mb-0.5">{f.label}</div>
+                          <div className="text-[var(--ink)] whitespace-pre-wrap">{display}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 function ProgramsSection() {
   const { programs, addProgram, updateProgram, deleteProgram, updateApplicantDecision, addApplicant, deleteApplicant } = useAdmin();
@@ -483,7 +527,7 @@ function ProgramsSection() {
                                         {ds.label}
                                       </span>
                                       {/* Decision buttons */}
-                                      {(['accepted', 'waitlisted', 'rejected', 'pending'] as const).filter(d => d !== a.decision).map(d => (
+                                      {a.decision !== 'draft' && (['accepted', 'waitlisted', 'rejected', 'pending'] as const).filter(d => d !== a.decision).map(d => (
                                         <button key={d}
                                           onClick={() => updateApplicantDecision(p.id, a.id, d)}
                                           className="text-[9px] font-[800] uppercase tracking-wider px-2 py-1 border-[1.5px] border-[var(--line)] text-[var(--ink-soft)] hover:border-[var(--ink)] hover:text-[var(--ink)] transition-colors">
@@ -493,6 +537,7 @@ function ProgramsSection() {
                                       <button onClick={() => deleteApplicant(p.id, a.id)} className={btnDanger}>Remove</button>
                                     </div>
                                   </div>
+                                  <ApplicantResponses applicant={a} program={p} />
                                 </div>
                               );
                             })}

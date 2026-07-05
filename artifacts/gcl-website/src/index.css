@@ -259,6 +259,10 @@ body {
   .alt-bg { background: var(--paper-alt); }
 }
 
+@media print {
+  #site-nav, #site-footer { display: none !important; }
+}
+
 @keyframes count-land {
   0% { transform: scale(1); }
   45% { transform: scale(1.16); }

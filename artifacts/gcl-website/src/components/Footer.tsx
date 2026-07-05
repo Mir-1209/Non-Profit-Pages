@@ -4,6 +4,7 @@ import { Link } from 'wouter';
 export function Footer() {
   return (
     <footer
+      id="site-footer"
       className="mt-16 overflow-hidden text-white"
       style={{ background: 'var(--footer-bg)', paddingTop: '80px', borderRadius: '48px 48px 0 0' }}
     >
