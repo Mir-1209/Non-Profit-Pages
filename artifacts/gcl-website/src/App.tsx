@@ -1,6 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Route, Switch, Router as WouterRouter } from 'wouter';
+import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 import { AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
+
+function ScrollToTop() {
+  const [location] = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [location]);
+  return null;
+}
 
 import { AdminProvider } from './context/AdminContext';
 import { AuthProvider } from './context/AuthContext';
@@ -34,6 +41,7 @@ function AdminLayout() {
 function SiteLayout() {
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollToTop />
       <Nav />
       <div className="flex-grow">
         <AnimatePresence mode="wait">
