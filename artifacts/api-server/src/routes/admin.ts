@@ -50,7 +50,7 @@ router.patch(
     const [updated] = await db
       .update(usersTable)
       .set({ role })
-      .where(eq(usersTable.id, req.params.userId))
+      .where(eq(usersTable.id, String(req.params.userId)))
       .returning();
 
     if (!updated) {
