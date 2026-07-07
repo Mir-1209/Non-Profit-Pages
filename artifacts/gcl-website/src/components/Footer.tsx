@@ -23,6 +23,7 @@ export function Footer() {
           <div>
             <h6 className="text-[11px] tracking-[0.09em] uppercase text-white/40 mb-5 font-[700]">Company</h6>
             <Link href="/about" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">About Us</Link>
+            <Link href="/our-team" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Our Team</Link>
             <Link href="/stories" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Stories</Link>
             <Link href="/blog" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Blog</Link>
             <a href="mailto:hello@globalcapitalleague.org" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Contact</a>

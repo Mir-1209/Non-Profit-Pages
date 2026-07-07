@@ -5,6 +5,8 @@ import { useAdmin } from '../context/AdminContext';
 import { StoriesCarousel } from '../components/StoriesCarousel';
 import { GlobeSection } from '../components/GlobeSection';
 import { stories } from '../data/stories';
+import { teamMembers } from '../data/team';
+import { chapters } from '../data/chapters';
 
 // ─── Real impact assets ───────────────────────────────────────────────────
 import heroVideo from '@assets/2026-01-12_21.17.53_1783000059336.mp4';
@@ -308,6 +310,67 @@ export function Home() {
       </section>
 
       <GlobeSection />
+
+      {/* ─── CHAPTERS PREVIEW ─────────────────────────────────────────── */}
+      <section className="py-[110px] bg-white">
+        <div className="max-w-[1240px] mx-auto px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
+            <div className="max-w-[560px]">
+              <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-4">Global Chapters</span>
+              <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4">GCL Around the World</h2>
+              <p className="text-[16px] text-[var(--ink-soft)] leading-[1.7] max-w-[480px]">
+                38 active chapters across 14+ countries — each one locally led, globally connected. Find your nearest chapter or start one.
+              </p>
+            </div>
+            <Link href="/chapters" className="btn btn-outline shrink-0">Explore All Chapters →</Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            {chapters.filter(c => c.status === 'active').slice(0, 4).map((ch, i) => (
+              <Reveal key={ch.id} delay={i * 0.08}>
+                <Link href="/chapters" className="block bg-white rounded-[18px] border-[2.5px] border-[var(--ink)] shadow-[5px_5px_0px_var(--ink)] p-5 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[9px_9px_0px_var(--ink)] transition-all">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-[28px]">{ch.flagEmoji}</span>
+                    <div>
+                      <div className="font-[800] text-[15px] leading-tight">{ch.name}</div>
+                      <div className="text-[12px] text-[var(--ink-faint)] font-[600]">{ch.city}, {ch.country}</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 flex-wrap mb-3">
+                    <span className="text-[10px] font-[800] uppercase tracking-wide px-2 py-1 rounded-md"
+                      style={{
+                        background: ch.status === 'active' ? 'rgba(40,200,64,0.1)' : ch.status === 'growing' ? 'rgba(51,199,232,0.1)' : 'rgba(139,92,246,0.1)',
+                        color: ch.status === 'active' ? '#28c840' : ch.status === 'growing' ? '#33c7e8' : 'var(--violet)',
+                      }}>
+                      {ch.status}
+                    </span>
+                    <span className="text-[10px] font-[600] text-[var(--ink-faint)] px-2 py-1 rounded-md bg-[var(--paper-alt)]">Est. {ch.founded}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 pt-3 border-t border-[var(--line)]">
+                    <div>
+                      <div className="font-[800] text-[18px] text-[var(--violet)] leading-none">{ch.members}</div>
+                      <div className="text-[10px] text-[var(--ink-faint)] font-[600] uppercase tracking-wide mt-0.5">Members</div>
+                    </div>
+                    <div>
+                      <div className="font-[800] text-[18px] text-[var(--violet)] leading-none">{ch.eventsHosted}</div>
+                      <div className="text-[10px] text-[var(--ink-faint)] font-[600] uppercase tracking-wide mt-0.5">Events</div>
+                    </div>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal>
+            <div className="text-center">
+              <Link href="/chapters"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[var(--ink)] text-white font-[800] text-[13px] uppercase tracking-wider hover:bg-[var(--violet)] transition-colors">
+                View All 38 Chapters →
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
       {/* ─── PROGRAMS (dark) with real photos ───────────────────────── */}
       <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)]">
@@ -692,6 +755,64 @@ export function Home() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ─── OUR TEAM PREVIEW ─── */}
+      <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)]">
+        <div className="max-w-[1240px] mx-auto px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
+            <div className="max-w-[560px]">
+              <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--neon-cyan)] mb-4">
+                <span className="w-2 h-2 rounded-full bg-[var(--neon-cyan)]" />
+                The People
+              </span>
+              <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4 uppercase">Our Team.</h2>
+              <p className="text-[16px] text-[var(--brutal-text-dim)] leading-[1.7] max-w-[480px]">
+                A distributed crew of educators, economists, and builders united by one mission — making financial literacy radically accessible.
+              </p>
+            </div>
+            <Link href="/our-team" className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full border-[2px] border-white/20 text-white font-[700] text-[13px] uppercase tracking-wider hover:border-white/60 transition-colors">
+              See Full Team →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+            {teamMembers.slice(0, 4).map((member, i) => (
+              <Reveal key={member.id} delay={i * 0.08}>
+                <div className="bg-[var(--brutal-bg-2)] rounded-[18px] border border-[rgba(246,244,255,0.12)] overflow-hidden hover:-translate-y-1 transition-all">
+                  <div className="h-[80px] flex items-center justify-center" style={{ background: member.gradient }}>
+                    <div className="w-[52px] h-[52px] rounded-full bg-white/20 border-[2px] border-white/30 flex items-center justify-center">
+                      <span className="text-[18px] font-[800] text-white">{member.initials}</span>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <div className="text-[10px] font-[700] uppercase tracking-[0.1em] text-[var(--neon-cyan)] mb-1">{member.department}</div>
+                    <div className="font-[800] text-[15px] text-[var(--brutal-text)] mb-0.5">{member.name}</div>
+                    <div className="text-[12.5px] text-[var(--brutal-text-dim)] mb-3">{member.role}</div>
+                    <div className="text-[12px] text-[var(--brutal-text-dim)] opacity-60 flex items-center gap-1.5">
+                      <span>📍</span><span>{member.location}</span>
+                    </div>
+                    {member.email && (
+                      <a href={`mailto:${member.email}`}
+                        className="mt-3 inline-flex items-center gap-1 text-[11px] font-[700] text-[var(--neon-cyan)] hover:opacity-70 transition-opacity">
+                        ✉️ {member.email}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal>
+            <div className="text-center">
+              <Link href="/our-team"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-[var(--ink)] font-[800] text-[13px] uppercase tracking-wider hover:bg-[var(--neon-cyan)] transition-colors">
+                Meet the Full Team →
+              </Link>
+            </div>
+          </Reveal>
         </div>
       </section>
 
