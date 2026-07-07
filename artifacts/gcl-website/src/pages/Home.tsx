@@ -4,7 +4,6 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useAdmin } from '../context/AdminContext';
 import { StoriesCarousel } from '../components/StoriesCarousel';
 import { GlobeSection } from '../components/GlobeSection';
-import { SectionDivider } from '../components/SectionDivider';
 import { stories } from '../data/stories';
 import { teamMembers } from '../data/team';
 import { chapters } from '../data/chapters';
@@ -312,8 +311,6 @@ export function Home() {
 
       <GlobeSection />
 
-      <SectionDivider from="dark" to="white" flip={false} />
-
       {/* ─── CHAPTERS PREVIEW ─────────────────────────────────────────── */}
       <section className="py-[110px] bg-white">
         <div className="max-w-[1240px] mx-auto px-8">
@@ -375,8 +372,6 @@ export function Home() {
         </div>
       </section>
 
-      <SectionDivider from="white" to="dark" flip={true} />
-
       {/* ─── PROGRAMS (dark) with real photos ───────────────────────── */}
       <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)]">
         <div className="max-w-[1240px] mx-auto px-8">
@@ -421,8 +416,6 @@ export function Home() {
           </div>
         </div>
       </section>
-
-      <SectionDivider from="dark" to="alt" flip={false} />
 
       {/* ─── FEATURED COURSES ─── */}
       <section className="py-[110px] bg-[var(--paper-alt)]" id="courses">
@@ -514,8 +507,6 @@ export function Home() {
         </div>
       </section>
 
-      <SectionDivider from="alt" to="dark" flip={true} />
-
       {/* ─── SUMMER '26 APPLY CTA ─── */}
       <section className="py-[100px] overflow-hidden relative" style={{ background: 'var(--brutal-bg)' }}>
         <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'repeating-linear-gradient(90deg,white 0px,white 1px,transparent 1px,transparent 80px),repeating-linear-gradient(0deg,white 0px,white 1px,transparent 1px,transparent 80px)' }} />
@@ -589,8 +580,6 @@ export function Home() {
           </div>
         </div>
       </section>
-
-      <SectionDivider from="dark" to="white" flip={false} />
 
       {/* ─── FROM THE FIELD — photo gallery ──────────────────────────── */}
       <section className="py-[110px] bg-white">
@@ -769,8 +758,6 @@ export function Home() {
         </div>
       </section>
 
-      <SectionDivider from="alt" to="dark" flip={true} />
-
       {/* ─── OUR TEAM PREVIEW ─── */}
       <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)]">
         <div className="max-w-[1240px] mx-auto px-8">
@@ -828,8 +815,6 @@ export function Home() {
           </Reveal>
         </div>
       </section>
-
-      <SectionDivider from="dark" to="alt" flip={false} />
 
       {/* ─── CTA PANEL ─── */}
       <section className="py-[40px] bg-[var(--paper-alt)]">
