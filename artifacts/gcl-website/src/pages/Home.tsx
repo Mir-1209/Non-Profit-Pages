@@ -8,6 +8,20 @@ import { stories } from '../data/stories';
 import { teamMembers } from '../data/team';
 import { chapters } from '../data/chapters';
 
+// ─── Glazicons ────────────────────────────────────────────────────────────
+import iCalendar  from '../assets/icons/calendar.svg';
+import iChart     from '../assets/icons/chart.svg';
+import iPlanet    from '../assets/icons/planet.svg';
+import iRocket    from '../assets/icons/rocket.svg';
+import iCompass   from '../assets/icons/compass.svg';
+import iBookmark  from '../assets/icons/bookmark.svg';
+import iCheckCircle from '../assets/icons/check-circle.svg';
+import iUser      from '../assets/icons/user.svg';
+import iPuzzle    from '../assets/icons/puzzle.svg';
+import iDocument  from '../assets/icons/document.svg';
+import iBadge     from '../assets/icons/badge.svg';
+import iMapPin    from '../assets/icons/map-pin.svg';
+
 // ─── Real impact assets ───────────────────────────────────────────────────
 import heroVideo from '@assets/2026-01-12_21.17.53_1783000059336.mp4';
 import imgClassroomWide from '@assets/20250717_111123_1782999964183.jpg';
@@ -384,10 +398,10 @@ export function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[22px]">
             {[
-              { title: "Live Workshops", num: "01", desc: "Intensive live sessions on the psychology of spending and financial behavior. Pure main character energy.", color: "var(--neon-cyan)", label: "Youth Workshop · Tashkent" },
-              { title: "Digital Courses", num: "02", desc: "Self-paced modules built on modern learning science and real case studies. Learn from anywhere, slay everywhere.", color: "var(--magenta)", label: "Digital Reach · Global" },
-              { title: "Partnerships", num: "03", desc: "Collaborations with local schools, NGOs, and community organizations. Real collab energy.", color: "var(--blue)", label: "School Partnership · Tajikistan" },
-              { title: "Train the Trainer", num: "04", desc: "Empowering youth to teach financial literacy in their own communities. Pass the bag of knowledge.", color: "var(--violet)", label: "Community · After Session" },
+              { title: "Live Workshops", num: "01", icon: iCalendar, desc: "Intensive live sessions on the psychology of spending and financial behavior. Pure main character energy.", color: "var(--neon-cyan)", label: "Youth Workshop · Tashkent" },
+              { title: "Digital Courses", num: "02", icon: iChart, desc: "Self-paced modules built on modern learning science and real case studies. Learn from anywhere, slay everywhere.", color: "var(--magenta)", label: "Digital Reach · Global" },
+              { title: "Partnerships", num: "03", icon: iPlanet, desc: "Collaborations with local schools, NGOs, and community organizations. Real collab energy.", color: "var(--blue)", label: "School Partnership · Tajikistan" },
+              { title: "Train the Trainer", num: "04", icon: iRocket, desc: "Empowering youth to teach financial literacy in their own communities. Pass the bag of knowledge.", color: "var(--violet)", label: "Community · After Session" },
             ].map((prog, i) => (
               <Reveal key={i} delay={i * 0.1}>
                 <div className="bg-[var(--brutal-bg-2)] min-h-[340px] flex flex-col justify-between overflow-hidden brutal-card on-dark rounded-[14px]">
@@ -406,7 +420,7 @@ export function Home() {
                     </div>
                   </div>
                   <div className="p-[22px] flex-1 flex flex-col">
-                    <div className="w-[44px] h-[44px] rounded-[12px] flex items-center justify-center font-[800] text-[12.5px] bg-[var(--neon-cyan)] text-[var(--brutal-bg)] mb-[14px]">{prog.num}</div>
+                    <img src={prog.icon} alt={prog.title} className="w-[44px] h-[44px] mb-[14px]" draggable={false} />
                     <h4 className="font-[800] text-[18px] mb-[8px] tracking-[-0.01em] uppercase text-[var(--brutal-text)]">{prog.title}</h4>
                     <p className="text-[13px] text-[var(--brutal-text-dim)] leading-[1.6] flex-1">{prog.desc}</p>
                   </div>
@@ -436,9 +450,12 @@ export function Home() {
               <Reveal key={course.slug} delay={i * 0.1}>
                 <Link href={`/courses/${course.slug}`} className="block rounded-[16px] overflow-hidden bg-white border-[2.5px] border-[var(--ink)] shadow-[7px_7px_0px_var(--ink)] transition-all hover:shadow-[10px_10px_0px_var(--ink)] hover:-translate-y-1 hover:-translate-x-1 flex flex-col">
                   <div className={`h-[160px] relative flex items-end p-4 border-b-[2.5px] border-[var(--ink)] ${course.color === 't1' ? 'bg-gradient-to-br from-[#dbe4ff] to-[#c9b8ff]' : course.color === 't2' ? 'bg-gradient-to-br from-[#f1c9f7] to-[#ffd3ea]' : 'bg-gradient-to-br from-[#c7f0ff] to-[#c3e3ff]'}`}>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] text-4xl opacity-40">
-                      {course.tag === 'Mindset' ? '🧠' : course.tag === 'Investments' ? '📈' : '📚'}
-                    </div>
+                    <img
+                      src={course.tag === 'Mindset' ? iPuzzle : course.tag === 'Investments' ? iChart : iDocument}
+                      alt={course.tag}
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] w-[64px] h-[64px] opacity-75"
+                      draggable={false}
+                    />
                     <span className="relative text-[11px] font-[800] uppercase tracking-wider px-2.5 py-1 rounded-md bg-white/70 text-[var(--ink)]">{course.tag}</span>
                   </div>
                   <div className="p-[20px_22px_24px] flex flex-col flex-1">
@@ -542,12 +559,13 @@ export function Home() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-[2.5px] bg-[var(--brutal-line)] border-[2.5px] border-[var(--brutal-line)] rounded-[16px] overflow-hidden">
             {[
-              { end: 92, suffix: '%', label: 'Completion Rate' },
-              { end: 14, suffix: '', label: 'Countries Reached' },
-              { end: 4, suffix: 'x', label: 'Savings Increase' },
-              { end: 8, suffix: 'K+', label: 'Youth Trained' },
+              { end: 92, suffix: '%', label: 'Completion Rate', icon: iCheckCircle },
+              { end: 14, suffix: '', label: 'Countries Reached', icon: iPlanet },
+              { end: 4, suffix: 'x', label: 'Savings Increase', icon: iChart },
+              { end: 8, suffix: 'K+', label: 'Youth Trained', icon: iUser },
             ].map(s => (
               <div key={s.label} className="p-[34px_26px] bg-[var(--brutal-bg-2)]">
+                <img src={s.icon} alt={s.label} className="w-[36px] h-[36px] mb-3" draggable={false} />
                 <div className="font-[800] text-[clamp(38px,5vw,58px)] tracking-[-0.03em] bg-gradient-to-r from-[var(--neon-cyan)] via-[var(--violet)] to-[var(--magenta)] text-transparent bg-clip-text">
                   <Counter end={s.end} suffix={s.suffix} />
                 </div>
@@ -739,14 +757,14 @@ export function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             <div className="hidden md:block absolute top-[52px] left-[calc(33%+20px)] right-[calc(33%+20px)] h-[2px] border-t-[2.5px] border-dashed border-[var(--line)]" />
             {[
-              { step: '01', icon: '🔍', title: 'Pick a Course', desc: 'Browse our open-access curriculum. No prerequisites, no fees, no gatekeepers. Just vibes and knowledge.' },
-              { step: '02', icon: '🧠', title: 'Learn the System', desc: 'Work through behavioral economics modules at your own pace, anywhere in the world. Moneymaxxing mode: on.' },
-              { step: '03', icon: '🚀', title: 'Join the League', desc: 'Attend events, connect with peers globally, and even teach in your own community. Full slay arc.' },
+              { step: '01', icon: iCompass, title: 'Pick a Course', desc: 'Browse our open-access curriculum. No prerequisites, no fees, no gatekeepers. Just vibes and knowledge.' },
+              { step: '02', icon: iBookmark, title: 'Learn the System', desc: 'Work through behavioral economics modules at your own pace, anywhere in the world. Moneymaxxing mode: on.' },
+              { step: '03', icon: iRocket, title: 'Join the League', desc: 'Attend events, connect with peers globally, and even teach in your own community. Full slay arc.' },
             ].map((s, i) => (
               <Reveal key={s.step} delay={i * 0.12}>
                 <div className="text-center relative">
-                  <div className="w-[100px] h-[100px] mx-auto mb-6 rounded-[24px] bg-white border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] flex items-center justify-center text-4xl">
-                    {s.icon}
+                  <div className="w-[100px] h-[100px] mx-auto mb-6 rounded-[24px] bg-white border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] flex items-center justify-center">
+                    <img src={s.icon} alt={s.title} className="w-[60px] h-[60px]" draggable={false} />
                   </div>
                   <div className="text-[11px] font-[800] uppercase tracking-[0.12em] text-[var(--ink-faint)] mb-2">{s.step}</div>
                   <h4 className="font-[800] text-[20px] mb-3">{s.title}</h4>

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { teamMembers, departments, TeamMember } from '../data/team';
+import iMapPin  from '../assets/icons/map-pin.svg';
+import iMessage from '../assets/icons/message.svg';
+import iShare   from '../assets/icons/share.svg';
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = React.useRef(null);
@@ -40,7 +43,7 @@ function MemberCard({ member, delay }: { member: TeamMember; delay: number }) {
 
           {/* Location */}
           <div className="flex items-center gap-1.5 mb-4 text-[12px] text-[var(--ink-faint)] font-[600]">
-            <span>📍</span>
+            <img src={iMapPin} alt="location" className="w-[16px] h-[16px]" draggable={false} />
             <span>{member.location}</span>
           </div>
 
@@ -49,19 +52,19 @@ function MemberCard({ member, delay }: { member: TeamMember; delay: number }) {
             {member.email && (
               <a href={`mailto:${member.email}`}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11.5px] font-[700] bg-[var(--paper-alt)] text-[var(--ink)] border border-[var(--line)] hover:border-[var(--ink)] transition-colors">
-                ✉️ Email
+                <img src={iMessage} alt="email" className="w-[15px] h-[15px]" draggable={false} /> Email
               </a>
             )}
             {member.linkedin && member.linkedin !== '#' && (
               <a href={member.linkedin} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11.5px] font-[700] bg-[var(--paper-alt)] text-[var(--ink)] border border-[var(--line)] hover:border-[var(--ink)] transition-colors">
-                🔗 LinkedIn
+                <img src={iShare} alt="linkedin" className="w-[15px] h-[15px]" draggable={false} /> LinkedIn
               </a>
             )}
             {member.instagram && member.instagram !== '#' && (
               <a href={member.instagram} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11.5px] font-[700] bg-[var(--paper-alt)] text-[var(--ink)] border border-[var(--line)] hover:border-[var(--ink)] transition-colors">
-                📸 Instagram
+                <img src={iShare} alt="instagram" className="w-[15px] h-[15px]" draggable={false} /> Instagram
               </a>
             )}
           </div>
