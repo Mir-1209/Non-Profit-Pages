@@ -132,7 +132,7 @@ export function Home() {
           >
             <span className="block">MONEY, MADE</span>
             {/* Fixed height container for cycling word — span keeps valid h1 phrasing content */}
-            <span style={{ display: 'block', minHeight: 'calc(clamp(38px,5.6vw,72px) * 1.05)', position: 'relative', overflow: 'hidden' }}>
+            <span style={{ display: 'block', minHeight: 'calc(clamp(38px,5.6vw,72px) * 1.05)', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
               <AnimatePresence mode="wait">
                 <motion.span
                   key={CYCLE_WORDS[wordIdx]}
@@ -140,7 +140,7 @@ export function Home() {
                   animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                   exit={{ opacity: 0, y: -28, filter: 'blur(6px)' }}
                   transition={{ duration: 0.55, ease: [0.21, 0.47, 0.32, 0.98] }}
-                  style={{ display: 'block', position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', WebkitTextStroke: '2px rgba(255,255,255,0.95)', color: 'transparent' }}
+                  style={{ display: 'block', position: 'absolute', top: 0, left: 0, right: 0, textAlign: 'center', color: 'rgba(255,255,255,0.95)' }}
                 >
                   {CYCLE_WORDS[wordIdx]}
                 </motion.span>
@@ -165,7 +165,7 @@ export function Home() {
             <Link href="/courses"
               className="inline-flex items-center gap-2 px-7 py-[14px] rounded-full text-[15px] font-[800] text-[var(--ink)] bg-white hover:bg-white/90 transition-all hover:-translate-y-[2px] shadow-[0_0_30px_rgba(255,255,255,0.25)]"
               data-testid="hero-join">
-              Start Moneymaxxing →
+              Get Started →
             </Link>
             <Link href="/events"
               className="inline-flex items-center gap-2 px-7 py-[14px] rounded-full text-[15px] font-[800] text-white border border-white/30 transition-all hover:-translate-y-[2px]"
@@ -270,7 +270,7 @@ export function Home() {
       </div>
 
       {/* ─── MISSION ──────────────────────────────────────────────────── */}
-      <section className="sticky top-0 z-[10] py-[110px] bg-white rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
+      <section className="py-[110px] bg-white rounded-t-[14px] sm:rounded-t-[20px]">
         <div className="max-w-[1240px] mx-auto px-8 grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-[64px] items-center">
           <Reveal>
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-5">
@@ -317,12 +317,12 @@ export function Home() {
         </div>
       </section>
 
-      <div className="sticky top-0 z-[11] rounded-t-[24px] sm:rounded-t-[44px] overflow-hidden shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.25)]">
+      <div className="rounded-t-[14px] sm:rounded-t-[20px] overflow-hidden">
         <GlobeSection />
       </div>
 
       {/* ─── CHAPTERS PREVIEW ─────────────────────────────────────────── */}
-      <section className="sticky top-0 z-[12] py-[110px] bg-white rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
+      <section className="py-[110px] bg-white rounded-t-[14px] sm:rounded-t-[20px]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
             <div className="max-w-[560px]">
@@ -383,7 +383,7 @@ export function Home() {
       </section>
 
       {/* ─── PROGRAMS (dark) with real photos ───────────────────────── */}
-      <section className="sticky top-0 z-[13] py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.35)]">
+      <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)] rounded-t-[14px] sm:rounded-t-[20px]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="max-w-[640px] mb-[60px]">
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--neon-cyan)] mb-4 flex">What We Do</span>
@@ -428,7 +428,7 @@ export function Home() {
       </section>
 
       {/* ─── FEATURED COURSES ─── */}
-      <section className="sticky top-0 z-[14] py-[110px] bg-[var(--paper-alt)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" id="courses">
+      <section className="py-[110px] bg-[var(--paper-alt)] rounded-t-[14px] sm:rounded-t-[20px]" id="courses">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
             <div className="max-w-[560px]">
@@ -470,7 +470,7 @@ export function Home() {
       </section>
 
       {/* ─── EVENTS PREVIEW ─── */}
-      <section className="sticky top-0 z-[15] py-[110px] bg-[var(--paper-alt)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" id="events">
+      <section className="py-[110px] bg-[var(--paper-alt)] rounded-t-[14px] sm:rounded-t-[20px]" id="events">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
             <div className="max-w-[560px]">
@@ -521,7 +521,7 @@ export function Home() {
       </section>
 
       {/* ─── SUMMER '26 APPLY CTA ─── */}
-      <section className="sticky top-0 z-[16] py-[100px] overflow-hidden rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.35)]" style={{ background: 'var(--brutal-bg)' }}>
+      <section className="py-[100px] overflow-hidden rounded-t-[14px] sm:rounded-t-[20px]" style={{ background: 'var(--brutal-bg)' }}>
         <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'repeating-linear-gradient(90deg,white 0px,white 1px,transparent 1px,transparent 80px),repeating-linear-gradient(0deg,white 0px,white 1px,transparent 1px,transparent 80px)' }} />
         <div className="max-w-[1240px] mx-auto px-8 relative z-10">
           <Reveal>
@@ -547,7 +547,7 @@ export function Home() {
       </section>
 
       {/* ─── STATS (dark) ─── */}
-      <section className="sticky top-0 z-[17] py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.35)]">
+      <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)] rounded-t-[14px] sm:rounded-t-[20px]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="max-w-[640px] mx-auto text-center mb-[52px]">
             <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4">The Proof</h2>
@@ -596,7 +596,7 @@ export function Home() {
       </section>
 
       {/* ─── FROM THE FIELD — photo gallery ──────────────────────────── */}
-      <section className="sticky top-0 z-[18] py-[110px] bg-white rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
+      <section className="py-[110px] bg-white rounded-t-[14px] sm:rounded-t-[20px]">
         <div className="max-w-[1240px] mx-auto px-8">
           <Reveal className="mb-[52px]">
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-5">
@@ -691,7 +691,7 @@ export function Home() {
       </section>
 
       {/* ─── NEWS PREVIEW ─── */}
-      <section className="sticky top-0 z-[19] py-[110px] bg-[var(--paper-alt)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" id="news">
+      <section className="py-[110px] bg-[var(--paper-alt)] rounded-t-[14px] sm:rounded-t-[20px]" id="news">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
             <div className="max-w-[560px]">
@@ -734,7 +734,7 @@ export function Home() {
       </section>
 
       {/* ─── VOICES / STORIES ─── */}
-      <section className="sticky top-0 z-[20] py-[110px] overflow-hidden bg-white rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
+      <section className="py-[110px] overflow-hidden bg-white rounded-t-[14px] sm:rounded-t-[20px]">
         <div className="max-w-[1240px] mx-auto px-8 mb-10">
           <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-4">Community</span>
           <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4">Voices of GCL</h2>
@@ -744,7 +744,7 @@ export function Home() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="sticky top-0 z-[21] py-[110px] bg-[var(--paper-alt)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
+      <section className="py-[110px] bg-[var(--paper-alt)] rounded-t-[14px] sm:rounded-t-[20px]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="text-center max-w-[640px] mx-auto mb-[70px]">
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-4">How It Works</span>
@@ -773,7 +773,7 @@ export function Home() {
       </section>
 
       {/* ─── OUR TEAM PREVIEW ─── */}
-      <section className="sticky top-0 z-[22] py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.35)]">
+      <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)] rounded-t-[14px] sm:rounded-t-[20px]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
             <div className="max-w-[560px]">
@@ -831,7 +831,7 @@ export function Home() {
       </section>
 
       {/* ─── CTA PANEL ─── */}
-      <section className="sticky top-0 z-[23] py-[40px] bg-[var(--paper-alt)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
+      <section className="py-[40px] bg-[var(--paper-alt)] rounded-t-[14px] sm:rounded-t-[20px]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="rounded-[28px] p-[80px_40px] text-center relative overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[10px_10px_0px_var(--ink)]"
             style={{ background: 'linear-gradient(135deg, #e9edff 0%, #f7e6fb 50%, #fce4f2 100%)' }}>
