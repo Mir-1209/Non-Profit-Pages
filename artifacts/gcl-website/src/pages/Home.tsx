@@ -122,99 +122,93 @@ export function Home() {
         <div className="absolute inset-0 opacity-[0.025]"
           style={{ backgroundImage: 'repeating-linear-gradient(0deg,#fff 0px,#fff 1px,transparent 1px,transparent 4px),repeating-linear-gradient(90deg,#fff 0px,#fff 1px,transparent 1px,transparent 4px)' }} />
 
-        {/* Main content */}
-        <div className="relative z-10 max-w-[1240px] mx-auto px-8 pt-[120px] pb-[48px] w-full flex-1 flex flex-col justify-center">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 items-end">
+        {/* Main content — centered */}
+        <div className="relative z-10 max-w-[900px] mx-auto px-8 pt-[140px] pb-[48px] w-full flex-1 flex flex-col items-center justify-center text-center">
 
-            {/* ── Left: headline + copy ── */}
-            <div className="max-w-[660px]">
-              {/* Headline with cycling last word */}
-              <motion.h1
-                initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="font-[800] text-[clamp(48px,7.2vw,96px)] leading-[0.94] tracking-[-0.035em] text-white"
-              >
-                <span className="block">MONEY,</span>
-                <span className="block">MADE</span>
-                {/* Fixed height container for cycling word — span keeps valid h1 phrasing content */}
-                <span style={{ display: 'block', minHeight: 'calc(clamp(48px,7.2vw,96px) * 1.05)', position: 'relative', overflow: 'hidden' }}>
-                  <AnimatePresence mode="wait">
-                    <motion.span
-                      key={CYCLE_WORDS[wordIdx]}
-                      initial={{ opacity: 0, y: 32, filter: 'blur(6px)' }}
-                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                      exit={{ opacity: 0, y: -28, filter: 'blur(6px)' }}
-                      transition={{ duration: 0.55, ease: [0.21, 0.47, 0.32, 0.98] }}
-                      style={{ display: 'block', position: 'absolute', top: 0, left: 0, WebkitTextStroke: '2.5px rgba(255,255,255,0.95)', color: 'transparent' }}
-                    >
-                      {CYCLE_WORDS[wordIdx]}
-                    </motion.span>
-                  </AnimatePresence>
-                </span>
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
-                className="mt-[32px] max-w-[520px] text-[17px] leading-[1.65] text-white/70"
-              >
-                Top-tier financial education used to be reserved for the lucky few.{' '}
-                <strong className="text-white/95 font-[700]">Not anymore.</strong>{' '}
-                GCL brings behavioral economics and money psychology to communities the world forgot.{' '}
-                <span className="text-white/50 text-[14px]">No cap.</span>
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}
-                className="flex flex-wrap gap-[14px] mt-[36px]"
-              >
-                <Link href="/courses"
-                  className="inline-flex items-center gap-2 px-7 py-[14px] rounded-full text-[15px] font-[800] text-[var(--ink)] bg-white hover:bg-white/90 transition-all hover:-translate-y-[2px] shadow-[0_0_30px_rgba(255,255,255,0.25)]"
-                  data-testid="hero-join">
-                  Start Moneymaxxing →
-                </Link>
-                <Link href="/events"
-                  className="inline-flex items-center gap-2 px-7 py-[14px] rounded-full text-[15px] font-[800] text-white border border-white/30 transition-all hover:-translate-y-[2px]"
-                  style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
-                  See Events
-                </Link>
-              </motion.div>
-
-              {/* Trust badges */}
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.52 }}
-                className="flex items-center gap-6 mt-9 flex-wrap"
-              >
-                {['14+ Countries', '8K+ Youth', '120+ Workshops', '100% Free'].map(badge => (
-                  <div key={badge} className="flex items-center gap-2 text-[13px] font-[700] text-white/55">
-                    <span className="w-[5px] h-[5px] rounded-full bg-white/40" />
-                    {badge}
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-
-            {/* ── Right: golden award badges ── */}
-            {/* Credentials — right side, desktop only */}
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 1 }}
-              className="hidden lg:flex flex-col gap-7 self-center pb-4 max-w-[280px]"
-            >
-              {[
-                { label: "Central Asia's largest", detail: "youth-led financial literacy initiative" },
-                { label: "World's first", detail: "behavioral financial literacy non-profit" },
-                { label: "Formerly", detail: "Vanguard Capital League" },
-              ].map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.35 + i * 0.12, duration: 0.7 }}
+          {/* Headline with cycling last word */}
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            className="font-[800] text-[clamp(38px,5.6vw,72px)] leading-[0.98] tracking-[-0.035em] text-white"
+          >
+            <span className="block">MONEY, MADE</span>
+            {/* Fixed height container for cycling word — span keeps valid h1 phrasing content */}
+            <span style={{ display: 'block', minHeight: 'calc(clamp(38px,5.6vw,72px) * 1.05)', position: 'relative', overflow: 'hidden' }}>
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={CYCLE_WORDS[wordIdx]}
+                  initial={{ opacity: 0, y: 32, filter: 'blur(6px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, y: -28, filter: 'blur(6px)' }}
+                  transition={{ duration: 0.55, ease: [0.21, 0.47, 0.32, 0.98] }}
+                  style={{ display: 'block', position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', WebkitTextStroke: '2px rgba(255,255,255,0.95)', color: 'transparent' }}
                 >
-                  <div className="text-[18px] font-[700] text-white leading-snug">{item.label}</div>
-                  <div className="text-[14px] font-[400] text-white/50 mt-0.5 leading-snug">{item.detail}</div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
+                  {CYCLE_WORDS[wordIdx]}
+                </motion.span>
+              </AnimatePresence>
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
+            className="mt-[28px] max-w-[560px] text-[16px] leading-[1.65] text-white/70"
+          >
+            Top-tier financial education used to be reserved for the lucky few.{' '}
+            <strong className="text-white/95 font-[700]">Not anymore.</strong>{' '}
+            GCL brings behavioral economics and money psychology to communities the world forgot.{' '}
+            <span className="text-white/50 text-[14px]">No cap.</span>
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}
+            className="flex flex-wrap justify-center gap-[14px] mt-[32px]"
+          >
+            <Link href="/courses"
+              className="inline-flex items-center gap-2 px-7 py-[14px] rounded-full text-[15px] font-[800] text-[var(--ink)] bg-white hover:bg-white/90 transition-all hover:-translate-y-[2px] shadow-[0_0_30px_rgba(255,255,255,0.25)]"
+              data-testid="hero-join">
+              Start Moneymaxxing →
+            </Link>
+            <Link href="/events"
+              className="inline-flex items-center gap-2 px-7 py-[14px] rounded-full text-[15px] font-[800] text-white border border-white/30 transition-all hover:-translate-y-[2px]"
+              style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+              See Events
+            </Link>
+          </motion.div>
+
+          {/* Trust badges */}
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.52 }}
+            className="flex items-center justify-center gap-6 mt-8 flex-wrap"
+          >
+            {['14+ Countries', '8K+ Youth', '120+ Workshops', '100% Free'].map(badge => (
+              <div key={badge} className="flex items-center gap-2 text-[13px] font-[700] text-white/55">
+                <span className="w-[5px] h-[5px] rounded-full bg-white/40" />
+                {badge}
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Credentials — below badges, centered */}
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 1 }}
+            className="hidden md:flex items-center justify-center gap-8 mt-10 flex-wrap max-w-[720px]"
+          >
+            {[
+              { label: "Central Asia's largest", detail: "youth-led financial literacy initiative" },
+              { label: "World's first", detail: "behavioral financial literacy non-profit" },
+              { label: "Formerly", detail: "Vanguard Capital League" },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 + i * 0.12, duration: 0.7 }}
+                className="text-center"
+              >
+                <div className="text-[14px] font-[700] text-white leading-snug">{item.label}</div>
+                <div className="text-[12px] font-[400] text-white/50 mt-0.5 leading-snug">{item.detail}</div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
 
         {/* ── Stats bar — frosted glass at hero bottom ── */}
@@ -276,7 +270,7 @@ export function Home() {
       </div>
 
       {/* ─── MISSION ──────────────────────────────────────────────────── */}
-      <section className="py-[110px] bg-white">
+      <section className="sticky top-0 z-[10] py-[110px] bg-white rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
         <div className="max-w-[1240px] mx-auto px-8 grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-[64px] items-center">
           <Reveal>
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-5">
@@ -323,10 +317,12 @@ export function Home() {
         </div>
       </section>
 
-      <GlobeSection />
+      <div className="sticky top-0 z-[11] rounded-t-[24px] sm:rounded-t-[44px] overflow-hidden shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.25)]">
+        <GlobeSection />
+      </div>
 
       {/* ─── CHAPTERS PREVIEW ─────────────────────────────────────────── */}
-      <section className="py-[110px] bg-white">
+      <section className="sticky top-0 z-[12] py-[110px] bg-white rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
             <div className="max-w-[560px]">
@@ -387,7 +383,7 @@ export function Home() {
       </section>
 
       {/* ─── PROGRAMS (dark) with real photos ───────────────────────── */}
-      <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)]">
+      <section className="sticky top-0 z-[13] py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.35)]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="max-w-[640px] mb-[60px]">
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--neon-cyan)] mb-4 flex">What We Do</span>
@@ -432,7 +428,7 @@ export function Home() {
       </section>
 
       {/* ─── FEATURED COURSES ─── */}
-      <section className="py-[110px] bg-[var(--paper-alt)]" id="courses">
+      <section className="sticky top-0 z-[14] py-[110px] bg-[var(--paper-alt)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" id="courses">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
             <div className="max-w-[560px]">
@@ -474,7 +470,7 @@ export function Home() {
       </section>
 
       {/* ─── EVENTS PREVIEW ─── */}
-      <section className="py-[110px] bg-[var(--paper-alt)]" id="events">
+      <section className="sticky top-0 z-[15] py-[110px] bg-[var(--paper-alt)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" id="events">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
             <div className="max-w-[560px]">
@@ -525,7 +521,7 @@ export function Home() {
       </section>
 
       {/* ─── SUMMER '26 APPLY CTA ─── */}
-      <section className="py-[100px] overflow-hidden relative" style={{ background: 'var(--brutal-bg)' }}>
+      <section className="sticky top-0 z-[16] py-[100px] overflow-hidden rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.35)]" style={{ background: 'var(--brutal-bg)' }}>
         <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'repeating-linear-gradient(90deg,white 0px,white 1px,transparent 1px,transparent 80px),repeating-linear-gradient(0deg,white 0px,white 1px,transparent 1px,transparent 80px)' }} />
         <div className="max-w-[1240px] mx-auto px-8 relative z-10">
           <Reveal>
@@ -551,7 +547,7 @@ export function Home() {
       </section>
 
       {/* ─── STATS (dark) ─── */}
-      <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)]">
+      <section className="sticky top-0 z-[17] py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.35)]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="max-w-[640px] mx-auto text-center mb-[52px]">
             <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4">The Proof</h2>
@@ -600,7 +596,7 @@ export function Home() {
       </section>
 
       {/* ─── FROM THE FIELD — photo gallery ──────────────────────────── */}
-      <section className="py-[110px] bg-white">
+      <section className="sticky top-0 z-[18] py-[110px] bg-white rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
         <div className="max-w-[1240px] mx-auto px-8">
           <Reveal className="mb-[52px]">
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-5">
@@ -695,7 +691,7 @@ export function Home() {
       </section>
 
       {/* ─── NEWS PREVIEW ─── */}
-      <section className="py-[110px] bg-[var(--paper-alt)]" id="news">
+      <section className="sticky top-0 z-[19] py-[110px] bg-[var(--paper-alt)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]" id="news">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
             <div className="max-w-[560px]">
@@ -738,7 +734,7 @@ export function Home() {
       </section>
 
       {/* ─── VOICES / STORIES ─── */}
-      <section className="py-[110px] overflow-hidden">
+      <section className="sticky top-0 z-[20] py-[110px] overflow-hidden bg-white rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
         <div className="max-w-[1240px] mx-auto px-8 mb-10">
           <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-4">Community</span>
           <h2 className="font-[800] text-[clamp(30px,4.8vw,54px)] leading-[1.04] tracking-[-0.03em] mb-4">Voices of GCL</h2>
@@ -748,7 +744,7 @@ export function Home() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="py-[110px] bg-[var(--paper-alt)]">
+      <section className="sticky top-0 z-[21] py-[110px] bg-[var(--paper-alt)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="text-center max-w-[640px] mx-auto mb-[70px]">
             <span className="inline-flex items-center gap-2 text-[12px] font-[800] tracking-[0.08em] uppercase text-[var(--pill-ink)] bg-[var(--pill-bg)] px-3 py-1.5 rounded-full mb-4">How It Works</span>
@@ -777,7 +773,7 @@ export function Home() {
       </section>
 
       {/* ─── OUR TEAM PREVIEW ─── */}
-      <section className="py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)]">
+      <section className="sticky top-0 z-[22] py-[110px] bg-[var(--brutal-bg)] text-[var(--brutal-text)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.35)]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-[60px]">
             <div className="max-w-[560px]">
@@ -835,7 +831,7 @@ export function Home() {
       </section>
 
       {/* ─── CTA PANEL ─── */}
-      <section className="py-[40px] bg-[var(--paper-alt)]">
+      <section className="sticky top-0 z-[23] py-[40px] bg-[var(--paper-alt)] rounded-t-[24px] sm:rounded-t-[44px] shadow-[0_-30px_50px_-20px_rgba(0,0,0,0.18)]">
         <div className="max-w-[1240px] mx-auto px-8">
           <div className="rounded-[28px] p-[80px_40px] text-center relative overflow-hidden border-[2.5px] border-[var(--ink)] shadow-[10px_10px_0px_var(--ink)]"
             style={{ background: 'linear-gradient(135deg, #e9edff 0%, #f7e6fb 50%, #fce4f2 100%)' }}>
