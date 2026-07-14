@@ -1,1 +1,2 @@
 - [Admin data architecture](admin-data-architecture.md) — AdminContext is the single source of truth for assignments, programs, submissions, and applicant decisions; member/team portals read from it live.
+- [GCL nav scope](gcl-nav-scope.md) — nav intentionally trimmed to Home/Courses/Events; other routes exist but aren't linked.

@@ -7,10 +7,8 @@ import logoImg from '@assets/Untitled_design-9_1783003171841.png';
 
 const navLinks = [
   { href: '/', label: 'Home' },
-  { href: '/chapters', label: 'Chapters' },
   { href: '/courses', label: 'Courses' },
   { href: '/events', label: 'Events' },
-  { href: '/news', label: 'News' },
 ];
 
 function initials(name: string | null | undefined) {
