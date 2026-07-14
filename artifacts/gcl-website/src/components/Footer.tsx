@@ -18,6 +18,8 @@ export function Footer() {
             <Link href="/courses" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Courses</Link>
             <Link href="/programs" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Programs</Link>
             <Link href="/events" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Events</Link>
+            <Link href="/chapters" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Chapters</Link>
+            <Link href="/news" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">News</Link>
           </div>
 
           <div>

@@ -113,11 +113,18 @@ export function Home() {
           className="absolute inset-0 w-full h-full object-cover"
           src={heroVideo}
         />
-        {/* Layered overlay */}
+        {/* Layered overlay — lighter & more transparent */}
         <div className="absolute inset-0"
-          style={{ background: 'linear-gradient(105deg, rgba(6,6,20,0.90) 0%, rgba(10,8,30,0.74) 45%, rgba(15,10,40,0.35) 100%)' }} />
+          style={{ background: 'linear-gradient(105deg, rgba(6,6,20,0.68) 0%, rgba(10,8,30,0.50) 45%, rgba(15,10,40,0.22) 100%)' }} />
         <div className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, transparent 22%, transparent 60%, rgba(0,0,0,0.65) 100%)' }} />
+          style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.18) 0%, transparent 22%, transparent 60%, rgba(0,0,0,0.48) 100%)' }} />
+        {/* Animated blue gradient glow — corners */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute w-[60vw] h-[60vw] max-w-[700px] max-h-[700px] -top-[15%] -left-[15%] rounded-full animate-hero-glow-1"
+            style={{ background: 'radial-gradient(circle, rgba(56,120,255,0.35) 0%, rgba(56,120,255,0.12) 45%, transparent 72%)', filter: 'blur(30px)' }} />
+          <div className="absolute w-[55vw] h-[55vw] max-w-[640px] max-h-[640px] -bottom-[18%] -right-[12%] rounded-full animate-hero-glow-2"
+            style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.30) 0%, rgba(34,211,238,0.10) 45%, transparent 72%)', filter: 'blur(30px)' }} />
+        </div>
         {/* Subtle grain */}
         <div className="absolute inset-0 opacity-[0.025]"
           style={{ backgroundImage: 'repeating-linear-gradient(0deg,#fff 0px,#fff 1px,transparent 1px,transparent 4px),repeating-linear-gradient(90deg,#fff 0px,#fff 1px,transparent 1px,transparent 4px)' }} />
@@ -193,7 +200,7 @@ export function Home() {
             className="hidden md:flex items-center justify-center gap-8 mt-10 flex-wrap max-w-[720px]"
           >
             {[
-              { label: "Central Asia's largest", detail: "youth-led financial literacy initiative" },
+              { label: "Asia's largest", detail: "youth-led financial literacy non-profit" },
               { label: "World's first", detail: "behavioral financial literacy non-profit" },
               { label: "Formerly", detail: "Vanguard Capital League" },
             ].map((item, i) => (

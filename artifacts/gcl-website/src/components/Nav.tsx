@@ -9,6 +9,8 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/courses', label: 'Courses' },
   { href: '/events', label: 'Events' },
+  { href: '/chapters', label: 'Chapters' },
+  { href: '/news', label: 'News' },
 ];
 
 function initials(name: string | null | undefined) {

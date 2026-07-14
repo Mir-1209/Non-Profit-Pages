@@ -283,3 +283,21 @@ body {
   70% { box-shadow: 0 0 0 16px rgba(139,92,246,0); } 
   100% { box-shadow: 0 0 0 0 rgba(139,92,246,0); } 
 }
+
+@keyframes hero-glow-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(6%, 8%) scale(1.12); }
+}
+
+@keyframes hero-glow-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-7%, -6%) scale(1.15); }
+}
+
+.animate-hero-glow-1 {
+  animation: hero-glow-1 14s ease-in-out infinite;
+}
+
+.animate-hero-glow-2 {
+  animation: hero-glow-2 17s ease-in-out infinite;
+}
