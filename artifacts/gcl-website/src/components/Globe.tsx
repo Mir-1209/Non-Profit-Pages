@@ -37,12 +37,12 @@ export function Globe({ className = '' }: { className?: string }) {
         mapSamples: 18000,
         mapBrightness: 6,
         mapBaseBrightness: 0.02,
-        baseColor: [0.3, 0.29, 0.27],
-        markerColor: [1, 0.235, 0],
-        glowColor: [0.2, 0.19, 0.17],
+        baseColor: [0.16, 0.27, 0.55],
+        markerColor: [0.54, 0.83, 1],
+        glowColor: [0.23, 0.55, 1],
         markers: chapters.map((c) => ({ location: [c.lat, c.lng] as [number, number], size: c.id === 'tashkent' ? 0.09 : 0.05 })),
         arcs: chapters.filter((c) => c.id !== 'tashkent').map((c) => ({ from: HQ, to: [c.lat, c.lng] as [number, number] })),
-        arcColor: [1, 0.42, 0.24],
+        arcColor: [0.35, 0.72, 1],
         arcWidth: 0.6,
         arcHeight: 0.25,
         opacity: 0.95,
@@ -109,7 +109,7 @@ export function Globe({ className = '' }: { className?: string }) {
   }, []);
 
   return (
-    <div ref={wrap} className={`relative aspect-square w-full ${className}`} data-cursor="Drag">
+    <div ref={wrap} className={`relative aspect-square w-full ${className}`}>
       <canvas
         ref={canvas}
         className="h-full w-full cursor-grab touch-pan-y opacity-0 transition-opacity duration-[1.5s]"

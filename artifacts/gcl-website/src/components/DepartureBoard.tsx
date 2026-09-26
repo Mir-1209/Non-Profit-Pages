@@ -63,7 +63,7 @@ export function DepartureBoard({ rows, title = 'Departures', subtitle = 'Next st
   const time = useClock(site.hq.timeZone);
 
   return (
-    <div ref={ref} className="on-dark overflow-hidden rounded-[10px] bg-[#0a0a09] text-paper shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)] ring-1 ring-white/5">
+    <div ref={ref} className="on-dark overflow-hidden rounded-[28px] bg-ink text-paper shadow-[0_40px_80px_-30px_rgba(10,22,51,0.55)] ring-1 ring-white/10">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4 sm:px-7">
         <div className="flex items-center gap-4">
           <span className="grid h-9 w-9 place-items-center rounded-full bg-signal text-ink">
@@ -99,7 +99,6 @@ export function DepartureBoard({ rows, title = 'Departures', subtitle = 'Next st
                 key={c.id}
                 className={`group border-t border-white/[0.06] transition-colors hover:bg-white/[0.04] ${onSelect ? 'cursor-pointer' : ''}`}
                 onClick={onSelect ? () => onSelect(c) : undefined}
-                data-cursor={onSelect ? 'Open' : undefined}
               >
                 <th scope="row" className="px-5 py-2 text-left font-normal sm:px-7">
                   <span className="sr-only">{c.city}</span>

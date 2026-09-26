@@ -35,7 +35,7 @@ export default function GetInvolved() {
         <InvolveRows />
       </section>
 
-      <section id="donate" className="on-dark bg-ink py-[clamp(96px,12vw,180px)] text-paper">
+      <section id="donate" className="on-dark glow-dark py-[clamp(96px,12vw,180px)] text-paper">
         <div className="gutter">
           <div className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-end">
             <div>
@@ -46,7 +46,7 @@ export default function GetInvolved() {
               Students never pay. Donors and partners cover materials, venues, training and travel — so a single gift keeps teaching long after the session ends.
             </p>
           </div>
-          <div className="mt-16 grid gap-px overflow-hidden rounded-[10px] bg-paper/15 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-16 grid gap-px overflow-hidden rounded-[28px] bg-paper/15 sm:grid-cols-2 lg:grid-cols-4">
             {GIFTS.map((g, i) => (
               <Rise key={g.amount} delay={i * 0.06} className="h-full">
                 <a href={donateHref} className="group flex h-full flex-col justify-between gap-16 bg-ink p-8 transition-colors duration-500 hover:bg-signal hover:text-ink">

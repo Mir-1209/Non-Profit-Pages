@@ -1,6 +1,6 @@
 import { animate, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { LogoMark } from './Logo';
+import logoImg from '../assets/media/gcl-logo.webp';
 import { EASE_IN_OUT } from './primitives';
 
 const KEY = 'gcl:intro-seen';
@@ -32,7 +32,7 @@ export function Preloader({ onDone }: { onDone: () => void }) {
     }
     // An exponential curve — slow start, fast finish — like compounding.
     const controls = animate(0, 1, {
-      duration: 1.9,
+      duration: 1.4,
       ease: (t) => (Math.pow(2.6, t * 4) - 1) / (Math.pow(2.6, 4) - 1),
       onUpdate: (v) => setN(Math.round(v * 100)),
       onComplete: () => {
@@ -48,7 +48,7 @@ export function Preloader({ onDone }: { onDone: () => void }) {
   return (
     <motion.div
       aria-hidden="true"
-      className="fixed inset-0 z-[100] flex flex-col justify-between bg-ink p-[var(--gutter)] text-paper"
+      className="glow-dark fixed inset-0 z-[100] flex flex-col justify-between p-[var(--gutter)] text-paper"
       initial={{ clipPath: 'inset(0 0 0 0)' }}
       animate={leaving ? { clipPath: 'inset(0 0 100% 0)' } : undefined}
       transition={{ duration: 1, ease: EASE_IN_OUT, delay: 0.15 }}
@@ -58,10 +58,15 @@ export function Preloader({ onDone }: { onDone: () => void }) {
         <span>A = P(1 + r)ⁿ</span>
       </div>
       <div className="flex items-end justify-between gap-6">
-        <div className="text-signal">
-          <LogoMark size={64} animate />
-        </div>
-        <div className="display tabular text-[clamp(120px,28vw,420px)] leading-[0.78]">
+        <motion.img
+          src={logoImg}
+          alt=""
+          className="h-auto w-[180px] sm:w-[260px]"
+          initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 0.9 }}
+        />
+        <div className="display tabular text-[clamp(110px,24vw,360px)] leading-[0.8] text-signal-2 text-glow">
           {String(n).padStart(3, '0')}
         </div>
       </div>

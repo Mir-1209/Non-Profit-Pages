@@ -42,7 +42,7 @@ export default function About() {
       />
 
       <section className="gutter pb-24">
-        <RevealImage src={imgRoom} alt="A GCL workshop in a modern classroom, students seated at long tables" className="aspect-[16/10] w-full rounded-[8px] md:aspect-[21/9]" />
+        <RevealImage src={imgRoom} alt="A GCL workshop in a modern classroom, students seated at long tables" className="aspect-[16/10] w-full rounded-[24px] md:aspect-[21/9]" />
       </section>
 
       <section className="gutter grid gap-12 py-[clamp(80px,10vw,160px)] lg:grid-cols-[0.8fr_1.2fr]">
@@ -63,7 +63,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="on-dark bg-ink py-[clamp(96px,12vw,180px)] text-paper">
+      <section className="on-dark glow-dark py-[clamp(96px,12vw,180px)] text-paper">
         <div className="gutter">
           <Eyebrow index="01.2" className="mb-10 text-paper/70">What we believe</Eyebrow>
           <ScrollInk
@@ -86,9 +86,9 @@ export default function About() {
       <GrowthChart />
 
       <section className="gutter grid gap-6 pb-[clamp(80px,10vw,160px)] md:grid-cols-2">
-        <RevealImage src={imgSession} alt="A GCL educator presenting at the front of a full room" className="aspect-[4/5] rounded-[8px]" />
+        <RevealImage src={imgSession} alt="A GCL educator presenting at the front of a full room" className="aspect-[4/5] rounded-[24px]" />
         <div className="flex flex-col justify-between gap-10">
-          <RevealImage src={imgPanorama} alt="A school classroom filled with students during a GCL session" className="aspect-[16/9] rounded-[8px]" />
+          <RevealImage src={imgPanorama} alt="A school classroom filled with students during a GCL session" className="aspect-[16/9] rounded-[24px]" />
           <div>
             <Eyebrow index="01.3" className="mb-6">Why the new name</Eyebrow>
             <h2 className="display text-[clamp(52px,6vw,100px)]">

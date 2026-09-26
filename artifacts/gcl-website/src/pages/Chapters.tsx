@@ -116,7 +116,7 @@ export default function Chapters() {
 
   return (
     <>
-      <section className="on-dark relative overflow-hidden bg-ink pb-20 pt-[128px] text-paper md:pt-[150px]">
+      <section className="on-dark glow-dark relative overflow-hidden pb-20 pt-[128px] text-paper md:pt-[150px]">
         <div className="gutter grid items-center gap-10 lg:grid-cols-[1.05fr_1fr]">
           <div className="relative z-10">
             <Eyebrow index="03" className="mb-8 text-paper/70">Chapters</Eyebrow>
@@ -174,7 +174,7 @@ export default function Chapters() {
         {rows.length ? (
           <DepartureBoard key={status + region} rows={rows} onSelect={setSelected} title="All departures" subtitle={`${rows.length} chapter${rows.length === 1 ? '' : 's'} · tap to open`} />
         ) : (
-          <div className="rounded-[10px] border border-dashed border-ink/25 p-12 text-center">
+          <div className="rounded-[28px] border border-dashed border-ink/25 p-12 text-center">
             <div className="display text-[48px]">No departures yet.</div>
             <p className="mt-3 text-mute">Nobody has founded a chapter matching this filter — which means it could be you.</p>
           </div>
@@ -215,7 +215,7 @@ export default function Chapters() {
             ['Chapter Founder', 'The permanent title earned by whoever opens a chapter — your name stays on the chapter forever.'],
             ['Chapter Reviver', 'Chapters without a verified event for six months go dormant. Any volunteer who revives one with a new event earns this title.'],
           ].map(([t, d]) => (
-            <Rise key={t} className="flex flex-col justify-between gap-12 rounded-[10px] bg-ink p-8 text-paper md:p-10">
+            <Rise key={t} className="flex flex-col justify-between gap-12 rounded-[28px] bg-ink p-8 text-paper md:p-10">
               <div className="mono text-signal">Title</div>
               <div>
                 <div className="serif text-[clamp(44px,4.5vw,72px)] leading-none italic">{t}</div>

@@ -36,7 +36,7 @@ export function HorizontalPrograms() {
   return (
     <section
       ref={section}
-      className="on-dark relative bg-ink text-paper"
+      className="on-dark glow-dark relative text-paper"
       style={{ height: pinned ? `calc(100vh + ${distance}px)` : 'auto' }}
       aria-label="Programs"
     >
@@ -44,9 +44,8 @@ export function HorizontalPrograms() {
         <motion.div ref={track} className={pinned ? 'flex h-[78vh] items-stretch gap-6 pl-[var(--gutter)] pr-[var(--gutter)]' : 'gutter flex flex-col gap-6'} style={pinned ? { x } : undefined}>
           {/* Intro panel */}
           <div className={`flex shrink-0 flex-col justify-between ${pinned ? 'w-[38vw] pr-10' : ''}`}>
-            <div className="mono flex items-center gap-3 text-paper/70">
-              <span className="text-signal">§ 04</span>
-              <span className="h-px w-8 bg-current opacity-40" />
+            <div className="inline-flex w-fit items-center gap-2 rounded-full bg-signal/15 px-3.5 py-1.5 text-[13px] font-[620] tracking-[-0.005em] text-paper/70">
+              <span className="h-1.5 w-1.5 rounded-full bg-signal shadow-[0_0_10px_rgba(58,169,255,0.9)]" />
               <span>What we do</span>
             </div>
             <h2 className="display my-8 text-[clamp(72px,9vw,168px)]">
@@ -65,9 +64,9 @@ export function HorizontalPrograms() {
           {programs.map((p) => (
             <article
               key={p.id}
-              className={`group relative shrink-0 overflow-hidden rounded-[10px] bg-ink-2 ${pinned ? 'w-[min(62vw,860px)]' : 'min-h-[520px] w-full'}`}
+              className={`group relative shrink-0 overflow-hidden rounded-[28px] bg-ink-2 ${pinned ? 'w-[min(62vw,860px)]' : 'min-h-[520px] w-full'}`}
             >
-              <img src={p.image} alt={p.imageAlt} loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-60 grayscale transition-all duration-[1.2s] ease-out-expo group-hover:scale-[1.04] group-hover:opacity-80 group-hover:grayscale-0" />
+              <img src={p.image} alt={p.imageAlt} loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-all duration-[1.2s] ease-out-expo group-hover:scale-[1.04] group-hover:opacity-95" />
               <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
               <div className="relative flex h-full flex-col justify-between p-6 sm:p-10">
                 <div className="flex items-start justify-between">

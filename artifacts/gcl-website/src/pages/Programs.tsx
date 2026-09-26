@@ -76,7 +76,7 @@ export default function Programs() {
       <section className="gutter space-y-[clamp(80px,10vw,160px)] pb-[clamp(80px,10vw,160px)]">
         {programs.map((p, i) => (
           <article key={p.id} id={p.id} className={`grid items-center gap-10 md:grid-cols-2 ${i % 2 ? 'md:[&>*:first-child]:order-2' : ''}`}>
-            <RevealImage src={p.image} alt={p.imageAlt} className="aspect-[4/5] rounded-[8px] md:aspect-[5/6]" />
+            <RevealImage src={p.image} alt={p.imageAlt} className="aspect-[4/5] rounded-[24px] md:aspect-[5/6]" />
             <div>
               <div className="flex items-baseline gap-5">
                 <span className="display text-[clamp(90px,10vw,170px)] leading-[0.75] text-signal">{p.num}</span>
@@ -96,11 +96,11 @@ export default function Programs() {
       </section>
 
       {/* Method */}
-      <section className="on-dark bg-ink py-[clamp(96px,12vw,180px)] text-paper">
+      <section className="on-dark glow-dark py-[clamp(96px,12vw,180px)] text-paper">
         <div className="gutter">
           <Eyebrow index="02.1" className="mb-6 text-paper/70">The GCL method</Eyebrow>
           <MaskLines as="h2" className="display text-[clamp(64px,9vw,160px)]" lines={['Four moves,', <>every <Accent>session.</Accent></>]} />
-          <ol className="mt-16 grid gap-px overflow-hidden rounded-[8px] bg-paper/15 md:grid-cols-4">
+          <ol className="mt-16 grid gap-px overflow-hidden rounded-[24px] bg-paper/15 md:grid-cols-4">
             {STEPS.map((s, i) => (
               <li key={s.t} className="group relative bg-ink p-8 transition-colors duration-500 hover:bg-signal hover:text-ink">
                 <div className="mono text-signal group-hover:text-ink">Step 0{i + 1}</div>
@@ -130,9 +130,8 @@ export default function Programs() {
       <section id="summer" className="gutter bg-signal py-[clamp(96px,12vw,180px)]">
         <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr]">
           <div>
-            <div className="mono mb-6 flex items-center gap-3">
-              <span>§ 02.3</span>
-              <span className="h-px w-8 bg-current opacity-40" />
+            <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full bg-white/40 px-3.5 py-1.5 text-[13px] font-[620]">
+              <span className="h-1.5 w-1.5 rounded-full bg-ink" />
               <span>{summerProgram.name} · {summerProgram.dates}</span>
             </div>
             <h2 className="display text-[clamp(72px,11vw,200px)]">
@@ -152,7 +151,7 @@ export default function Programs() {
               <Pill href={donateHref} variant="ghost">Sponsor an educator</Pill>
             </div>
           </div>
-          <div className="grid content-start gap-px overflow-hidden rounded-[8px] bg-ink/20">
+          <div className="grid content-start gap-px overflow-hidden rounded-[24px] bg-ink/20">
             {[
               ['What you do', 'Run workshops, build curriculum and mentor young people in your community or with a partner chapter.'],
               ['Who it is for', 'High-school, undergraduate and graduate students who love teaching — no finance degree required.'],

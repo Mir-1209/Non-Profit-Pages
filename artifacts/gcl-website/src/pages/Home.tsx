@@ -7,7 +7,7 @@ import { GrowthChart } from '../components/GrowthChart';
 import { HorizontalPrograms } from '../components/HorizontalPrograms';
 import { InvolveRows } from '../components/InvolveRows';
 import { KineticText, Ticker } from '../components/KineticText';
-import { Arrow, Counter, EASE, Eyebrow, MaskLines, Pill, Rise, ScrollInk } from '../components/primitives';
+import { Arrow, Counter, EASE, Eyebrow, Marquee, MaskLines, Pill, Rise, ScrollInk } from '../components/primitives';
 import { TeamIndex } from '../components/TeamIndex';
 import { Voices } from '../components/Voices';
 import { donateHref, site, stats } from '../config/site';
@@ -27,6 +27,8 @@ import imgPanorama from '../assets/media/school-panorama-1.webp';
 import imgSelfie from '../assets/media/selfie.webp';
 import imgKids3 from '../assets/media/school-kids-3.webp';
 import imgSpeaker from '../assets/media/speaker.webp';
+import imgKids1 from '../assets/media/school-kids-1.webp';
+import imgTrio from '../assets/media/trio.webp';
 
 /* ─── Autoplaying, muted, inline video (never steals focus or audio) ─── */
 export function Reel({ src, poster, className = '', label }: { src: string; poster: string; className?: string; label: string }) {
@@ -63,47 +65,45 @@ function Hero() {
   });
 
   return (
-    <section ref={ref} className="relative flex min-h-[100svh] flex-col overflow-hidden bg-paper pt-[96px]">
+    <section ref={ref} className="glow-bg relative flex min-h-[100svh] flex-col overflow-hidden pt-[104px]">
       <motion.div style={reduce ? undefined : { y, opacity: fade }} className="gutter flex flex-1 flex-col">
-        <div className="mono flex flex-wrap items-center justify-between gap-2 py-4">
-          <span className="flex items-center gap-3">
-            <span className="text-signal">§ 00</span>
-            <span className="h-px w-8 bg-current opacity-40" />
-            <span>{site.name}</span>
+        <div className="flex flex-wrap items-center justify-between gap-3 py-4">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-signal/15 px-3.5 py-1.5 text-[13px] font-[620]">
+            <span className="h-1.5 w-1.5 rounded-full bg-signal shadow-[0_0_10px_rgba(58,169,255,0.9)]" />
+            Asia&apos;s largest youth-led financial literacy non-profit
           </span>
-          <span className="hidden sm:inline">Asia&apos;s largest youth-led financial literacy non-profit</span>
+          <span className="hidden text-[14px] text-mute md:inline">Formerly {site.formerly} · Est. {site.founded}, {site.hq.city}</span>
         </div>
 
-        <h1 className="display mt-2 flex flex-1 flex-col justify-center text-[19.5vw] sm:text-[clamp(52px,17.2vw,340px)]" aria-label="Money is a behavior.">
-          <span className="flex items-center justify-start gap-[0.16em] overflow-hidden pb-[0.02em] sm:justify-between sm:gap-[0.08em]">
+        <h1 className="display mt-2 flex flex-1 flex-col justify-center text-[16.5vw] sm:text-[clamp(52px,14.6vw,300px)]" aria-label="Money is a behavior.">
+          <span className="flex items-center justify-start gap-[0.16em] overflow-hidden pb-[0.04em] sm:justify-between sm:gap-[0.1em]">
             <motion.span className="block" {...rise(0.05)}>
-              <KineticText text="MONEY" />
+              <KineticText text="Money" />
             </motion.span>
             <motion.span
-              className="relative hidden h-[0.66em] flex-1 overflow-hidden rounded-full bg-ink sm:block"
+              className="relative hidden h-[0.7em] flex-1 overflow-hidden rounded-full bg-ink shadow-[0_20px_60px_-20px_rgba(58,169,255,0.6)] ring-4 ring-white sm:block"
               initial={reduce ? false : { clipPath: 'inset(0 50% 0 50% round 999px)' }}
               animate={show ? { clipPath: 'inset(0 0% 0 0% round 999px)' } : undefined}
               transition={{ duration: 1.4, ease: EASE, delay: 0.35 }}
-              data-cursor="Play"
             >
               <Reel src={reelGroup} poster={reelGroupPoster} label="GCL students celebrating after a workshop" className="absolute inset-0 h-full w-full object-cover" />
             </motion.span>
             <motion.span className="block" {...rise(0.12)}>
-              <KineticText text="IS" />
+              <KineticText text="is" />
             </motion.span>
           </span>
-          <span className="flex items-baseline justify-start gap-[0.1em] overflow-hidden pb-[0.04em] sm:justify-between sm:gap-0">
-            <motion.span className="serif block pr-[0.1em] text-[0.62em] normal-case italic leading-none text-signal" {...rise(0.2)}>
+          <span className="flex items-baseline justify-start gap-[0.14em] overflow-hidden pb-[0.06em] sm:justify-end">
+            <motion.span className="serif block pr-[0.1em] text-[0.8em] italic leading-none text-signal" {...rise(0.2)}>
               a
             </motion.span>
             <motion.span className="block" {...rise(0.26)}>
-              <KineticText text="BEHAVIOR." />
+              <KineticText text="behavior." />
             </motion.span>
           </span>
         </h1>
 
         <motion.div
-          className="relative mt-6 h-[120px] overflow-hidden rounded-full bg-ink sm:hidden"
+          className="relative mt-6 h-[120px] overflow-hidden rounded-full bg-ink ring-4 ring-white sm:hidden"
           initial={reduce ? false : { clipPath: 'inset(0 50% 0 50% round 999px)' }}
           animate={show ? { clipPath: 'inset(0 0% 0 0% round 999px)' } : undefined}
           transition={{ duration: 1.4, ease: EASE, delay: 0.35 }}
@@ -112,18 +112,24 @@ function Hero() {
         </motion.div>
 
         <div className="grid grid-cols-1 gap-8 pb-10 pt-8 md:grid-cols-[1fr_1.3fr_1fr] md:items-end">
-          <motion.div className="mono hidden space-y-1.5 text-mute md:block" initial={reduce ? false : { opacity: 0 }} animate={show ? { opacity: 1 } : undefined} transition={{ delay: 0.9 }}>
-            <div>World&apos;s first behavioral financial literacy non-profit</div>
-            <div>Formerly {site.formerly}</div>
-            <div className="text-ink">Est. {site.founded} — {site.hq.city}</div>
+          <motion.div className="flex items-center gap-4" initial={reduce ? false : { opacity: 0 }} animate={show ? { opacity: 1 } : undefined} transition={{ delay: 0.9 }}>
+            <div className="flex -space-x-3">
+              {[imgSelfie, imgKids3, imgSpeaker, imgClassroomBack].map((src, i) => (
+                <img key={i} src={src} alt="" className="h-12 w-12 rounded-full object-cover ring-[3px] ring-paper" />
+              ))}
+            </div>
+            <div className="leading-tight">
+              <div className="text-[20px] font-[750]">{stats.youth.value.toLocaleString('en-US')}+ students</div>
+              <div className="text-[14px] text-mute">taught for free in {stats.countries.value}+ countries</div>
+            </div>
           </motion.div>
           <motion.p
-            className="max-w-[520px] text-[clamp(17px,1.5vw,21px)] leading-[1.45]"
+            className="max-w-[520px] text-[clamp(17px,1.5vw,21px)] leading-[1.5] text-ink/85"
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={show ? { opacity: 1, y: 0 } : undefined}
             transition={{ duration: 1, ease: EASE, delay: 0.75 }}
           >
-            Top-tier financial education used to be reserved for the lucky few. <span className="serif text-[1.2em] italic">Not anymore.</span> We teach the psychology of money to the young people the financial system forgot — free, youth-led, in {stats.countries.value}+ countries.
+            Great financial education used to be reserved for the lucky few. <span className="serif text-[1.2em] italic text-signal">Not anymore.</span> We help young people understand the psychology of money — so they can build calmer, braver, freer lives.
           </motion.p>
           <motion.div
             className="flex flex-wrap gap-3 md:justify-end"
@@ -140,16 +146,43 @@ function Hero() {
       <Ticker
         className="relative z-10"
         items={[
-          { sym: 'GCL:YOUTH', val: `${stats.youth.value.toLocaleString('en-US')}+`, up: true, note: 'taught' },
-          { sym: 'GCL:CHPT', val: stats.chapters.value, up: true, note: 'chapters' },
-          { sym: 'GCL:CTRY', val: `${stats.countries.value}+`, up: true, note: 'countries' },
-          { sym: 'GCL:WKSP', val: `${stats.workshops.value}+`, up: true, note: 'workshops' },
-          { sym: 'GCL:CMPL', val: `${stats.completion.value}%`, up: true, note: 'completion' },
-          { sym: 'COST/STUDENT', val: '$0.00', up: false, note: 'always' },
-          { sym: 'SUMMER26', val: 'JUL 20 – AUG 20', note: 'cohort' },
-          { sym: 'HQ', val: site.hq.city.toUpperCase(), note: site.hq.utc },
+          { sym: 'Students taught', val: `${stats.youth.value.toLocaleString('en-US')}+`, up: true },
+          { sym: 'Chapters', val: stats.chapters.value, up: true },
+          { sym: 'Countries', val: `${stats.countries.value}+`, up: true },
+          { sym: 'Workshops', val: `${stats.workshops.value}+`, up: true },
+          { sym: 'Completion', val: `${stats.completion.value}%`, up: true },
+          { sym: 'Cost to students', val: '$0', note: 'always' },
+          { sym: 'Youth-led', val: 'since 2021' },
+          { sym: 'Home base', val: site.hq.city },
         ]}
       />
+    </section>
+  );
+}
+
+/* ─── A friendly, endlessly scrolling strip of real GCL moments ─── */
+function PhotoStrip() {
+  const photos = [
+    { src: imgSelfie, cap: 'The crew, Jan 2026' },
+    { src: imgKids3, cap: 'Classroom session' },
+    { src: imgSpeaker, cap: '"5 types of income"' },
+    { src: imgPanorama, cap: 'School partnership' },
+    { src: imgClassroomBack, cap: 'Tashkent workshop' },
+    { src: imgKids1, cap: 'First lesson on saving' },
+    { src: imgTrio, cap: 'Volunteers, after class' },
+  ];
+  return (
+    <section className="overflow-hidden bg-paper py-14" aria-label="Photos from GCL sessions">
+      <Marquee speed={70}>
+        {photos.map((p, i) => (
+          <figure key={p.cap} className={`mr-5 w-[240px] shrink-0 sm:w-[300px] ${i % 2 ? 'rotate-[1.5deg]' : '-rotate-[1.5deg]'}`}>
+            <div className="overflow-hidden rounded-[24px] bg-paper-2 shadow-[0_20px_40px_-24px_rgba(10,22,51,0.45)] ring-[6px] ring-white">
+              <img src={p.src} alt="" loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" />
+            </div>
+            <figcaption className="mt-3 text-center text-[14px] font-[560] text-mute">{p.cap}</figcaption>
+          </figure>
+        ))}
+      </Marquee>
     </section>
   );
 }
@@ -269,7 +302,7 @@ function FieldNotes() {
     ] },
   ];
   return (
-    <section ref={ref} className="on-dark overflow-hidden bg-ink py-[clamp(96px,12vw,180px)] text-paper">
+    <section ref={ref} className="on-dark glow-dark overflow-hidden py-[clamp(96px,12vw,180px)] text-paper">
       <div className="gutter mb-16 flex flex-wrap items-end justify-between gap-8">
         <div>
           <Eyebrow index="07" className="mb-6 text-paper/70">
@@ -284,9 +317,9 @@ function FieldNotes() {
           <motion.div key={ci} style={reduce ? undefined : { y: col.y }} className={`flex flex-col gap-4 md:gap-6 ${ci === 2 ? 'hidden md:flex' : ''}`}>
             {col.items.map((it) => (
               <figure key={it.cap}>
-                <div className={`relative overflow-hidden rounded-[6px] bg-ink-2 ${it.ratio}`}>
+                <div className={`relative overflow-hidden rounded-[18px] bg-ink-2 ${it.ratio}`}>
                   {it.kind === 'img' ? (
-                    <img src={it.src} alt={it.alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover grayscale-[0.35] transition duration-700 hover:scale-[1.03] hover:grayscale-0" />
+                    <img src={it.src} alt={it.alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover transition duration-700 hover:scale-[1.03]" />
                   ) : (
                     <Reel src={it.src} poster={it.poster!} label={it.alt} className="absolute inset-0 h-full w-full object-cover" />
                   )}
@@ -308,6 +341,7 @@ export function Home() {
   return (
     <>
       <Hero />
+      <PhotoStrip />
       <Manifesto />
       <Ledger />
       <GrowthChart />

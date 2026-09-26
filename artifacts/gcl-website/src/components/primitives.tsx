@@ -188,11 +188,11 @@ type PillProps = {
 
 export function Pill({ href, children, variant = 'ink', className = '', external }: PillProps) {
   const base =
-    'group relative inline-flex items-center gap-3 overflow-hidden rounded-full px-6 py-3.5 text-[13px] font-[650] uppercase tracking-[0.06em] transition-colors duration-500';
+    'group relative inline-flex items-center gap-3 overflow-hidden rounded-full px-6 py-3.5 text-[15px] font-[650] tracking-[-0.005em] transition-colors duration-500';
   const styles: Record<string, string> = {
     ink: 'bg-ink text-paper hover:text-ink',
     paper: 'bg-paper text-ink',
-    signal: 'bg-signal text-ink hover:text-paper',
+    signal: 'bg-signal text-ink shadow-[0_10px_30px_-10px_rgba(58,169,255,0.8)] hover:text-paper',
     ghost: 'border border-ink/25 text-ink hover:text-ink',
     'ghost-dark': 'border border-paper/25 text-paper hover:text-ink',
   };
@@ -217,12 +217,11 @@ export function Pill({ href, children, variant = 'ink', className = '', external
   );
 }
 
-/* ─── Section eyebrow: § 03 — Title ──────────────────────────────── */
+/* ─── Section eyebrow: a soft chip with a glowing dot ─────────────── */
 export function Eyebrow({ index, children, className = '' }: { index?: string; children: ReactNode; className?: string }) {
   return (
-    <div className={`mono flex items-center gap-3 ${className}`}>
-      {index && <span className="text-signal">§ {index}</span>}
-      <span className="h-px w-8 bg-current opacity-40" />
+    <div className={`inline-flex w-fit items-center gap-2 rounded-full bg-signal/15 px-3.5 py-1.5 text-[13px] font-[620] tracking-[-0.005em] ${className}`} data-index={index}>
+      <span className="h-1.5 w-1.5 rounded-full bg-signal shadow-[0_0_10px_rgba(58,169,255,0.9)]" />
       <span>{children}</span>
     </div>
   );

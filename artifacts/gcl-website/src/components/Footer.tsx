@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { Link } from 'wouter';
 import { donateHref, mailto, nav, site } from '../config/site';
 import { useLenis, scrollToTarget } from '../lib/smooth';
-import { LogoMark } from './Logo';
+import logoImg from '../assets/media/gcl-logo.webp';
 import { Magnetic, Marquee } from './primitives';
 
 export function Footer() {
@@ -15,11 +15,11 @@ export function Footer() {
   const socials = Object.entries(site.social).filter(([, url]) => url);
 
   return (
-    <footer ref={ref} className="on-dark relative overflow-hidden bg-ink text-paper">
+    <footer ref={ref} className="on-dark glow-dark relative overflow-hidden text-paper">
       <motion.div style={{ y }}>
         {/* Call to action */}
         <div className="gutter rule border-b pb-16 pt-24 md:pt-32">
-          <div className="mono mb-8 text-mute-dark">§ End of ledger — Your move</div>
+          <img src={logoImg} alt={site.name} width={640} height={247} loading="lazy" className="mb-12 h-auto w-[220px] md:w-[280px]" />
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr] md:items-end">
             <h2 className="display text-[clamp(64px,11vw,190px)]">
               Invest in
@@ -35,8 +35,7 @@ export function Footer() {
               <Magnetic>
                 <a
                   href={donateHref}
-                  data-cursor="Give"
-                  className="grid h-[170px] w-[170px] place-items-center rounded-full bg-signal text-center text-ink transition-transform duration-500 hover:scale-105 md:h-[200px] md:w-[200px]"
+                  className="grid h-[170px] w-[170px] place-items-center rounded-full bg-signal text-center text-ink shadow-[0_0_60px_rgba(58,169,255,0.55)] transition-transform duration-500 hover:scale-105 md:h-[200px] md:w-[200px]"
                 >
                   <span className="display text-[34px] leading-[0.9]">
                     Donate
@@ -117,15 +116,15 @@ export function Footer() {
         {/* The wordmark */}
         <div className="gutter relative pt-6">
           <motion.div
-            className="display-wide select-none whitespace-nowrap text-center text-[31vw] leading-[0.8]"
+            className="display-wide select-none whitespace-nowrap bg-gradient-to-b from-signal-2 to-signal bg-clip-text pb-[0.04em] text-center text-[31vw] leading-[0.8] text-transparent [filter:drop-shadow(0_0_40px_rgba(58,169,255,0.45))]"
             style={{ letterSpacing: letter }}
             aria-hidden="true"
           >
-            G<span className="text-signal">C</span>L
+            GCL
           </motion.div>
           <div className="mono flex flex-wrap items-center justify-between gap-4 py-6 text-mute-dark">
             <span className="flex items-center gap-2">
-              <LogoMark size={16} /> © {new Date().getFullYear()} {site.name}
+              © {new Date().getFullYear()} {site.name}
             </span>
             <span>Non-profit · Made by young people, for young people</span>
           </div>

@@ -63,9 +63,8 @@ export function GrowthChart() {
       <div className={`${reduce ? '' : 'sticky top-0'} flex min-h-[100svh] flex-col justify-center overflow-hidden py-24`}>
         <div className="gutter grid grid-cols-1 gap-8 lg:grid-cols-[0.8fr_1.6fr] lg:items-end">
           <div>
-            <div className="mono mb-6 flex items-center gap-3">
-              <span className="text-signal">§ 03</span>
-              <span className="h-px w-8 bg-current opacity-40" />
+            <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full bg-signal/15 px-3.5 py-1.5 text-[13px] font-[620] tracking-[-0.005em]">
+              <span className="h-1.5 w-1.5 rounded-full bg-signal shadow-[0_0_10px_rgba(58,169,255,0.9)]" />
               <span>GCL · Chapters · Since inception</span>
             </div>
             <div className="flex items-end gap-6">
@@ -102,19 +101,19 @@ export function GrowthChart() {
               {/* Area under the line */}
               <defs>
                 <linearGradient id="gcl-area" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#ff3c00" stopOpacity="0.22" />
-                  <stop offset="1" stopColor="#ff3c00" stopOpacity="0" />
+                  <stop offset="0" stopColor="#3aa9ff" stopOpacity="0.22" />
+                  <stop offset="1" stopColor="#3aa9ff" stopOpacity="0" />
                 </linearGradient>
                 <clipPath id="gcl-reveal">
                   <motion.rect x="0" y="0" height={H} width={revealWidth} />
                 </clipPath>
               </defs>
               <path d={`${PATH} L ${x(2026)} ${y(0)} L ${x(2021)} ${y(0)} Z`} fill="url(#gcl-area)" clipPath="url(#gcl-reveal)" />
-              <path d={PATH} fill="none" stroke="#0d0d0c" strokeWidth="3.5" clipPath="url(#gcl-reveal)" />
+              <path d={PATH} fill="none" stroke="#0a1633" strokeWidth="3.5" clipPath="url(#gcl-reveal)" />
               {POINTS.map((p, i) => (
                 <g key={p.year} opacity={reduce || i <= active ? 1 : 0.15} style={{ transition: 'opacity .4s' }}>
-                  <circle cx={x(p.year)} cy={y(p.value)} r={i === active ? 10 : 6} fill={i === active ? '#ff3c00' : '#0d0d0c'} style={{ transition: 'r .3s' }} />
-                  {i === active && <circle cx={x(p.year)} cy={y(p.value)} r="22" fill="none" stroke="#ff3c00" strokeOpacity="0.5" />}
+                  <circle cx={x(p.year)} cy={y(p.value)} r={i === active ? 10 : 6} fill={i === active ? '#3aa9ff' : '#0a1633'} style={{ transition: 'r .3s' }} />
+                  {i === active && <circle cx={x(p.year)} cy={y(p.value)} r="22" fill="none" stroke="#3aa9ff" strokeOpacity="0.5" />}
                 </g>
               ))}
             </svg>

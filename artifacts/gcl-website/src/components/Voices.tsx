@@ -30,9 +30,8 @@ export function Voices() {
       onBlur={() => setPaused(false)}
     >
       <div className="flex items-center justify-between">
-        <div className="mono flex items-center gap-3">
-          <span className="text-signal">§ 08</span>
-          <span className="h-px w-8 bg-current opacity-40" />
+        <div className="inline-flex w-fit items-center gap-2 rounded-full bg-signal/15 px-3.5 py-1.5 text-[13px] font-[620] tracking-[-0.005em]">
+          <span className="h-1.5 w-1.5 rounded-full bg-signal shadow-[0_0_10px_rgba(58,169,255,0.9)]" />
           <span>Voices from the league</span>
         </div>
         <div className="mono tabular">

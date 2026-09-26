@@ -99,7 +99,7 @@ export default function Events() {
         intro={<>Workshops, summits, webinars and retreats — hosted by chapters around the world. Almost everything is free. Everything is shame-free.</>}
         aside={
           next ? (
-            <div className="max-w-[360px] rounded-[10px] bg-ink p-6 text-paper">
+            <div className="max-w-[360px] rounded-[28px] bg-ink p-6 text-paper">
               <div className="mono text-signal">Next up · {next.date.full}</div>
               <div className="display mt-3 text-[40px]">{next.title}</div>
               <div className="mono mt-3 text-paper/50">{next.format} · {next.location}</div>
@@ -117,7 +117,7 @@ export default function Events() {
             ))}
           </ul>
         ) : (
-          <div className="rounded-[10px] border border-dashed border-ink/25 p-12 text-center">
+          <div className="rounded-[28px] border border-dashed border-ink/25 p-12 text-center">
             <div className="display text-[48px]">The calendar is being written.</div>
             <p className="mt-3 text-mute">New events are announced first to chapters. Write to us to host one in your city.</p>
           </div>

@@ -20,13 +20,12 @@ export function PageHero({
 }) {
   const reduce = useReducedMotion();
   return (
-    <section className={`gutter relative overflow-hidden pb-16 pt-[128px] md:pb-24 md:pt-[150px] ${dark ? 'on-dark bg-ink text-paper' : 'bg-paper'}`}>
-      <div className="mono mb-8 flex items-center gap-3">
-        <span className="text-signal">§ {index}</span>
-        <span className="h-px w-8 bg-current opacity-40" />
+    <section className={`gutter relative overflow-hidden pb-16 pt-[128px] md:pb-24 md:pt-[150px] ${dark ? 'on-dark glow-dark text-paper' : 'glow-bg'}`}>
+      <div className="mb-8 inline-flex w-fit items-center gap-2 rounded-full bg-signal/15 px-3.5 py-1.5 text-[13px] font-[620] tracking-[-0.005em]">
+        <span className="h-1.5 w-1.5 rounded-full bg-signal shadow-[0_0_10px_rgba(58,169,255,0.9)]" />
         <span>{label}</span>
       </div>
-      <h1 className="display text-[clamp(76px,14.5vw,280px)]">
+      <h1 className="display text-[clamp(60px,11vw,210px)]">
         {lines.map((line, i) => (
           <span key={i} className="block overflow-hidden pb-[0.03em]">
             <motion.span

@@ -2,10 +2,10 @@ import { useEffect, useRef, type ReactNode } from 'react';
 
 /**
  * Condensed display type whose letters widen and thicken near the pointer
- * (variable font axes: wdth 62→125, wght 700→900). On touch screens a slow
+ * (variable font axes: wdth 84→112, wght 780→900). On touch screens a slow
  * wave rolls through the letters instead. Static when reduced motion is on.
  */
-export function KineticText({ text, className = '', radius = 260, maxStretch = 112 }: { text: string; className?: string; radius?: number; maxStretch?: number }) {
+export function KineticText({ text, className = '', radius = 260, maxStretch = 112, base = 84 }: { text: string; className?: string; radius?: number; maxStretch?: number; base?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -49,8 +49,8 @@ export function KineticText({ text, className = '', radius = 260, maxStretch = 1
       }
       for (let i = 0; i < letters.length; i++) {
         const v = current[i];
-        letters[i].style.fontStretch = `${62 + v * (maxStretch - 62)}%`;
-        letters[i].style.fontWeight = `${800 + v * 100}`;
+        letters[i].style.fontStretch = `${base + v * (maxStretch - base)}%`;
+        letters[i].style.fontWeight = `${780 + v * 120}`;
       }
     };
     raf = requestAnimationFrame(tick);
@@ -59,13 +59,13 @@ export function KineticText({ text, className = '', radius = 260, maxStretch = 1
       io.disconnect();
       window.removeEventListener('pointermove', onMove);
     };
-  }, [radius, maxStretch]);
+  }, [radius, maxStretch, base]);
 
   return (
     <span ref={ref} className={`whitespace-nowrap ${className}`}>
       <span className="sr-only">{text}</span>
       {Array.from(text).map((ch, i) => (
-        <span key={i} data-l aria-hidden="true" className="inline-block" style={{ fontStretch: '62%' }}>
+        <span key={i} data-l aria-hidden="true" className="inline-block" style={{ fontStretch: `${base}%` }}>
           {ch === ' ' ? ' ' : ch}
         </span>
       ))}
@@ -77,18 +77,18 @@ export function Ticker({ items, className = '' }: { items: { sym: string; val: R
   const row = (
     <div className="flex shrink-0 items-center">
       {items.map((it, i) => (
-        <span key={i} className="mono flex items-center gap-2 whitespace-nowrap px-5">
+        <span key={i} className="flex items-center gap-2 whitespace-nowrap px-6 text-[14px] font-[560]">
           <span className="text-paper/55">{it.sym}</span>
           <span className="tabular text-paper">{it.val}</span>
           {it.up !== undefined && <span className={it.up ? 'text-signal' : 'text-paper/50'}>{it.up ? '▲' : '━'}</span>}
           {it.note && <span className="text-paper/40">{it.note}</span>}
-          <span className="pl-3 text-paper/20">/</span>
+          <span className="pl-4 text-signal">✦</span>
         </span>
       ))}
     </div>
   );
   return (
-    <div className={`flex overflow-hidden bg-ink py-2.5 ${className}`} aria-hidden="true">
+    <div className={`flex overflow-hidden bg-ink py-3 ${className}`} aria-hidden="true">
       <div className="flex shrink-0 animate-marquee" style={{ ['--marquee-speed' as string]: '55s' }}>
         {row}
         {row}

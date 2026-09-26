@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Route, Router as WouterRouter, Switch, useLocation } from 'wouter';
-import { Cursor } from './components/Cursor';
 import { Footer } from './components/Footer';
 import { Nav } from './components/Nav';
 import { Preloader } from './components/Preloader';
@@ -102,10 +101,8 @@ export default function App() {
       <SmoothScroll>
         <IntroContext.Provider value={ready}>
           <Preloader onDone={done} />
-          {ready && <Cursor />}
           <Nav />
           <Routes />
-          <div className="grain" aria-hidden="true" />
         </IntroContext.Provider>
       </SmoothScroll>
     </WouterRouter>

@@ -62,9 +62,8 @@ export function BiasLab() {
   return (
     <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
       <div>
-        <div className="mono mb-6 flex items-center gap-3">
-          <span className="text-signal">§ 05</span>
-          <span className="h-px w-8 bg-current opacity-40" />
+        <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full bg-signal/15 px-3.5 py-1.5 text-[13px] font-[620] tracking-[-0.005em]">
+          <span className="h-1.5 w-1.5 rounded-full bg-signal shadow-[0_0_10px_rgba(58,169,255,0.9)]" />
           <span>Bias lab — try it</span>
         </div>
         <h2 className="display text-[clamp(64px,8.5vw,150px)]">
@@ -97,7 +96,7 @@ export function BiasLab() {
         </AnimatePresence>
       </div>
 
-      <div className="relative min-h-[520px] overflow-hidden rounded-[10px] bg-ink p-6 text-paper sm:p-10" role="tabpanel" aria-live="polite">
+      <div className="relative min-h-[520px] overflow-hidden rounded-[28px] bg-ink p-6 text-paper sm:p-10" role="tabpanel" aria-live="polite">
         <AnimatePresence mode="wait">
           <motion.div
             key={q.id + (answered ?? '')}
@@ -119,7 +118,7 @@ export function BiasLab() {
                     key={k}
                     type="button"
                     onClick={() => setAnswers((s) => ({ ...s, [q.id]: k }))}
-                    className="group relative overflow-hidden rounded-[8px] border border-paper/20 p-6 text-left transition-colors hover:text-ink"
+                    className="group relative overflow-hidden rounded-[24px] border border-paper/20 p-6 text-left transition-colors hover:text-ink"
                   >
                     <span className="absolute inset-0 translate-y-full bg-signal transition-transform duration-500 ease-out-expo group-hover:translate-y-0" />
                     <span className="mono relative block opacity-60">Option {k.toUpperCase()}</span>

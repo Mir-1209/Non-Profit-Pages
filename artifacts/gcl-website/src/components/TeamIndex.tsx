@@ -92,8 +92,8 @@ export function TeamIndex({ members, showBio = false }: { members: TeamMember[];
             exit={{ opacity: 0, scale: 0.6, rotate: 6 }}
             transition={{ type: 'spring', stiffness: 300, damping: 24 }}
           >
-            <div className="ml-8 -mt-40 w-[240px] overflow-hidden rounded-[8px] bg-ink text-paper shadow-2xl">
-              <div className="relative grid h-[220px] place-items-center overflow-hidden" style={{ background: 'repeating-linear-gradient(135deg,#ff3c00 0 14px,#ff5a26 14px 28px)' }}>
+            <div className="ml-8 -mt-40 w-[240px] overflow-hidden rounded-[24px] bg-ink text-paper shadow-2xl">
+              <div className="relative grid h-[220px] place-items-center overflow-hidden" style={{ background: 'linear-gradient(140deg,#3aa9ff 0%,#8ad3ff 100%)' }}>
                 <span className="display text-[150px] leading-none text-ink">{hover.initials}</span>
               </div>
               <div className="p-4">

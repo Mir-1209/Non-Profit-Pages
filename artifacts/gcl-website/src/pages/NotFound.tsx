@@ -6,9 +6,8 @@ export default function NotFound() {
   usePageMeta('Page not found', 'This page does not exist.');
   return (
     <section className="gutter flex min-h-[100svh] flex-col justify-center bg-paper pb-16 pt-[120px]">
-      <div className="mono mb-6 flex items-center gap-3">
-        <span className="text-signal">§ 404</span>
-        <span className="h-px w-8 bg-current opacity-40" />
+      <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full bg-signal/15 px-3.5 py-1.5 text-[13px] font-[620] tracking-[-0.005em]">
+        <span className="h-1.5 w-1.5 rounded-full bg-signal shadow-[0_0_10px_rgba(58,169,255,0.9)]" />
         <span>Asset delisted</span>
       </div>
       <h1 className="display text-[clamp(160px,38vw,640px)] leading-[0.78]">

@@ -50,9 +50,9 @@ Photos and videos are in `src/assets/media/` (already compressed to WebP / H.264
 
 ## Design system
 
-- **Palette:** paper `#EEEAE0`, ink `#0D0D0C`, signal orange `#FF3C00`.
-- **Type:** Archivo variable (condensed 62% for display, animated along its width axis), Instrument Serif italic for accents, JetBrains Mono for labels. All fonts are self-hosted.
-- **Logo:** an open ring (the "G" and the globe) with a growth arrow breaking out through the gap — `src/components/Logo.tsx`, `public/favicon.svg`.
+- **Palette:** taken from the GCL logo — night navy `#0A1633`, glowing sky blue `#3AA9FF` / `#8AD3FF`, soft white `#F6F9FF`.
+- **Type:** Archivo variable for big friendly headlines (animated along its width axis), Instrument Serif italic for accents, JetBrains Mono for small labels. All fonts are self-hosted.
+- **Logo:** the original glowing GLOBAL / CAPITAL LEAGUE wordmark (`src/assets/media/gcl-logo.webp`) in the nav, footer, intro and share image. Favicons use a small ring-and-arrow mark in the same blue (`public/favicon.svg`).
 - **Signature pieces:** kinetic hero type that reacts to the cursor, a scroll-drawn growth chart of the chapter network, a pinned horizontal program reel, a three-question "bias lab", a split-flap departure board of chapters, a WebGL globe with arcs to every chapter, and a full-bleed wordmark footer.
 - Every animation respects `prefers-reduced-motion`.
 

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { donateHref, mailto, nav, site } from '../config/site';
 import { useLenis } from '../lib/smooth';
-import { Logo } from './Logo';
+import logoImg from '../assets/media/gcl-logo.webp';
 import { EASE, EASE_IN_OUT } from './primitives';
 
 import imgAbout from '../assets/media/speaker.webp';
@@ -59,62 +59,62 @@ export function Nav() {
 
   return (
     <>
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-signal focus:px-4 focus:py-2 focus:text-ink">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-signal focus:px-4 focus:py-2 focus:text-ink">
         Skip to content
       </a>
 
-      {/* Blend layer: logo + clock invert against whatever is underneath */}
+      {/* Floating glass bar with the GCL logo, main links and actions */}
       <motion.header
-        className="gutter pointer-events-none fixed inset-x-0 top-0 z-[60] flex h-[76px] items-center justify-between text-paper mix-blend-difference"
-        animate={{ y: hidden && !open ? -90 : 0 }}
+        className="fixed inset-x-0 top-0 z-[70] px-3 pt-3 sm:px-[var(--gutter)] sm:pt-4"
+        animate={{ y: hidden && !open ? -110 : 0 }}
         transition={{ duration: 0.6, ease: EASE }}
       >
-        <Link href="/" aria-label={`${site.name} — home`} className="pointer-events-auto">
-          <Logo />
-        </Link>
-        <div className="mono hidden items-center gap-6 lg:flex">
-          <span>
-            {site.hq.city} <span className="tabular">{time}</span> {site.hq.utc}
-          </span>
-          <span className="opacity-60">Est. {site.founded}</span>
-          <span className="opacity-60">Non-profit · Youth-led</span>
+        <div className="mx-auto flex h-[64px] max-w-[1480px] items-center justify-between gap-4 rounded-full border border-white/10 bg-ink/85 pl-5 pr-2 shadow-[0_18px_50px_-20px_rgba(10,22,51,0.6)] backdrop-blur-xl">
+          <Link href="/" aria-label={`${site.name} — home`} className="flex shrink-0 items-center">
+            <img src={logoImg} alt={site.name} width={640} height={247} className="h-[38px] w-auto sm:h-[42px]" />
+          </Link>
+          <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
+            {nav.slice(1).map((item) => {
+              const active = location === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? 'page' : undefined}
+                  className={`rounded-full px-4 py-2 text-[14px] font-[560] transition-colors ${active ? 'bg-white/12 text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="flex items-center gap-2">
+            <span className="mono hidden text-white/50 xl:inline">
+              {site.hq.city} <span className="tabular text-white/80">{time.slice(0, 5)}</span>
+            </span>
+            <a
+              href={donateHref}
+              className="rounded-full bg-signal px-5 py-2.5 text-[13px] font-[700] text-ink shadow-[0_0_24px_rgba(58,169,255,0.45)] transition-transform duration-300 hover:scale-[1.04]"
+            >
+              Donate
+            </a>
+            <button
+              type="button"
+              onClick={() => setOpen((o) => !o)}
+              aria-expanded={open}
+              aria-controls="site-menu"
+              aria-label={open ? 'Close menu' : 'Open menu'}
+              className="grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 lg:hidden"
+            >
+              <span className="relative block h-3 w-4">
+                <motion.span className="absolute left-0 top-0 h-[2px] w-4 rounded bg-current" animate={{ rotate: open ? 45 : 0, y: open ? 5 : 0 }} />
+                <motion.span className="absolute left-0 top-[5px] h-[2px] w-4 rounded bg-current" animate={{ opacity: open ? 0 : 1 }} />
+                <motion.span className="absolute left-0 top-[10px] h-[2px] w-4 rounded bg-current" animate={{ rotate: open ? -45 : 0, y: open ? -5 : 0 }} />
+              </span>
+            </button>
+          </div>
         </div>
-        <span className="w-[190px]" />
       </motion.header>
-
-      {/* Solid controls (no blending, so the orange stays orange) */}
-      <motion.div
-        className="gutter fixed right-0 top-0 z-[70] flex h-[76px] items-center gap-2"
-        animate={{ y: hidden && !open ? -90 : 0 }}
-        transition={{ duration: 0.6, ease: EASE }}
-      >
-        <a
-          href={donateHref}
-          className="hidden rounded-full bg-signal px-5 py-2.5 text-[12px] font-[700] uppercase tracking-[0.08em] text-ink transition-transform duration-300 hover:scale-[1.04] sm:inline-block"
-        >
-          Donate
-        </a>
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-expanded={open}
-          aria-controls="site-menu"
-          className="group flex items-center gap-3 rounded-full bg-ink py-2.5 pl-5 pr-3 text-[12px] font-[700] uppercase tracking-[0.08em] text-paper"
-        >
-          <span className="relative block h-[1.2em] w-[3.3em] overflow-hidden text-left">
-            <motion.span className="block" animate={{ y: open ? '-100%' : '0%' }} transition={{ duration: 0.5, ease: EASE }}>
-              Menu
-            </motion.span>
-            <motion.span className="absolute left-0 top-full block" animate={{ y: open ? '-100%' : '0%' }} transition={{ duration: 0.5, ease: EASE }}>
-              Close
-            </motion.span>
-          </span>
-          <span className="relative grid h-6 w-6 place-items-center rounded-full bg-signal">
-            <motion.span className="absolute h-[2px] w-2.5 bg-ink" animate={{ rotate: open ? 45 : 0, y: open ? 0 : -2.5 }} />
-            <motion.span className="absolute h-[2px] w-2.5 bg-ink" animate={{ rotate: open ? -45 : 0, y: open ? 0 : 2.5 }} />
-          </span>
-        </button>
-      </motion.div>
 
       <AnimatePresence>{open && <MenuOverlay current={location} />}</AnimatePresence>
     </>
@@ -131,7 +131,7 @@ function MenuOverlay({ current }: { current: string }) {
       role="dialog"
       aria-modal="true"
       aria-label="Site menu"
-      className="on-dark fixed inset-0 z-[55] flex flex-col bg-ink text-paper"
+      className="on-dark glow-dark fixed inset-0 z-[65] flex flex-col text-paper"
       initial={{ clipPath: 'inset(0 0 100% 0)' }}
       animate={{ clipPath: 'inset(0 0 0% 0)' }}
       exit={{ clipPath: 'inset(100% 0 0 0)' }}
@@ -171,7 +171,7 @@ function MenuOverlay({ current }: { current: string }) {
         </nav>
 
         <div className="hidden flex-col justify-between lg:flex">
-          <div className="relative aspect-[4/5] w-full max-w-[420px] self-end overflow-hidden rounded-[6px] bg-ink-2">
+          <div className="relative aspect-[4/5] w-full max-w-[420px] self-end overflow-hidden rounded-[18px] bg-ink-2">
             <AnimatePresence mode="popLayout">
               <motion.img
                 key={hover}

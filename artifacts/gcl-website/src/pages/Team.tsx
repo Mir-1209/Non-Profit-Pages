@@ -42,9 +42,9 @@ export default function Team() {
       </section>
 
       <section className="gutter grid gap-6 pb-[clamp(80px,10vw,140px)] md:grid-cols-[1fr_1.4fr]">
-        <RevealImage src={imgTrio} alt="Three GCL volunteers" className="aspect-[4/5] rounded-[8px]" />
+        <RevealImage src={imgTrio} alt="Three GCL volunteers" className="aspect-[4/5] rounded-[24px]" />
         <div className="flex flex-col justify-between gap-10">
-          <RevealImage src={imgSelfie} alt="GCL volunteers taking a group selfie after an event" className="aspect-[4/3] rounded-[8px]" />
+          <RevealImage src={imgSelfie} alt="GCL volunteers taking a group selfie after an event" className="aspect-[4/3] rounded-[24px]" />
           <div>
             <Eyebrow index="05.1" className="mb-6">Join the crew</Eyebrow>
             <MaskLines as="h2" className="display text-[clamp(56px,7vw,120px)]" lines={['Your name', <>could be <Accent>here.</Accent></>]} />
