@@ -1,7 +1,0 @@
-{
-  "buildCommand": "BASE_PATH=/ NODE_ENV=production pnpm run build",
-  "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/:path*", "destination": "/index.html" }
-  ]
-}
