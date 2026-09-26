@@ -1,205 +1,148 @@
-import React, { useState } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { Link } from 'wouter';
-import { events } from '../data/events';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useState } from 'react';
+import { Accent, PageHero } from '../components/PageHero';
+import { Eyebrow, Pill } from '../components/primitives';
+import { mailto, site } from '../config/site';
+import { events, type Event } from '../data/events';
+import { chapters } from '../data/chapters';
+import { usePageMeta } from '../hooks/usePageMeta';
 
-function Reveal({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const ref = React.useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-60px' });
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+// An event stays "upcoming" until the end of its day.
+const dateOf = (e: Event) => new Date(Number(e.date.year), MONTHS.indexOf(e.date.month), Number(e.date.day), 23, 59, 59);
+
+function EventRow({ e, past }: { e: Event; past: boolean }) {
+  const [open, setOpen] = useState(false);
+  const chapter = chapters.find((c) => c.id === e.chapterId);
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 24 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay }} className={className}>
-      {children}
-    </motion.div>
+    <li className="rule border-b">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className={`group grid w-full grid-cols-[88px_1fr_40px] items-center gap-4 py-6 text-left md:grid-cols-[150px_1fr_220px_140px_48px] md:gap-8 ${past ? 'opacity-55 hover:opacity-100' : ''}`}
+      >
+        <span className="leading-none">
+          <span className="display block text-[clamp(56px,6vw,96px)] leading-[0.8]">{e.date.day}</span>
+          <span className="mono mt-2 block text-mute">{e.date.month} {e.date.year}</span>
+        </span>
+        <span>
+          <span className="display block text-[clamp(32px,3.6vw,60px)] transition-colors group-hover:text-signal">{e.title}</span>
+          <span className="mt-1 block text-[15px] text-mute">{e.subtitle}</span>
+        </span>
+        <span className="mono hidden text-mute md:block">
+          {e.format} · {chapter ? `GCL ${chapter.city}` : 'GCL'}
+          <br />
+          {e.time} {e.timezone.split(' ')[0]}
+        </span>
+        <span className="hidden md:block">
+          <span className={`mono inline-block rounded-full px-3 py-1.5 ${past ? 'border border-ink/20' : e.type === 'Free' ? 'bg-signal' : 'bg-ink text-paper'}`}>
+            {past ? 'Archive' : e.type}
+          </span>
+        </span>
+        <span className={`grid h-10 w-10 place-items-center justify-self-end rounded-full border border-ink/25 text-[18px] transition-transform duration-500 ${open ? 'rotate-45 bg-ink text-paper' : ''}`}>+</span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
+            <div className="grid gap-10 pb-10 md:grid-cols-[150px_1fr_1fr] md:gap-8">
+              <span className="hidden md:block" />
+              <div>
+                <p className="text-[17px] leading-relaxed">{e.longDescription}</p>
+                <dl className="mt-6 grid grid-cols-2 gap-4">
+                  <div><dt className="mono text-mute">Where</dt><dd className="mt-1 text-[15px]">{e.location}</dd></div>
+                  <div><dt className="mono text-mute">Host</dt><dd className="mt-1 text-[15px]">{e.speaker}</dd></div>
+                </dl>
+                <div className="mt-8">
+                  {past ? (
+                    <Pill href={mailto(site.email.general, `Recording / notes — ${e.title}`)} variant="ghost">Ask for the notes</Pill>
+                  ) : (
+                    <Pill href={mailto(site.email.general, `Register — ${e.title} (${e.date.full})`, 'Name:\nCity / country:\nSchool or organization (optional):')} variant="signal">
+                      Reserve a seat
+                    </Pill>
+                  )}
+                </div>
+              </div>
+              <ol className="rule border-t">
+                {e.agenda.map((a) => (
+                  <li key={a.time + a.title} className="rule grid grid-cols-[90px_1fr] gap-3 border-b py-3">
+                    <span className="mono pt-0.5 text-signal">{a.time}</span>
+                    <span>
+                      <span className="block text-[15px] font-[620]">{a.title}</span>
+                      {a.description && <span className="block text-[14px] leading-relaxed text-mute">{a.description}</span>}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </li>
   );
 }
 
-const FILTERS = ['All', 'Online', 'In-Person', 'Free'] as const;
-
-const spotsLeft = (ev: (typeof events)[number]) => ev.capacity - ev.registered;
-const spotsColor = (n: number) => n <= 10 ? '#e53e3e' : n <= 30 ? '#d69e2e' : '#28c840';
-
-export function Events() {
-  const [filter, setFilter] = useState<string>('All');
-  const filtered = events.filter(e => {
-    if (filter === 'All') return true;
-    if (filter === 'Free') return e.type === 'Free';
-    return e.format === filter;
-  });
-
-  const featuredEvents = events.filter(e => e.featured);
+export default function Events() {
+  usePageMeta('Events', 'Workshops, summits and retreats — online and in person. Free to attend unless noted.');
+  const now = new Date();
+  const sorted = [...events].sort((a, b) => dateOf(a).getTime() - dateOf(b).getTime());
+  const upcoming = sorted.filter((e) => dateOf(e) >= now);
+  const past = sorted.filter((e) => dateOf(e) < now).reverse();
+  const next = upcoming[0];
 
   return (
-    <main className="pb-32">
-      {/* ─── HERO ─── */}
-      <section className="pt-[90px] pb-0 overflow-hidden" style={{ background: 'var(--brutal-bg)' }}>
-        <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'repeating-linear-gradient(90deg,white 0px,white 1px,transparent 1px,transparent 80px),repeating-linear-gradient(0deg,white 0px,white 1px,transparent 1px,transparent 80px)' }} />
-        <div className="max-w-[1240px] mx-auto px-8 relative z-10 pb-0">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }}>
-            <div className="border-b-[2.5px] border-white/10 pb-6">
-              <div className="text-[11px] font-[800] uppercase tracking-[0.18em] text-[var(--neon-cyan)] mb-4 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#28c840]" />
-                Live, Online & In-Person
-              </div>
-              <h1 className="font-[800] text-[clamp(52px,8vw,100px)] leading-[0.88] tracking-[-0.04em] text-white uppercase">
-                Events &<br />Workshops.
-              </h1>
-              <p className="text-[16px] text-[var(--brutal-text-dim)] mt-5 max-w-[500px]">
-                Join a session near you — or online, wherever "near you" doesn't exist yet. All events are free and open to everyone.
-              </p>
+    <>
+      <PageHero
+        index="04"
+        label="Events"
+        lines={['Rooms', <>worth <Accent>showing</Accent></>, 'up to.']}
+        intro={<>Workshops, summits, webinars and retreats — hosted by chapters around the world. Almost everything is free. Everything is shame-free.</>}
+        aside={
+          next ? (
+            <div className="max-w-[360px] rounded-[10px] bg-ink p-6 text-paper">
+              <div className="mono text-signal">Next up · {next.date.full}</div>
+              <div className="display mt-3 text-[40px]">{next.title}</div>
+              <div className="mono mt-3 text-paper/50">{next.format} · {next.location}</div>
             </div>
+          ) : undefined
+        }
+      />
 
-            {/* Stats bar */}
-            <div className="grid grid-cols-3 divide-x divide-white/10 py-4">
-              {[
-                { n: events.length, label: 'Upcoming Events' },
-                { n: events.filter(e => e.type === 'Free').length, label: 'Free Events' },
-                { n: events.reduce((a, e) => a + e.registered, 0).toLocaleString(), label: 'Already Registered' },
-              ].map(s => (
-                <div key={s.label} className="px-6 first:pl-0">
-                  <div className="font-[800] text-[clamp(24px,3vw,36px)] text-white tracking-[-0.02em]">{s.n}</div>
-                  <div className="text-[12px] font-[600] uppercase tracking-wider text-[var(--brutal-text-dim)]">{s.label}</div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
+      <section className="gutter pb-[clamp(80px,10vw,140px)]">
+        <Eyebrow index="04.1" className="mb-8">Upcoming · {upcoming.length}</Eyebrow>
+        {upcoming.length ? (
+          <ul className="rule border-t">
+            {upcoming.map((e) => (
+              <EventRow key={e.id} e={e} past={false} />
+            ))}
+          </ul>
+        ) : (
+          <div className="rounded-[10px] border border-dashed border-ink/25 p-12 text-center">
+            <div className="display text-[48px]">The calendar is being written.</div>
+            <p className="mt-3 text-mute">New events are announced first to chapters. Write to us to host one in your city.</p>
+          </div>
+        )}
       </section>
 
-      {/* ─── FEATURED EVENTS ─── */}
-      {featuredEvents.length > 0 && (
-        <section className="py-12 border-b-[2.5px] border-[var(--ink)]" style={{ background: 'var(--paper-alt)' }}>
-          <div className="max-w-[1240px] mx-auto px-8">
-            <div className="text-[11px] font-[800] uppercase tracking-[0.15em] text-[var(--ink-faint)] mb-6">Featured Events</div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {featuredEvents.map((ev, i) => (
-                <Reveal key={ev.id} delay={i * 0.08}>
-                  <Link href={`/events/${ev.id}`} className="block border-[2.5px] border-[var(--ink)] shadow-[8px_8px_0px_var(--ink)] bg-[var(--brutal-bg)] text-white overflow-hidden hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[12px_12px_0px_var(--ink)] transition-all group">
-                    <div className="p-7">
-                      <div className="flex items-start justify-between mb-5">
-                        <div className="flex items-center gap-3">
-                          <div className="border-[2px] border-white/20 px-4 py-3 text-center">
-                            <div className="font-[800] text-[32px] leading-none text-[var(--neon-cyan)]">{ev.date.day}</div>
-                            <div className="text-[11px] font-[700] uppercase tracking-wider text-white/60 mt-0.5">{ev.date.month}</div>
-                          </div>
-                          <div>
-                            <div className="font-[700] text-[13px] text-white/60">{ev.date.year}</div>
-                            <div className="font-[600] text-[13px] text-[var(--neon-cyan)]">{ev.time} {ev.timezone}</div>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 flex-wrap justify-end">
-                          <span className="text-[10px] font-[800] uppercase tracking-wider px-2.5 py-1 border border-[var(--neon-cyan)]/30 text-[var(--neon-cyan)]">{ev.format}</span>
-                          <span className="text-[10px] font-[800] uppercase tracking-wider px-2.5 py-1 border border-green-500/30 text-green-400">{ev.type}</span>
-                        </div>
-                      </div>
-                      <div className="text-[11px] font-[700] uppercase tracking-wider text-white/40 mb-2">Featured</div>
-                      <h3 className="font-[800] text-[22px] leading-tight tracking-[-0.01em] mb-2 group-hover:text-[var(--neon-cyan)] transition-colors">{ev.title}</h3>
-                      <p className="text-[13.5px] text-[var(--brutal-text-dim)] leading-[1.6] mb-5">{ev.description}</p>
-                      <div className="flex items-center justify-between pt-5 border-t border-white/10">
-                        <div>
-                          <div className="text-[12px] text-white/50 mb-0.5">Speaker</div>
-                          <div className="font-[700] text-[14px]">{ev.speaker}</div>
-                          <div className="text-[11px] text-white/50">{ev.speakerTitle}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-[800] text-[22px]" style={{ color: spotsColor(spotsLeft(ev)) }}>{spotsLeft(ev)}</div>
-                          <div className="text-[11px] text-white/50 uppercase tracking-wider">Spots left</div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
-          </div>
+      {past.length > 0 && (
+        <section className="gutter pb-[clamp(80px,10vw,140px)]">
+          <Eyebrow index="04.2" className="mb-8">Archive · {past.length}</Eyebrow>
+          <ul className="rule border-t">
+            {past.map((e) => (
+              <EventRow key={e.id} e={e} past />
+            ))}
+          </ul>
         </section>
       )}
 
-      {/* ─── ALL EVENTS ─── */}
-      <section className="py-12 bg-white">
-        <div className="max-w-[1240px] mx-auto px-8">
-          {/* Filter */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 mb-8 pb-6 border-b-[2.5px] border-[var(--ink)]">
-            <h2 className="font-[800] text-[clamp(22px,3vw,32px)] tracking-[-0.02em] uppercase">All Events</h2>
-            <div className="flex gap-2">
-              {FILTERS.map(f => (
-                <button key={f} onClick={() => setFilter(f)}
-                  className="px-4 py-2 text-[12.5px] font-[800] uppercase tracking-wider transition-all border-[2px] rounded-none"
-                  style={filter === f
-                    ? { background: 'var(--ink)', color: '#fff', border: '2px solid var(--ink)', boxShadow: '3px 3px 0px rgba(21,19,44,0.3)' }
-                    : { background: 'transparent', color: 'var(--ink-soft)', border: '2px solid var(--line)' }}>
-                  {f}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <AnimatePresence mode="wait">
-            <motion.div key={filter} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}
-              className="space-y-4">
-              {filtered.map((ev, i) => (
-                <motion.div key={ev.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                  <Link href={`/events/${ev.id}`}
-                    className="block border-[2.5px] border-[var(--ink)] shadow-[6px_6px_0px_var(--ink)] bg-white hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[10px_10px_0px_var(--ink)] transition-all group">
-                    <div className="grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-0 items-stretch">
-                      {/* Date block */}
-                      <div className="flex flex-col items-center justify-center px-7 py-6 border-b-[2.5px] md:border-b-0 md:border-r-[2.5px] border-[var(--ink)] min-w-[100px]" style={{ background: 'var(--brutal-bg)' }}>
-                        <div className="font-[800] text-[38px] text-[var(--neon-cyan)] leading-none">{ev.date.day}</div>
-                        <div className="text-[12px] font-[800] uppercase tracking-wider text-white/60 mt-1">{ev.date.month}</div>
-                        <div className="text-[11px] font-[600] text-white/40 mt-0.5">{ev.date.year}</div>
-                      </div>
-
-                      {/* Info */}
-                      <div className="p-6">
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          <span className="text-[10px] font-[800] uppercase tracking-wider px-2.5 py-1 border-[1.5px] border-[var(--ink)]">{ev.format}</span>
-                          <span className="text-[10px] font-[800] uppercase tracking-wider px-2.5 py-1 border-[1.5px]"
-                            style={{ borderColor: ev.type === 'Free' ? '#28c840' : ev.type === 'Invite-Only' ? '#d69e2e' : 'var(--ink)', color: ev.type === 'Free' ? '#28c840' : ev.type === 'Invite-Only' ? '#d69e2e' : 'var(--ink)' }}>
-                            {ev.type}
-                          </span>
-                          {ev.tags.slice(0, 2).map(tag => (
-                            <span key={tag} className="text-[10px] font-[600] uppercase tracking-wider px-2.5 py-1 border border-[var(--line)] text-[var(--ink-faint)]">{tag}</span>
-                          ))}
-                        </div>
-                        <h3 className="font-[800] text-[20px] leading-tight tracking-[-0.01em] mb-1 group-hover:underline underline-offset-2">{ev.title}</h3>
-                        <div className="text-[13px] text-[var(--ink-soft)] mb-3">{ev.subtitle}</div>
-                        <p className="text-[13px] text-[var(--ink-soft)] leading-[1.6] line-clamp-2">{ev.description}</p>
-                        <div className="flex flex-wrap gap-5 mt-4 text-[12.5px] text-[var(--ink-soft)] font-[600]">
-                          <span className="flex items-center gap-1.5">🕐 {ev.time} {ev.timezone}</span>
-                          <span className="flex items-center gap-1.5">📍 {ev.location}</span>
-                          <span className="flex items-center gap-1.5">🎤 {ev.speaker}</span>
-                        </div>
-                      </div>
-
-                      {/* Right panel */}
-                      <div className="flex flex-col items-center justify-center p-6 border-t-[2.5px] md:border-t-0 md:border-l-[2.5px] border-[var(--ink)] min-w-[130px] gap-3" style={{ background: 'var(--paper-alt)' }}>
-                        <div className="text-center">
-                          <div className="font-[800] text-[26px] leading-none" style={{ color: spotsColor(spotsLeft(ev)) }}>
-                            {ev.type === 'Invite-Only' ? '—' : spotsLeft(ev)}
-                          </div>
-                          <div className="text-[10px] font-[700] uppercase tracking-wider text-[var(--ink-faint)] mt-1">
-                            {ev.type === 'Invite-Only' ? 'Invite Only' : 'Spots Left'}
-                          </div>
-                        </div>
-                        <div className="w-full h-1.5 bg-[var(--line)] rounded-none overflow-hidden">
-                          <div className="h-full" style={{ width: `${(ev.registered / ev.capacity) * 100}%`, background: spotsColor(spotsLeft(ev)) }} />
-                        </div>
-                        <div className="text-[11px] text-[var(--ink-faint)] font-[500]">{ev.registered}/{ev.capacity} registered</div>
-                        <span className="font-[800] text-[12px] uppercase tracking-wider text-[var(--ink)] group-hover:text-[var(--ink)] mt-1">View Details →</span>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
-          </AnimatePresence>
-
-          {filtered.length === 0 && (
-            <div className="text-center py-20 border-[2.5px] border-[var(--line)] text-[var(--ink-soft)] font-[700] text-[16px] uppercase tracking-wider">
-              No events match this filter.
-            </div>
-          )}
+      <section className="gutter bg-signal py-[clamp(80px,10vw,140px)]">
+        <div className="flex flex-wrap items-end justify-between gap-10">
+          <h2 className="display text-[clamp(64px,9vw,160px)]">
+            Host one <span className="serif normal-case italic tracking-[-0.03em]">in your city.</span>
+          </h2>
+          <Pill href={mailto(site.email.chapters, 'I want to host a GCL event')} variant="ink">Pitch an event</Pill>
         </div>
       </section>
-    </main>
+    </>
   );
 }

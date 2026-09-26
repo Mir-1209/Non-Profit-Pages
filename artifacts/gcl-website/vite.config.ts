@@ -61,12 +61,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, 'src'),
-      '@assets': path.resolve(
-        import.meta.dirname,
-        '..',
-        '..',
-        'attached_assets',
-      ),
     },
     dedupe: ['react', 'react-dom'],
   },
@@ -74,6 +68,11 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, 'dist'),
     emptyOutDir: true,
+    target: 'es2020',
+    // Never inline assets as data: URLs — the Content-Security-Policy in
+    // vercel.json only allows same-origin fonts and media.
+    assetsInlineLimit: 0,
+    sourcemap: false,
   },
   // server / preview are only relevant when a port is resolved.
   ...(devPort !== undefined

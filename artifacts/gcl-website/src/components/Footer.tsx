@@ -1,70 +1,136 @@
-import React from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 import { Link } from 'wouter';
+import { donateHref, mailto, nav, site } from '../config/site';
+import { useLenis, scrollToTarget } from '../lib/smooth';
+import { LogoMark } from './Logo';
+import { Magnetic, Marquee } from './primitives';
 
 export function Footer() {
+  const ref = useRef<HTMLDivElement>(null);
+  const lenis = useLenis();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end end'] });
+  const y = useTransform(scrollYProgress, [0, 1], ['-35%', '0%']);
+  const letter = useTransform(scrollYProgress, [0.3, 1], ['0.2em', '-0.02em']);
+  const socials = Object.entries(site.social).filter(([, url]) => url);
+
   return (
-    <footer
-      id="site-footer"
-      className="mt-16 overflow-hidden text-white"
-      style={{ background: 'var(--footer-bg)', paddingTop: '80px', borderRadius: '48px 48px 0 0' }}
-    >
-      <div className="max-w-[1240px] mx-auto px-8">
-
-        {/* Main columns */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-14 border-b border-white/10">
-
-          <div>
-            <h6 className="text-[11px] tracking-[0.09em] uppercase text-white/40 mb-5 font-[700]">Product</h6>
-            <Link href="/courses" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Courses</Link>
-            <Link href="/programs" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Programs</Link>
-            <Link href="/events" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Events</Link>
-            <Link href="/chapters" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Chapters</Link>
-            <Link href="/news" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">News</Link>
-          </div>
-
-          <div>
-            <h6 className="text-[11px] tracking-[0.09em] uppercase text-white/40 mb-5 font-[700]">Company</h6>
-            <Link href="/about" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">About Us</Link>
-            <Link href="/our-team" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Our Team</Link>
-            <Link href="/stories" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Stories</Link>
-            <Link href="/blog" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Blog</Link>
-            <a href="mailto:hello@globalcapitalleague.org" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Contact</a>
-          </div>
-
-          <div>
-            <h6 className="text-[11px] tracking-[0.09em] uppercase text-white/40 mb-5 font-[700]">Social</h6>
-            <a href="#" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Instagram</a>
-            <a href="#" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">LinkedIn</a>
-            <a href="#" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">TikTok</a>
-            <a href="#" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">YouTube</a>
-          </div>
-
-          <div>
-            <h6 className="text-[11px] tracking-[0.09em] uppercase text-white/40 mb-5 font-[700]">Legal</h6>
-            <Link href="/privacy" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Privacy Policy</Link>
-            <Link href="/terms" className="block text-[14px] text-white/70 mb-3 hover:text-white transition-colors font-[500]">Terms of Use</Link>
+    <footer ref={ref} className="on-dark relative overflow-hidden bg-ink text-paper">
+      <motion.div style={{ y }}>
+        {/* Call to action */}
+        <div className="gutter rule border-b pb-16 pt-24 md:pt-32">
+          <div className="mono mb-8 text-mute-dark">§ End of ledger — Your move</div>
+          <div className="grid gap-10 md:grid-cols-[1.4fr_1fr] md:items-end">
+            <h2 className="display text-[clamp(64px,11vw,190px)]">
+              Invest in
+              <br />
+              <span className="serif text-signal normal-case italic tracking-[-0.03em]">the next</span>
+              <br />
+              generation.
+            </h2>
+            <div className="flex flex-col items-start gap-6 md:items-end">
+              <p className="max-w-[380px] text-[17px] leading-relaxed text-paper/70 md:text-right">
+                Every workshop is free for students. Your support keeps it that way — and takes it to the next city.
+              </p>
+              <Magnetic>
+                <a
+                  href={donateHref}
+                  data-cursor="Give"
+                  className="grid h-[170px] w-[170px] place-items-center rounded-full bg-signal text-center text-ink transition-transform duration-500 hover:scale-105 md:h-[200px] md:w-[200px]"
+                >
+                  <span className="display text-[34px] leading-[0.9]">
+                    Donate
+                    <br />
+                    now ↗
+                  </span>
+                </a>
+              </Magnetic>
+            </div>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="flex justify-between items-center py-6 text-[12.5px] text-white/45 flex-wrap gap-3">
-          <span>© {new Date().getFullYear()} Global Capital League. All rights reserved.</span>
-          <span className="italic">Made by youth, for the world.</span>
+        {/* Link columns */}
+        <div className="gutter grid grid-cols-2 gap-10 py-14 md:grid-cols-4">
+          <div>
+            <div className="mono mb-4 text-mute-dark">Sitemap</div>
+            <ul className="space-y-1.5 text-[16px]">
+              {nav.map((n) => (
+                <li key={n.href}>
+                  <Link href={n.href} className="link-sweep">
+                    {n.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <div className="mono mb-4 text-mute-dark">Contact</div>
+            <ul className="space-y-1.5 text-[16px]">
+              <li><a className="link-sweep" href={mailto(site.email.general)}>General</a></li>
+              <li><a className="link-sweep" href={mailto(site.email.partnerships, 'Partnership enquiry')}>Partnerships</a></li>
+              <li><a className="link-sweep" href={mailto(site.email.chapters, 'Start a chapter')}>Chapters</a></li>
+              <li><a className="link-sweep" href={mailto(site.email.giving, 'Supporting GCL')}>Giving</a></li>
+            </ul>
+          </div>
+          <div>
+            <div className="mono mb-4 text-mute-dark">{socials.length ? 'Follow' : 'Headquarters'}</div>
+            {socials.length ? (
+              <ul className="space-y-1.5 text-[16px] capitalize">
+                {socials.map(([name, url]) => (
+                  <li key={name}>
+                    <a className="link-sweep" href={url} target="_blank" rel="noopener noreferrer">{name}</a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[16px] leading-relaxed">
+                {site.hq.city}
+                <br />
+                {site.hq.country}
+                <br />
+                <span className="text-mute-dark">Chapters in 14+ countries</span>
+              </p>
+            )}
+          </div>
+          <div>
+            <div className="mono mb-4 text-mute-dark">Legal</div>
+            <ul className="space-y-1.5 text-[16px]">
+              <li><Link className="link-sweep" href="/privacy">Privacy</Link></li>
+              <li><Link className="link-sweep" href="/terms">Terms</Link></li>
+              <li>
+                <button type="button" className="link-sweep" onClick={() => scrollToTarget(lenis, 0)}>
+                  Back to top ↑
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
-      {/* Ghost word — stacked GLOBAL / CAPITAL / LEAGUE */}
-      <div
-        className="text-center leading-[0.88] tracking-[-0.02em] select-none pb-0 pt-2 px-4"
-        style={{
-          fontWeight: 800,
-          textTransform: 'uppercase',
-          fontSize: 'min(17vw, 190px)',
-          color: 'transparent',
-          WebkitTextStroke: '1px rgba(255,255,255,0.11)',
-        }}
-      >
-        <div className="text-[70px]">GLOBAL capital league</div>
-      </div>
+
+        <Marquee speed={60} className="rule border-y py-3 text-paper/50">
+          {['Financial literacy is a human right', 'Free for every student', 'Youth-led since 2021', `Formerly ${site.formerly}`, 'Behavior > arithmetic'].map((t) => (
+            <span key={t} className="mono flex items-center gap-6 pr-6">
+              {t} <span className="text-signal">✦</span>
+            </span>
+          ))}
+        </Marquee>
+
+        {/* The wordmark */}
+        <div className="gutter relative pt-6">
+          <motion.div
+            className="display-wide select-none whitespace-nowrap text-center text-[31vw] leading-[0.8]"
+            style={{ letterSpacing: letter }}
+            aria-hidden="true"
+          >
+            G<span className="text-signal">C</span>L
+          </motion.div>
+          <div className="mono flex flex-wrap items-center justify-between gap-4 py-6 text-mute-dark">
+            <span className="flex items-center gap-2">
+              <LogoMark size={16} /> © {new Date().getFullYear()} {site.name}
+            </span>
+            <span>Non-profit · Made by young people, for young people</span>
+          </div>
+        </div>
+      </motion.div>
     </footer>
   );
 }

@@ -1,191 +1,124 @@
-import React from 'react';
-import { motion, useInView } from 'framer-motion';
-import { team } from '../data/team';
-import { PhotoSlider } from '../components/PhotoSlider';
-import { Link } from 'wouter';
+import { GrowthChart } from '../components/GrowthChart';
+import { Accent, PageHero } from '../components/PageHero';
+import { Eyebrow, MaskLines, Pill, RevealImage, Rise, ScrollInk } from '../components/primitives';
+import { donateHref, site, stats } from '../config/site';
+import { usePageMeta } from '../hooks/usePageMeta';
 
-function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const ref = React.useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-60px' });
+import imgRoom from '../assets/media/room-wide.webp';
+import imgSession from '../assets/media/session-wide.webp';
+import imgPanorama from '../assets/media/school-panorama-2.webp';
+
+const PRINCIPLES = [
+  { t: 'Behavior over arithmetic', d: 'Knowing how interest works has never stopped anyone from overspending. We teach why we decide the way we do — present bias, loss aversion, scarcity — and design habits around it.' },
+  { t: 'Dignity, not charity', d: 'Nobody is "bad with money". People make rational choices inside irrational systems. Our classrooms are shame-free by design.' },
+  { t: 'Peer to peer', d: 'Young people teach young people. Every educator was a student first, and every student is a future educator.' },
+  { t: 'Local by default', d: 'Curriculum is adapted to each city — its language, its currency, its realities. A chapter in Dushanbe is not a franchise of one in London.' },
+  { t: 'Free, for real', d: `The cost to students is $0 — no fees, no data harvesting, no upsell. Our work is funded by donors and partners who believe the same.` },
+  { t: 'Radical transparency', d: 'We publish what we do and how we measure it. Chapters report every verified event, attendee count and outcome.' },
+];
+
+export default function About() {
+  usePageMeta('About', `Why ${site.name} exists, what we believe, and how a single workshop in Tashkent became Asia's largest youth-led financial literacy network.`);
+
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 28 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.65, delay }} className={className}>
-      {children}
-    </motion.div>
-  );
-}
-
-const aboutSlides = [
-  { id: 'a1', gradient: 'linear-gradient(135deg,var(--blue),var(--magenta))', icon: '🔥', title: 'Youth-Led, Expert-Backed', description: 'We believe the people most affected by broken financial systems should be the ones redesigning education around them.' },
-  { id: 'a2', gradient: 'linear-gradient(135deg,#33c7e8,var(--violet))', icon: '🌍', title: 'Global Context', description: 'Operating across 14 countries, we adapt behavioral economics principles to local economic realities and cultural relationships with money.' },
-  { id: 'a3', gradient: 'linear-gradient(135deg,var(--violet),var(--magenta))', icon: '⚖️', title: 'Financial Dignity', description: 'We reject shame-based financial advice. Our entire approach moves from judgment to structural understanding and real agency.' },
-];
-
-const milestones = [
-  { year: '2021', title: 'GCL Founded', desc: 'Three youth economists start delivering workshops in community centers across three cities.' },
-  { year: '2022', title: 'First Partnerships', desc: 'Signed agreements with 6 NGOs across East Africa and South Asia to co-deliver our curriculum.' },
-  { year: '2023', title: 'Digital Platform Launch', desc: 'Online courses reach 3,000+ students in 8 countries within the first three months.' },
-  { year: '2024', title: 'First Global Summit', desc: '400 youth financial educators convene in Nairobi for our inaugural Youth Finance Summit.' },
-  { year: '2025', title: '14 Countries & Growing', desc: 'GCL network now active across 14 countries with 40+ partner organizations and 8K+ youth reached.' },
-];
-
-const values = [
-  { label: 'Dignity First', desc: 'We reject shame-based financial advice in all its forms. Learning happens without judgment.', color: 'var(--blue)', icon: '✦' },
-  { label: 'Evidence-Based', desc: 'Everything we teach is grounded in peer-reviewed behavioral science — not conventional wisdom.', color: 'var(--violet)', icon: '◈' },
-  { label: 'Radical Access', desc: 'Free, open-source, and culturally adapted. Financial education belongs to everyone.', color: 'var(--magenta)', icon: '◎' },
-  { label: 'Youth Power', desc: 'Led by the generation inheriting this economy. Designed for the communities most locked out.', color: '#33c7e8', icon: '⬡' },
-];
-
-export function About() {
-  return (
-    <main className="pb-32" style={{ background: 'var(--paper-alt)' }}>
-      {/* Hero */}
-      <section className="relative pt-[90px] pb-[80px] overflow-hidden bg-white">
-        <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 60% at 30% 20%, var(--violet), transparent)' }} />
-        <div className="max-w-[1240px] mx-auto px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-              <div className="flex items-center gap-3 mb-8">
-                <div className="h-[2px] w-12 bg-[var(--ink)]" />
-                <span className="text-[13px] font-[800] tracking-[0.1em] uppercase text-[var(--violet)]">Who We Are</span>
-              </div>
-              <h1 className="font-[800] text-[clamp(48px,7vw,88px)] leading-[0.95] tracking-[-0.03em] text-[var(--ink)] uppercase mb-8">
-                About<br />
-                <span className="text-[var(--violet)]">Global</span><br />
-                Capital League.
-              </h1>
-              <p className="text-[17px] text-[var(--ink-soft)] leading-[1.7] max-w-[480px]">
-                A youth-led nonprofit using behavioral economics to make financial literacy accessible to every community — not just the privileged few.
-              </p>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.15 }}>
-              <PhotoSlider slides={aboutSlides} layout="overlay" />
-            </motion.div>
+    <>
+      <PageHero
+        index="01"
+        label="About GCL"
+        lines={['We teach', <>the <Accent>system</Accent></>, 'behind the', 'numbers.']}
+        intro={
+          <>
+            {site.name} is a youth-led non-profit teaching behavioral economics and the psychology of money to young people who have never had access to it. Founded in {site.hq.city} in {site.founded}, formerly known as {site.formerly}.
+          </>
+        }
+        aside={
+          <div className="mono grid grid-cols-2 gap-x-10 gap-y-4 text-mute">
+            <div><div className="display text-[56px] text-ink">{stats.countries.value}+</div>Countries</div>
+            <div><div className="display text-[56px] text-ink">{stats.chapters.value}</div>Chapters</div>
+            <div><div className="display text-[56px] text-ink">{(stats.youth.value / 1000).toFixed(0)}K+</div>Youth taught</div>
+            <div><div className="display text-[56px] text-signal">$0</div>To students</div>
           </div>
+        }
+      />
+
+      <section className="gutter pb-24">
+        <RevealImage src={imgRoom} alt="A GCL workshop in a modern classroom, students seated at long tables" className="aspect-[16/10] w-full rounded-[8px] md:aspect-[21/9]" />
+      </section>
+
+      <section className="gutter grid gap-12 py-[clamp(80px,10vw,160px)] lg:grid-cols-[0.8fr_1.2fr]">
+        <div>
+          <Eyebrow index="01.1" className="mb-6">The problem</Eyebrow>
+          <MaskLines as="h2" className="display text-[clamp(56px,7vw,120px)]" lines={['Math was', <>never the <Accent>problem.</Accent></>]} />
+        </div>
+        <div className="space-y-6 text-[clamp(18px,1.4vw,21px)] leading-[1.55]">
+          <p>
+            Most financial literacy programs fail because they teach arithmetic — interest rates, spreadsheets, rules of thumb — to people whose real challenge is behavior. Knowing the rules does not change what you do at the checkout, on payday, or when someone offers easy credit.
+          </p>
+          <p className="text-mute">
+            Scarcity makes it worse. Research on the "bandwidth tax" shows that financial stress consumes the very mental capacity needed to plan ahead. Communities that most need good decisions are pushed hardest toward bad ones.
+          </p>
+          <p className="text-mute">
+            So we flipped the syllabus. GCL focuses on decisions under scarcity, emotional spending, and the psychological traps that keep families in debt — and gives young people practical tools that work with their brains, not against them.
+          </p>
         </div>
       </section>
 
-      {/* Mission */}
-      <section className="py-24">
-        <div className="max-w-[1240px] mx-auto px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <Reveal>
-              <h2 className="font-[800] text-[clamp(28px,3.8vw,46px)] leading-[1.1] tracking-[-0.025em] mb-6">The problem isn't math.<br />It's behavior under pressure.</h2>
-              <p className="text-[16px] leading-[1.75] text-[var(--ink-soft)] mb-5">Traditional financial literacy programs assume that if you show people a spreadsheet, they will change their spending habits. But humans aren't spreadsheets. We are deeply emotional creatures operating within highly engineered economic systems designed to exploit cognitive shortcuts.</p>
-              <p className="text-[16px] leading-[1.75] text-[var(--ink-soft)] mb-5">GCL was founded by a coalition of youth advocates and behavioral economists to bridge this gap. We translate complex economic theory into actionable, accessible tools — built for the communities usually left out of the conversation.</p>
-              <p className="text-[16px] leading-[1.75] text-[var(--ink-soft)]">
-                <strong className="text-[var(--ink)]">Built and run by young people, for the communities most locked out of financial access.</strong>
-              </p>
-            </Reveal>
-
-            {/* Animated orb stage */}
-            <Reveal delay={0.15}>
-              <div className="relative h-[380px] flex items-center justify-center">
-                <motion.div
-                  animate={{ y: [0, -18, 0] }}
-                  transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-                  className="w-[230px] h-[230px] rounded-full relative"
-                  style={{ background: 'conic-gradient(from 140deg, var(--blue), var(--violet), var(--magenta), #6ad8f2, var(--blue))', boxShadow: '0 30px 70px -14px rgba(139,92,246,0.45)' }}
-                >
-                  <div className="absolute inset-4 rounded-full" style={{ background: 'radial-gradient(circle at 32% 26%, rgba(255,255,255,0.5), transparent 55%)' }} />
-                </motion.div>
-                {[
-                  { label: 'Decision 🎯', style: 'top-[8%] left-[-2%]' },
-                  { label: 'Behavior 🧠', style: 'bottom-[10%] right-[-2%]' },
-                  { label: 'Dignity ✨', style: 'top-[52%] left-[-10%]' },
-                ].map(chip => (
-                  <div key={chip.label} className={`absolute px-4 py-2 rounded-full text-[13px] font-[600] bg-white shadow-[var(--shadow-md)] border border-[var(--line)] ${chip.style}`}>{chip.label}</div>
-                ))}
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* Values */}
-      <section className="py-20 bg-white">
-        <div className="max-w-[1240px] mx-auto px-8">
-          <Reveal className="mb-14 text-center max-w-[560px] mx-auto">
-            <h2 className="font-[800] text-[clamp(28px,3.5vw,44px)] leading-[1.1] tracking-[-0.025em] text-[var(--ink)] uppercase mb-4">What We Stand For</h2>
-            <p className="text-[16px] text-[var(--ink-soft)]">Four principles that shape every decision we make — from curriculum design to partnership selection.</p>
-          </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {values.map((v, i) => (
-              <Reveal key={v.label} delay={i * 0.08}>
-                <div className="p-7 rounded-[16px] h-full transition-all hover:-translate-x-[3px] hover:-translate-y-[3px]" style={{ background: 'var(--paper-alt)', border: '2.5px solid var(--ink)', boxShadow: '6px 6px 0px var(--ink)' }}>
-                  <div className="text-[28px] font-[800] mb-4" style={{ color: v.color }}>{v.icon}</div>
-                  <div className="font-[800] text-[17px] text-[var(--ink)] uppercase tracking-wider mb-3">{v.label}</div>
-                  <p className="text-[13.5px] text-[var(--ink-soft)] leading-[1.6]">{v.desc}</p>
-                </div>
-              </Reveal>
+      <section className="on-dark bg-ink py-[clamp(96px,12vw,180px)] text-paper">
+        <div className="gutter">
+          <Eyebrow index="01.2" className="mb-10 text-paper/70">What we believe</Eyebrow>
+          <ScrollInk
+            className="max-w-[1400px] text-[clamp(30px,4.2vw,70px)] font-[560] leading-[1.06] tracking-[-0.025em]"
+            text="Financial literacy is a human right. Not a perk for the lucky few, not a course you pay for, not advice from someone selling you something. It is the right to understand the system you live inside — and the power to change it."
+            accent={['right', 'change']}
+          />
+          <div className="mt-20 grid gap-x-10 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
+            {PRINCIPLES.map((p, i) => (
+              <Rise key={p.t} delay={(i % 3) * 0.08} className="border-t border-paper/15 pt-5">
+                <div className="mono mb-4 text-signal">P.0{i + 1}</div>
+                <h3 className="display text-[44px]">{p.t}</h3>
+                <p className="mt-3 text-[16px] leading-relaxed text-paper/65">{p.d}</p>
+              </Rise>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Timeline */}
-      <section className="py-24 bg-[var(--paper-alt)]">
-        <div className="max-w-[1240px] mx-auto px-8">
-          <Reveal className="mb-14">
-            <h2 className="font-[800] text-[clamp(28px,3.5vw,44px)] leading-[1.1] tracking-[-0.025em] uppercase">Our Journey</h2>
-            <p className="text-[16px] text-[var(--ink-soft)] mt-3 max-w-[440px]">From a small idea in a community center to a global movement in five years.</p>
-          </Reveal>
-          <div className="relative">
-            {/* Vertical line */}
-            <div className="absolute left-[19px] top-0 bottom-0 w-[2px] md:left-1/2 md:-ml-px" style={{ background: 'linear-gradient(to bottom, var(--blue), var(--violet), var(--magenta))' }} />
-            <div className="space-y-10">
-              {milestones.map((m, i) => (
-                <Reveal key={m.year} delay={i * 0.1} className={`relative flex gap-8 ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} flex-row`}>
-                  {/* Content */}
-                  <div className={`flex-1 ${i % 2 === 0 ? 'md:text-right' : 'md:text-left'} pl-12 md:pl-0`}>
-                    <div className="rounded-[16px] p-6 bg-white inline-block max-w-[420px] text-left" style={{ border: '2.5px solid var(--ink)', boxShadow: '5px 5px 0px var(--ink)' }}>
-                      <div className="font-[800] text-[28px] tracking-[-0.02em] mb-1" style={{ background: 'var(--grad-brand)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>{m.year}</div>
-                      <div className="font-[800] text-[18px] mb-2">{m.title}</div>
-                      <p className="text-[14px] text-[var(--ink-soft)] leading-[1.6]">{m.desc}</p>
-                    </div>
-                  </div>
-                  {/* Dot */}
-                  <div className="absolute left-[11px] md:left-1/2 md:-ml-[9px] top-6 w-[18px] h-[18px] rounded-full border-[3px] border-white z-10" style={{ background: 'var(--grad-brand)', boxShadow: '0 0 0 4px rgba(139,92,246,0.2)' }} />
-                  <div className="flex-1 hidden md:block" />
-                </Reveal>
-              ))}
+      <GrowthChart />
+
+      <section className="gutter grid gap-6 pb-[clamp(80px,10vw,160px)] md:grid-cols-2">
+        <RevealImage src={imgSession} alt="A GCL educator presenting at the front of a full room" className="aspect-[4/5] rounded-[8px]" />
+        <div className="flex flex-col justify-between gap-10">
+          <RevealImage src={imgPanorama} alt="A school classroom filled with students during a GCL session" className="aspect-[16/9] rounded-[8px]" />
+          <div>
+            <Eyebrow index="01.3" className="mb-6">Why the new name</Eyebrow>
+            <h2 className="display text-[clamp(52px,6vw,100px)]">
+              Vanguard <Accent>→</Accent> Global.
+            </h2>
+            <p className="mt-6 max-w-[520px] text-[18px] leading-relaxed text-mute">
+              We started as {site.formerly}. As chapters opened across Central Asia, the Caucasus, Africa, Europe, South Asia and Latin America, the name stopped describing who we are. Global Capital League is the same mission — with a name the size of its reach.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="gutter rule border-t py-[clamp(80px,10vw,140px)]">
+        <div className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-end">
+          <div>
+            <Eyebrow index="01.4" className="mb-6">Governance & accountability</Eyebrow>
+            <h2 className="display text-[clamp(52px,6vw,100px)]">
+              Every dollar, <Accent>accounted.</Accent>
+            </h2>
+          </div>
+          <div className="space-y-5 text-[17px] leading-relaxed text-mute">
+            <p>GCL is a non-profit, volunteer-powered organization. Leadership is accountable to our members and partners; chapters report verified events and attendance so impact figures can be traced back to real rooms.</p>
+            <p>Donors and partners can request our latest financial summary and impact report at any time.</p>
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Pill href={donateHref} variant="signal">Support the mission</Pill>
+              <Pill href="/team" variant="ghost">Meet the team</Pill>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Team */}
-      <section className="py-24">
-        <div className="max-w-[1240px] mx-auto px-8">
-          <Reveal className="mb-14">
-            <h2 className="font-[800] text-[clamp(28px,3.5vw,44px)] leading-[1.1] tracking-[-0.025em] uppercase">The Team</h2>
-            <p className="text-[16px] text-[var(--ink-soft)] mt-3">Youth economists, educators, and organizers from 9 countries — united by the same mission.</p>
-          </Reveal>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
-            {team.map((member, i) => (
-              <motion.div key={member.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }} className="text-center group">
-                <div className="w-full aspect-square rounded-[20px] mb-4 mx-auto flex items-center justify-center text-[32px] font-[800] text-white transition-all group-hover:-translate-y-[4px] group-hover:shadow-[6px_6px_0px_var(--ink)]" style={{ background: `linear-gradient(135deg,${member.color},var(--ink))`, border: '2.5px solid var(--ink)', boxShadow: '4px 4px 0px var(--ink)' }}>
-                  {member.name.charAt(0)}
-                </div>
-                <div className="font-[800] text-[14px] tracking-[-0.01em]">{member.name}</div>
-                <div className="text-[12px] text-[var(--ink-faint)] font-[500] mt-0.5">{member.role}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <Reveal className="max-w-[1240px] mx-auto px-8">
-        <div className="rounded-[28px] p-[60px] text-center" style={{ background: 'linear-gradient(135deg,#e9edff,#f7e6fb)', border: '2.5px solid var(--ink)', boxShadow: '10px 10px 0px var(--ink)' }}>
-          <h2 className="font-[800] text-[clamp(26px,4vw,46px)] leading-[1.05] tracking-[-0.03em] mb-4 uppercase">Join the movement.</h2>
-          <p className="text-[16px] text-[var(--ink-soft)] max-w-[400px] mx-auto mb-8">Whether as a student, partner, or donor — there's a place for you in GCL.</p>
-          <div className="flex justify-center gap-4 flex-wrap">
-            <Link href="/courses" className="text-[15px] font-[700] px-8 py-4 rounded-full text-white" style={{ background: 'var(--ink)' }} data-testid="about-cta-courses">Explore Courses →</Link>
-            <a href="mailto:hello@globalcapitalleague.org" className="text-[15px] font-[700] px-8 py-4 rounded-full" style={{ border: '2px solid var(--ink)' }} data-testid="about-cta-contact">Contact the Team</a>
-          </div>
-        </div>
-      </Reveal>
-    </main>
+    </>
   );
 }

@@ -10,16 +10,9 @@
     "allowImportingTsExtensions": true,
     "moduleResolution": "bundler",
     "types": ["node", "vite/client"],
+    "noUnusedLocals": true,
     "paths": {
       "@/*": ["./src/*"]
     }
-  },
-  "references": [
-    {
-      "path": "../../lib/api-client-react"
-    },
-    {
-      "path": "../../lib/replit-auth-web"
-    }
-  ]
+  }
 }

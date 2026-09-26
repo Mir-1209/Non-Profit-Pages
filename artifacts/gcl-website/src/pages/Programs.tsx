@@ -1,199 +1,172 @@
-import React from 'react';
-import { motion, useInView } from 'framer-motion';
-import { Link } from 'wouter';
-import { PhotoSlider } from '../components/PhotoSlider';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useState } from 'react';
+import { Accent, PageHero } from '../components/PageHero';
+import { Eyebrow, MaskLines, Pill, RevealImage, Rise } from '../components/primitives';
+import { applyHref, donateHref, stats, summerPhase, summerProgram } from '../config/site';
+import { courses } from '../data/courses';
+import { programs } from '../data/programs';
+import { usePageMeta } from '../hooks/usePageMeta';
 
-function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const ref = React.useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-60px' });
+const STEPS = [
+  { t: 'Decide', d: 'Every session opens with a real choice — spend or save, borrow or wait. No right answers yet.' },
+  { t: 'Unpack', d: 'We name the bias behind the choice and the research that explains it. Shame-free, always.' },
+  { t: 'Design', d: 'Students build a tiny system — an automatic rule, a friction, a nudge — that works with their brain.' },
+  { t: 'Teach', d: 'The best way to learn it is to teach it. Graduates co-teach the next session in their community.' },
+];
+
+function Curriculum() {
+  const [open, setOpen] = useState<string | null>(courses[0]?.slug ?? null);
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 28 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.65, delay, ease: [0.21, 0.47, 0.32, 0.98] }} className={className}>
-      {children}
-    </motion.div>
+    <ul className="rule border-t">
+      {courses.map((c, i) => {
+        const isOpen = open === c.slug;
+        return (
+          <li key={c.slug} className="rule border-b">
+            <button
+              type="button"
+              onClick={() => setOpen(isOpen ? null : c.slug)}
+              aria-expanded={isOpen}
+              className="group grid w-full grid-cols-[36px_1fr_auto] items-center gap-4 py-6 text-left md:grid-cols-[60px_1fr_170px_210px_48px]"
+            >
+              <span className="mono text-mute">C.{String(i + 1).padStart(2, '0')}</span>
+              <span className="display text-[clamp(34px,4.2vw,68px)] transition-colors group-hover:text-signal">{c.title}</span>
+              <span className="mono hidden text-mute md:block">{c.tag}</span>
+              <span className="mono hidden text-mute md:block">{c.level} · {c.modules.length} modules</span>
+              <span className={`grid h-10 w-10 place-items-center justify-self-end rounded-full border border-ink/25 text-[18px] transition-transform duration-500 ${isOpen ? 'rotate-45 bg-ink text-paper' : ''}`}>+</span>
+            </button>
+            <AnimatePresence initial={false}>
+              {isOpen && (
+                <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
+                  <ol className="grid gap-x-10 gap-y-5 pb-10 md:grid-cols-2 md:pl-[76px]">
+                    {c.modules.map((m, k) => (
+                      <li key={m.title} className="grid grid-cols-[40px_1fr] gap-2">
+                        <span className="mono pt-1 text-signal">{String(k + 1).padStart(2, '0')}</span>
+                        <div>
+                          <div className="text-[17px] font-[620]">{m.title.replace(/^Module \d+:\s*/, '')}</div>
+                          <p className="mt-1 text-[15px] leading-relaxed text-mute">{m.description}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
-const programs = [
-  {
-    id: 'workshops',
-    label: 'WS',
-    title: 'Workshops & Courses',
-    color: 'var(--blue)',
-    darkColor: 'var(--neon-cyan)',
-    tagline: 'Where behavior meets the classroom.',
-    description: 'Our flagship learning experiences range from 2-hour intensive workshops to 6-week cohort-based digital courses. We replace boring lectures with dynamic exercises that reveal how our brains actually process money — in real time.',
-    outcomes: [
-      '80% higher completion rate vs. standard financial ed',
-      'Available in-person and via guided digital platforms',
-      'Culturally sensitive examples and case studies',
-      'Live facilitation by trained youth educators',
-      'Certificate of completion recognized by partner institutions',
-    ],
-    stat: { num: '120+', label: 'Workshops Delivered' },
-    slides: [
-      { id: 'w1', gradient: 'linear-gradient(135deg,#3358ff,#8b5cf6)', icon: '🎓', title: 'Interactive Workshops', description: 'High-energy, live sessions dismantling cognitive biases around money one decision at a time.' },
-      { id: 'w2', gradient: 'linear-gradient(135deg,#8b5cf6,#e93fc7)', icon: '💻', title: 'Digital Cohorts', description: 'Guided online courses with weekly group calls, peer accountability, and expert facilitation.' },
-      { id: 'w3', gradient: 'linear-gradient(135deg,#e93fc7,#5eeaff)', icon: '📜', title: 'Certified Programs', description: 'Completion certificates recognized by our institutional partners across 14 countries.' },
-    ],
-  },
-  {
-    id: 'partnerships',
-    label: 'PT',
-    title: 'Institutional Partnerships',
-    color: 'var(--violet)',
-    darkColor: '#b28bfa',
-    tagline: 'We bring the curriculum. You bring community trust.',
-    description: 'We scale our impact by integrating into the organizations communities already rely on — public schools, NGOs, universities, and youth centers. We license our curriculum, train local facilitators, and provide ongoing support.',
-    outcomes: [
-      'Turnkey curriculum deployment in 6–8 weeks',
-      'Comprehensive local facilitator training program',
-      'Impact measurement dashboard and reporting',
-      'Co-branded materials for your organization',
-      'Ongoing content updates as economic conditions change',
-    ],
-    stat: { num: '40+', label: 'Partner Organizations' },
-    slides: [
-      { id: 'p1', gradient: 'linear-gradient(135deg,#8b5cf6,#3358ff)', icon: '🏫', title: 'School Integrations', description: 'Embedding GCL curriculum into existing school systems in underserved districts worldwide.' },
-      { id: 'p2', gradient: 'linear-gradient(135deg,#e93fc7,#8b5cf6)', icon: '🤝', title: 'NGO Collaborations', description: 'Partnering with nonprofits to reach communities beyond formal education pathways.' },
-      { id: 'p3', gradient: 'linear-gradient(135deg,#33c7e8,#3358ff)', icon: '🌐', title: 'University Networks', description: 'Working with higher education institutions to train future educators and economists.' },
-    ],
-  },
-  {
-    id: 'tailored',
-    label: 'TL',
-    title: 'Tailored Content',
-    color: 'var(--magenta)',
-    darkColor: '#f27fdb',
-    tagline: 'One size fits none. We design for the room in front of us.',
-    description: 'Every community has a different economic context, cultural relationship with money, and set of challenges. Our tailored content program designs curriculum from scratch — or adapts existing materials — for the specific audience in front of us.',
-    outcomes: [
-      'Deep-dive community listening sessions before design',
-      'Local language adaptation and cultural review',
-      'Custom case studies using real local scenarios',
-      'Iterative testing with community members',
-      'Delivered as standalone modules or full programs',
-    ],
-    stat: { num: '14+', label: 'Countries Reached' },
-    slides: [
-      { id: 't1', gradient: 'linear-gradient(135deg,#e93fc7,#8b5cf6)', icon: '🎨', title: 'Community-Designed', description: 'Programs built from listening first — not from assumptions about what communities need.' },
-      { id: 't2', gradient: 'linear-gradient(135deg,#3358ff,#33c7e8)', icon: '🗣️', title: 'Local Language', description: 'Materials adapted to the language, dialect, and economic vocabulary of each specific region.' },
-      { id: 't3', gradient: 'linear-gradient(135deg,#5eeaff,#8b5cf6)', icon: '📊', title: 'Real Scenarios', description: 'Case studies built around actual local markets, currencies, and cost-of-living conditions.' },
-    ],
-  },
-  {
-    id: 'network',
-    label: 'GN',
-    title: 'Global Network',
-    color: '#33c7e8',
-    darkColor: '#5eeaff',
-    tagline: 'Local knowledge, planetary scale.',
-    description: 'A growing network of local partners, youth leaders, and international organizations who share our mission and amplify our reach. What starts in one neighborhood can become a framework used continents away.',
-    outcomes: [
-      'Cross-border knowledge exchange between communities',
-      'Joint funding applications with trusted partners',
-      'Shared resource library and curriculum commons',
-      'Annual Global Youth Finance Summit',
-      'Mentorship pathways between established and emerging programs',
-    ],
-    stat: { num: '8K+', label: 'Youth Reached' },
-    slides: [
-      { id: 'g1', gradient: 'linear-gradient(135deg,#33c7e8,#3358ff)', icon: '🌍', title: 'East Africa Hub', description: 'Our most active network node — connecting programs across Kenya, Uganda, and Rwanda.' },
-      { id: 'g2', gradient: 'linear-gradient(135deg,#8b5cf6,#e93fc7)', icon: '🌏', title: 'South Asia Pilots', description: 'New programs launching in India and Bangladesh, designed with local civil society organizations.' },
-      { id: 'g3', gradient: 'linear-gradient(135deg,#e93fc7,#33c7e8)', icon: '🌎', title: 'Latin America Expansion', description: 'Early-stage partnerships in Colombia, Brazil, and Mexico building toward 2026 launches.' },
-    ],
-  },
-];
+export default function Programs() {
+  usePageMeta('Programs', 'Live workshops, an open behavioral-finance curriculum, school partnerships and a train-the-trainer pathway — all free for students.');
+  const phase = summerPhase();
 
-export function Programs() {
   return (
-    <main className="pb-32" style={{ background: 'var(--paper-alt)' }}>
-      {/* Hero */}
-      <section className="relative pt-[90px] pb-[80px] overflow-hidden bg-white">
-        <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, var(--violet), transparent)' }} />
-        <div className="max-w-[1240px] mx-auto px-8 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-[800px]">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="h-[2px] w-12 bg-[var(--ink)]" />
-              <span className="text-[13px] font-[800] tracking-[0.1em] uppercase text-[var(--violet)]">How We Work</span>
-            </div>
-            <h1 className="font-[800] text-[clamp(48px,7vw,88px)] leading-[0.95] tracking-[-0.03em] text-[var(--ink)] uppercase mb-8">
-              Four Ways<br />
-              <span className="text-[var(--violet)]">We Move</span><br />
-              The Needle.
-            </h1>
-            <p className="text-[18px] text-[var(--ink-soft)] leading-[1.7] max-w-[540px]">
-              From live workshops to global institutional partnerships — every program meets people exactly where their financial decisions happen.
-            </p>
-          </motion.div>
+    <>
+      <PageHero
+        index="02"
+        label="Programs"
+        lines={['Less', <>lecture. <Accent>More</Accent></>, 'leverage.']}
+        intro={<>Four programs, one method: start with the decision, name the bias, design a better system — then teach it to someone else. Everything is free for students, everywhere.</>}
+        aside={<Pill href="#summer" variant="ink">{phase === 'complete' ? 'Next cohort' : "Summer '26"}</Pill>}
+      />
 
-          {/* Impact stats strip */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
-            {[{ n: '14+', l: 'Countries' }, { n: '120+', l: 'Workshops' }, { n: '40+', l: 'Partners' }, { n: '8K+', l: 'Youth Reached' }].map(s => (
-              <div key={s.l} className="px-6 py-5 bg-[var(--paper-alt)] border-[2.5px] border-[var(--ink)] shadow-[4px_4px_0px_var(--ink)]">
-                <div className="font-[800] text-[clamp(28px,3.5vw,40px)] tracking-[-0.02em] text-[var(--ink)]">{s.n}</div>
-                <div className="text-[12px] font-[700] text-[var(--ink-soft)] uppercase tracking-[0.06em] mt-1">{s.l}</div>
+      {/* Programs, alternating */}
+      <section className="gutter space-y-[clamp(80px,10vw,160px)] pb-[clamp(80px,10vw,160px)]">
+        {programs.map((p, i) => (
+          <article key={p.id} id={p.id} className={`grid items-center gap-10 md:grid-cols-2 ${i % 2 ? 'md:[&>*:first-child]:order-2' : ''}`}>
+            <RevealImage src={p.image} alt={p.imageAlt} className="aspect-[4/5] rounded-[8px] md:aspect-[5/6]" />
+            <div>
+              <div className="flex items-baseline gap-5">
+                <span className="display text-[clamp(90px,10vw,170px)] leading-[0.75] text-signal">{p.num}</span>
+                <span className="mono text-mute">{p.where}</span>
               </div>
+              <MaskLines as="h2" className="display mt-6 text-[clamp(56px,6.4vw,112px)]" lines={[p.title]} />
+              <p className="mt-6 max-w-[540px] text-[clamp(18px,1.4vw,21px)] leading-[1.5]">{p.summary}</p>
+              <p className="mt-4 max-w-[540px] text-[16px] leading-relaxed text-mute">{p.detail}</p>
+              <ul className="mono mt-8 flex flex-wrap gap-2">
+                {p.facts.map((f) => (
+                  <li key={f} className="rounded-full border border-ink/20 px-3 py-1.5">{f}</li>
+                ))}
+              </ul>
+            </div>
+          </article>
+        ))}
+      </section>
+
+      {/* Method */}
+      <section className="on-dark bg-ink py-[clamp(96px,12vw,180px)] text-paper">
+        <div className="gutter">
+          <Eyebrow index="02.1" className="mb-6 text-paper/70">The GCL method</Eyebrow>
+          <MaskLines as="h2" className="display text-[clamp(64px,9vw,160px)]" lines={['Four moves,', <>every <Accent>session.</Accent></>]} />
+          <ol className="mt-16 grid gap-px overflow-hidden rounded-[8px] bg-paper/15 md:grid-cols-4">
+            {STEPS.map((s, i) => (
+              <li key={s.t} className="group relative bg-ink p-8 transition-colors duration-500 hover:bg-signal hover:text-ink">
+                <div className="mono text-signal group-hover:text-ink">Step 0{i + 1}</div>
+                <div className="display mt-16 text-[64px]">{s.t}</div>
+                <p className="mt-4 text-[16px] leading-relaxed text-paper/65 group-hover:text-ink/80">{s.d}</p>
+              </li>
             ))}
-          </motion.div>
+          </ol>
         </div>
       </section>
 
-      {/* Program sections */}
-      {programs.map((p, idx) => (
-        <section key={p.id} className={`py-[100px] ${idx % 2 === 1 ? 'bg-[var(--paper-alt)]' : ''}`}>
-          <div className="max-w-[1240px] mx-auto px-8">
-            {/* Section label */}
-            <Reveal className="flex items-center gap-4 mb-12">
-              <div className="w-12 h-12 rounded-[14px] flex items-center justify-center font-[800] text-[13px]" style={{ background: `linear-gradient(135deg,${p.color},var(--ink))`, color: '#fff' }}>{p.label}</div>
-              <div>
-                <div className="font-[800] text-[22px] tracking-[-0.015em]">{p.title}</div>
-                <div className="text-[14px] text-[var(--ink-soft)] font-[500] italic mt-0.5">{p.tagline}</div>
-              </div>
-            </Reveal>
+      {/* Curriculum */}
+      <section className="gutter py-[clamp(96px,12vw,180px)]" id="curriculum">
+        <div className="mb-14 grid gap-8 lg:grid-cols-2 lg:items-end">
+          <div>
+            <Eyebrow index="02.2" className="mb-6">Open curriculum</Eyebrow>
+            <MaskLines as="h2" className="display text-[clamp(64px,9vw,160px)]" lines={['The', <><Accent>syllabus.</Accent></>]} />
+          </div>
+          <p className="max-w-[460px] text-[17px] leading-relaxed text-mute lg:justify-self-end">
+            {courses.length} courses built on behavioral economics and learning science, taught live by chapters around the world. Educators and partner schools can request the full teaching kit.
+          </p>
+        </div>
+        <Curriculum />
+      </section>
 
-            <div className={`grid grid-cols-1 lg:grid-cols-2 gap-14 items-center ${idx % 2 === 1 ? 'lg:[direction:rtl]' : ''}`}>
-              <Reveal className="lg:[direction:ltr]">
-                <PhotoSlider slides={p.slides} layout="overlay" />
-              </Reveal>
-
-              <Reveal delay={0.12} className="lg:[direction:ltr]">
-                <h2 className="font-[800] text-[clamp(28px,3.6vw,44px)] leading-[1.08] tracking-[-0.025em] mb-6">{p.title}</h2>
-                <p className="text-[16px] leading-[1.75] text-[var(--ink-soft)] mb-8">{p.description}</p>
-
-                <ul className="space-y-3 mb-10">
-                  {p.outcomes.map(o => (
-                    <li key={o} className="flex items-start gap-3 text-[15px] font-[500]">
-                      <span className="mt-[3px] w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-[800] text-white shrink-0" style={{ background: `linear-gradient(135deg,${p.color},var(--violet))` }}>✓</span>
-                      {o}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="flex items-center gap-6">
-                  <div className="border-[2.5px] border-[var(--ink)] rounded-[14px] px-6 py-4 shadow-[5px_5px_0px_var(--ink)]">
-                    <div className="font-[800] text-[28px] tracking-[-0.02em]" style={{ background: 'var(--grad-brand)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>{p.stat.num}</div>
-                    <div className="text-[12px] font-[700] uppercase tracking-[0.06em] text-[var(--ink-soft)] mt-1">{p.stat.label}</div>
-                  </div>
-                  <Link href="/events" className="text-[14.5px] font-[700] px-6 py-3 rounded-full text-white transition-all hover:-translate-y-[2px]" style={{ background: 'var(--ink)', boxShadow: '0 4px 14px rgba(21,19,44,0.15)' }} data-testid={`program-cta-${p.id}`}>
-                    Get Involved →
-                  </Link>
-                </div>
-              </Reveal>
+      {/* Summer program */}
+      <section id="summer" className="gutter bg-signal py-[clamp(96px,12vw,180px)]">
+        <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr]">
+          <div>
+            <div className="mono mb-6 flex items-center gap-3">
+              <span>§ 02.3</span>
+              <span className="h-px w-8 bg-current opacity-40" />
+              <span>{summerProgram.name} · {summerProgram.dates}</span>
+            </div>
+            <h2 className="display text-[clamp(72px,11vw,200px)]">
+              {phase === 'complete' ? (
+                <>Summer ’26 <span className="serif normal-case italic tracking-[-0.03em]">is a wrap.</span></>
+              ) : (
+                <>Teach. <span className="serif normal-case italic tracking-[-0.03em]">Inspire.</span> Leave a mark.</>
+              )}
+            </h2>
+            <p className="mt-8 max-w-[620px] text-[clamp(18px,1.5vw,22px)] leading-[1.5]">
+              {phase === 'complete'
+                ? `Thank you to every educator who spent a month teaching financial literacy to communities that never had access to it. The next cohort is being planned now — register your interest and be first to hear when applications open.`
+                : `A role that goes beyond a typical internship. For one month you'll run workshops, build curriculum, and join a network of changemakers spanning ${stats.countries.value}+ countries — teaching the psychology of money to youth who have never had access to it.`}
+            </p>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <Pill href={applyHref} variant="ink">{phase === 'complete' ? 'Register interest' : 'Apply now'}</Pill>
+              <Pill href={donateHref} variant="ghost">Sponsor an educator</Pill>
             </div>
           </div>
-        </section>
-      ))}
-
-      {/* Bottom CTA */}
-      <Reveal className="max-w-[1240px] mx-auto px-8 py-8">
-        <div className="rounded-[28px] p-[60px] text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#e9edff,#f7e6fb)', border: '2.5px solid var(--ink)', boxShadow: '10px 10px 0px var(--ink)' }}>
-          <h2 className="font-[800] text-[clamp(28px,4.5vw,52px)] leading-[1.05] tracking-[-0.03em] mb-4 uppercase max-w-[620px] mx-auto">Ready to bring GCL to your community?</h2>
-          <p className="text-[16px] text-[var(--ink-soft)] max-w-[460px] mx-auto mb-8">Whether you're a school, NGO, or community leader — we'll find the right format together.</p>
-          <Link href="/about" className="inline-flex items-center gap-2 text-[15px] font-[700] px-8 py-4 rounded-full text-white" style={{ background: 'var(--ink)' }} data-testid="programs-bottom-cta">
-            Contact Our Team →
-          </Link>
+          <div className="grid content-start gap-px overflow-hidden rounded-[8px] bg-ink/20">
+            {[
+              ['What you do', 'Run workshops, build curriculum and mentor young people in your community or with a partner chapter.'],
+              ['Who it is for', 'High-school, undergraduate and graduate students who love teaching — no finance degree required.'],
+              ['Commitment', 'One month, 10–20+ hours a week, remote or local. Travel support is discussed case by case.'],
+              ['What you get', 'Training, a certificate of service, a global network — and the rare feeling of changing how someone sees money.'],
+            ].map(([k, v]) => (
+              <Rise key={k} className="bg-signal p-6" y={12}>
+                <div className="mono mb-2">{k}</div>
+                <p className="text-[17px] leading-relaxed">{v}</p>
+              </Rise>
+            ))}
+          </div>
         </div>
-      </Reveal>
-    </main>
+      </section>
+    </>
   );
 }

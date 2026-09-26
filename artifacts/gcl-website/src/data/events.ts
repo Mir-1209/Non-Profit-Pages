@@ -41,7 +41,7 @@ export const events: Event[] = [
     longDescription: "This 90-minute live workshop dives into the documented psychological patterns that cause even experienced investors to make predictably bad decisions. From anchoring to disposition effect to herd behavior, we break down the mechanisms and give you frameworks to override them. This is not financial advice — it is behavioral science applied to your own decision process.",
     speaker: "Dr. Elena Rostova",
     speakerTitle: "Behavioral Economist, Oxford University",
-    speakerBio: "Dr. Rostova is a behavioral economist whose research on cognitive bias in financial decision-making has been published in Nature Human Behaviour and the Journal of Economic Psychology. She has consulted for central banks in 6 countries.",
+    speakerBio: "Dr. Rostova is a behavioral economist whose research on cognitive bias in financial decision-making has been published in Nature Human Behavior and the Journal of Economic Psychology. She has consulted for central banks in 6 countries.",
     format: "Online",
     type: "Free",
     location: "Zoom (link sent on registration)",
